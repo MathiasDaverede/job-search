@@ -11,9 +11,18 @@ services:
         USER_NAME: ${USER_NAME}
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+    restart: always
+    volumes:
+      - .:/var/www/
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+
 ###> doctrine/doctrine-bundle ###
   database:
     image: mariadb:11.7.2
+    restart: always
     environment:
       MARIADB_DATABASE: ${MARIADB_DATABASE_NAME}
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
