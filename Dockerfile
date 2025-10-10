@@ -2,6 +2,8 @@ FROM debian:12.12
 
 RUN apt-get upgrade -y && apt-get update -y
 
+RUN apt-get install -y apache2
+
 # debian:12.10 => Bookworm 12 => Php 8.2 (https://wiki.debian.org/PHP)
 RUN apt-get install -y php8.2 php8.2-cli php8.2-xml php8.2-mysql php8.2-mbstring php8.2-intl
 
@@ -35,9 +37,20 @@ RUN echo "_________________________"
 RUN addgroup ${USER_NAME} --gid ${GROUP_ID}
 RUN adduser ${USER_NAME} --uid ${USER_ID} --gid ${GROUP_ID}
 
+# AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using x.x.x.x. Set the 'ServerName' directive globally to suppress this message
+RUN touch /home/apache2.conf
+RUN echo "ServerName localhost" > /home/apache2.conf
+RUN mv  /home/apache2.conf /etc/apache2/conf-available/
+RUN a2enconf apache2.conf
+
+COPY ./docker/server/apache/site.conf /etc/apache2/sites-available/000-default.conf
+
+RUN chown -R ${USER_NAME} /var/run/apache2/
+RUN chown -R ${USER_NAME} /var/log/apache2/
+
+# Comment this line and rebuild if you need root access
 USER "${USER_NAME}"
 
+WORKDIR /var/www/
 
-WORKDIR /home/"${USER_NAME}"/
-
-
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
