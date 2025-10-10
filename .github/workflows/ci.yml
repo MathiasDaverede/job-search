@@ -1,0 +1,28 @@
+name: CI
+
+# We only want Github actions runs on pull request from develop because of the free plan (500 Mo 2000 min/month)
+on:
+  #push:
+  #  branches: [ feature/*, release/*, hotfix/* ]
+  pull_request:
+  #  branches: [ develop, main ]
+    branches: [ develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and start containers
+      run: docker compose up -d
+
+    - name: Install Composer dependencies
+      run: docker exec -w /home/dev/job-search job-search-web-1 composer install --no-interaction --optimize-autoloader
+
+    - name: Check Symfony requirements
+      run: docker exec -w /home/dev/job-search job-search-web-1 symfony check:requirements
