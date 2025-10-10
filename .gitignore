@@ -22,3 +22,5 @@
 ###> Visual Studio ###
 /.vs/
 ###< Visual Studio ###
+
+/docker/mariadb/
