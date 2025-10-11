@@ -21,6 +21,11 @@ jobs:
     - name: Build and start containers
       run: docker compose up -d
 
+    - name: Check containers status
+      run: |
+        docker ps -a
+        docker logs job-search-web-1
+
     - name: Install Composer dependencies
       run: docker compose exec web composer install --no-interaction --optimize-autoloader
 
