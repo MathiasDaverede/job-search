@@ -22,7 +22,7 @@ jobs:
       run: docker compose up -d
 
     - name: Install Composer dependencies
-      run: docker exec -w /var/www job-search-web-1 composer install --no-interaction --optimize-autoloader
+      run: docker compose exec job-search-web-1 composer install --no-interaction --optimize-autoloader
 
     - name: Check Symfony requirements
-      run: docker exec -w /var/www job-search-web-1 symfony check:requirements
+      run: docker compose exec job-search-web-1 symfony check:requirements
