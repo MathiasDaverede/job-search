@@ -1,3 +1,7 @@
+find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -ls
+
+sudo find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -exec rm -rf {} +
+
 Post linked in : 
 demander des conseil pour le docker-up.sh
     si c'est une bonne idée le find sed ??
