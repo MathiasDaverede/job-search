@@ -1,0 +1,14 @@
+symfonycasts_sass:
+  # Path to your Sass root file
+  root_sass:
+    - '%kernel.project_dir%/assets/styles/app.scss'
+
+    - '%kernel.project_dir%/assets/styles/back/back_global.scss'
+    - '%kernel.project_dir%/assets/styles/back/back_cover_letter.scss'
+
+  # The Sass binary to use
+  binary: null
+
+  sass_options:
+      # Whether to embed the sourcemap in the compiled CSS. By default, enabled only when debug mode is on.
+      embed_source_map: '%kernel.debug%'

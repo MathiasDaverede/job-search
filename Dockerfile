@@ -12,6 +12,14 @@ RUN apt-get install -y zip
 
 RUN apt-get install -y wget
 
+# Allow to view the commands manuals
+RUN apt-get install -y man
+
+RUN apt-get install -y vim
+
+# ifconfig, arp, netstat, nameif, route.
+RUN apt-get install net-tools
+
 RUN rm -rf /var/lib/apt/lists/*; \
     apt-get purge -y --auto-remove; \
     apt-get autoremove; \
