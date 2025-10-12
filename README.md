@@ -68,7 +68,7 @@ Se placer dans le projet :
 `cd emplacement/job-search/`
 
 Construire les images et démarrer les conteneurs en mode détachés :  
-`docker compose up -d`
+`./docker/bin/docker-up.sh`
  + Il arrive que ça plante car l'un des serveurs ne répont (momentanément) pas.  
    Si c'est le cas, relancez la commande.
 
@@ -130,7 +130,7 @@ Contrôle de l'installation
 
 Si les conteneurs sont stoppés (vous reprenez le projet un autre jour ou vous redémarrer votre pc),  
 Relancer la commande :  
-`docker compose up -d`
+`./docker/bin/docker-up.sh`
 
 Vérifier leurs états avec la commande :  
 `docker ps`
