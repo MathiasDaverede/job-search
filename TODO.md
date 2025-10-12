@@ -1,6 +1,14 @@
+docker sytem prune -a
+
 find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -ls
 
+# Plutot sudo find job-search/ au cas ou
 sudo find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -exec rm -rf {} +
+
+Paramètrage github
+    protections des branches main et develop (pull request)
+    auto suppression des features une fois merge
+
 
 Post linked in : 
 demander des conseil pour le docker-up.sh
