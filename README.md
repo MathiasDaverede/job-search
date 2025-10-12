@@ -56,7 +56,8 @@ Php 8.2
 + Installe automatiquement "@popperjs/core 2.11.8".
 
 [Fontawesome-free 7.1.0](https://www.npmjs.com/package/@fortawesome/fontawesome-free)  
-`bin/console importmap:require @fortawesome/fontawesome-free/css/fontawesome.min.css`
+`bin/console importmap:require @fortawesome/fontawesome-free/css/all.min.css`
++ On ne prend que le all.min.css du package, j'avais des bugs sinon
 
 ## Comment l'utiliser
 <a name="how-to-use"></a>
