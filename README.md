@@ -55,16 +55,6 @@ Php 8.2
 
 ### Remplir le .env
 
-#### Données utilisateur
-
-Pour que lorsque vous lancez des commandes qui écrivent des fichiers dans le projet,  
-telles que `bin/console make:entity`,  
-les fichiers soient écrit avec les bons droits sur le système hôte.
-
-USER_NAME=votre_nom_d_utilisateur (`whoami`)  
-USER_ID=votre_uid (`id -u`)  
-GROUP_ID=votre_gid (`id -g`)
-
 #### Données pour la base de données
 
 MARIADB_DATABASE_NAME=un_nom_pour_la_base_de_donnees  

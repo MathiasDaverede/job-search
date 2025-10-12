@@ -19,15 +19,12 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Build and start containers
-      run: docker compose up -d
+      run: ./docker/bin/docker-up.sh
 
     - name: Check containers status
       run: |
         docker ps -a
         docker logs job-search-web-1
-
-    - name: Verify connected user in container web
-      run: docker compose exec web whoami
 
     - name: Verify rights on /var/www/
       run: docker compose exec web ls -l /var/ | grep www

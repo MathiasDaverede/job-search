@@ -28,12 +28,6 @@ ARG USER_NAME
 ARG USER_ID
 ARG GROUP_ID
 
-RUN echo "_________________________"
-RUN echo "USER_NAME : ${USER_NAME}"
-RUN echo "USER_ID   : ${USER_ID}"
-RUN echo "GROUP_ID  : ${GROUP_ID}"
-RUN echo "_________________________"
-
 RUN addgroup ${USER_NAME} --gid ${GROUP_ID}
 RUN adduser ${USER_NAME} --uid ${USER_ID} --gid ${GROUP_ID}
 
