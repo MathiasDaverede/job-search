@@ -20,7 +20,8 @@ Outil pour générer des lettres de motivation en PDF et regrouper des liens uti
 [Versions du projet](#project-versions)  
 [Comment l'utiliser](#how-to-use)  
 [Démarrer le projet](#start-project)  
-[Accéder au projet](#access-project)
+[Accéder au projet](#access-project)  
+[Modifier le projet](#modify-project)
 
 ## Versions du projet
 <a name="project-versions"></a>
@@ -63,14 +64,10 @@ Php 8.2
 <a name="how-to-use"></a>
 [Retour en haut de page](#top)
 
-### Cloner le projet
-
+Clonez le projet :  
 `git clone git@github.com:MathiasDaverede/job-search.git`
 
-### Remplir le .env
-
-#### Données pour la base de données
-
+Remplissez le .env :  
 MARIADB_DATABASE_NAME=un_nom_pour_la_base_de_donnees  
 MARIADB_ROOT_PASSWORD=un_mot_de_passe
 
@@ -78,24 +75,24 @@ MARIADB_ROOT_PASSWORD=un_mot_de_passe
 <a name="start-project"></a>
 [Retour en haut de page](#top)
 
-Se placer dans le projet :  
+Placez vous dans le projet :  
 `cd emplacement/job-search/`
 
-S'assurer que le script de démarrage des conteneurs est en LF :  
+Assurez vous que le script de démarrage des conteneurs est en LF :  
 `sed -i 's/\r$//' docker/bin/docker-up.sh`
 
-Rendre le script exécutable :  
+Rendez le script exécutable :  
 `chmod +x docker/bin/docker-up.sh`
 
-Construire les images et démarrer les conteneurs en mode détachés :  
+Construisez les images et démarrez les conteneurs en mode détachés :  
 `./docker/bin/docker-up.sh`
  + Il arrive que ça plante car l'un des serveurs ne répont (momentanément) pas.  
    Si c'est le cas, relancez la commande.
 
-Accéder au conteneur web lorsqu'il est démarré (Container job-search-web-1 Started) :  
+Accédez au conteneur web lorsqu'il est démarré (Container job-search-web-1 Started) :  
 `docker exec -it job-search-web-1 bash`
 
-Puis lancer les commandes :
+Puis lancez les commandes :
 
 Installation des dépendances Symfony :  
 `composer install`
@@ -156,15 +153,16 @@ Contrôle de l'installation
 [Retour en haut de page](#top)
 
 Si les conteneurs sont stoppés (vous reprenez le projet un autre jour ou vous redémarrer votre pc),  
-Relancer la commande :  
+relancez la commande :  
 `./docker/bin/docker-up.sh`
 
-Vérifier leurs états avec la commande :  
+Vérifiez leurs états :  
 `docker ps`
 
 ### Pages web
 
 [Page d'accueil Symfony 7.3](http://jobsearch.localhost)
+[Lettre de motivation](http://jobsearch.localhost/lettre-de-motivation)
 
 [Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)  
 [PhpMyAdmin](http://phpmyadmin.localhost)
@@ -174,7 +172,7 @@ Vérifier leurs états avec la commande :
 Syntaxe pour accéder au conteneur :  
 `docker exec -it nom_conteneur bash`
 
-Lister les conteneurs lancés :  
+Listez les conteneurs lancés :  
 `docker ps`  
 
 > Nom des conteneurs (colonne NAMES) :  
@@ -188,3 +186,32 @@ docker exec -it job-search-web-1 bash
 # La base de donnée  MariaDB  
 docker exec -it job-search-database-1 bash
 ```
+
+## Modifier le projet
+<a name="modify-project"></a>
+[Retour en haut de page](#top)
+
+Placez vous dans le projet :  
+`cd emplacement/job-search/`
+
+Etant donné que c'est un projet basé sur le Framework Symfony,  
+si vous modifiez les entités (ou que vous en ajoutez de nouvelles),  
+lancez la commande :  
+`bin/console make:migration`  
++ Pour ajouter les modifications au versioning (migrations/).  
+
+Pour prendre en compte ces modifications,  
+lancez la commande :  
+`bin/console doctrine:migrations:migrate`  
+
+Alternative (développement uniquement),  
+pour des tests rapides en développement local,  
+À la place des deux commandes précédentes,  
+vous pouvez utiliser :  
+`bin/console doctrine:schema:update --force`  
+
+Si vous modifiez l'un des fichiers Sass (.scss),
+lancez la commande (une fois) :  
+`bin/console sass:build --watch`  
++ Tant que le terminal est ouvert avec la commande lancée dedans,  
+vos modifications seront mises à jour automatiquement.
