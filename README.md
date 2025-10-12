@@ -18,7 +18,9 @@ Outil pour générer des lettres de motivation en PDF et regrouper des liens uti
 >          - .:/var/www/
 
 [Versions du projet](#project-versions)  
-[Initialiser le projet](#initialize-project)
+[Comment l'utiliser](#how-to-use)  
+[Démarrer le projet](#start-project)  
+[Accéder au projet](#access-project)
 
 ## Versions du projet
 <a name="project-versions"></a>
@@ -32,7 +34,9 @@ Docker Compose version v2.35.1-desktop.1
 
 ### Images
 
-Web : Debian 12.12 (Bookworm 12)
+Reverse proxy : Traefik 3.4.0  
+Web : Debian 12.12 (Bookworm 12)  
+Database : MariaDB 11.7.2
 
 ### Projet
 
@@ -40,8 +44,9 @@ Composer 2.2.25
 Symfony 7.3  
 Php 8.2
 
-## Initialiser le projet
-<a name="initialize-project"></a>
+
+## Comment l'utiliser
+<a name="how-to-use"></a>
 [Retour en haut de page](#top)
 
 ### Cloner le projet
@@ -50,35 +55,108 @@ Php 8.2
 
 ### Remplir le .env
 
-Pour que le projet Symfony soit créé avec les droits de l'utilisateur connecté dans le conteneur.
+#### Données pour la base de données
 
-USER_NAME=votre_nom_d_utilisateur (`whoami`)  
-USER_ID=votre_uid (`id -u`)  
-GROUP_ID=votre_gid (`id -g`)
+MARIADB_DATABASE_NAME=un_nom_pour_la_base_de_donnees  
+MARIADB_ROOT_PASSWORD=un_mot_de_passe
 
-### Démarrer le projet
+## Démarrer le projet
+<a name="start-project"></a>
+[Retour en haut de page](#top)
 
 Se placer dans le projet :  
 `cd emplacement/job-search/`
 
-Construire l'image et démarrer le conteneur en mode détaché :  
-`docker compose up -d`
+Construire les images et démarrer les conteneurs en mode détachés :  
+`./docker/bin/docker-up.sh`
+ + Il arrive que ça plante car l'un des serveurs ne répont (momentanément) pas.  
+   Si c'est le cas, relancez la commande.
 
-Se connecter au conteneur  
-`docker exec -it job-search-web-1 bash`  
+Accéder au conteneur web lorsqu'il est démarré (Container job-search-web-1 Started) :  
+`docker exec -it job-search-web-1 bash`
 
-Vérifier que le projet Symfony ait bien été créé :  
-`ls -la job-search/`
+Puis lancer les commandes :
 
-Potentiellement, lancer les commandes qui seront lancées par "GitHub Actions workflow" :  
-(les commandes contenues dans .github/workflows/ci.yml)  
-`cd job-search/`  
-`composer install` (mais dans notre cas les dépendances ont déjà été installées)  
+Installation des dépendances Symfony :  
+`composer install`
+
+> [!NOTE]
+> La commande `composer install`  se base sur les fichiers composer.lock et symfony.lock.  
+> Composer commence par lire composer.lock.  
+> Ensuite, Symfony Flex intervient (si activé dans le projet)  
+  et utilise symfony.lock pour appliquer les recettes associées à ces dépendances.  
+>
+> + composer.lock
+>   + Contient les versions exactes des dépendances PHP (packages et leurs sous-dépendances)  
+      installées dans le projet.
+>   + Composer lit composer.lock (s'il existe) pour installer les versions précises des dépendances listées,  
+>     ignorant les contraintes de version du composer.json pour ces dépendances.  
+>       + Si composer.lock n’existe pas,  
+>         Composer utilise les contraintes du composer.json pour télécharger les versions compatibles  
+>         et crée un nouveau composer.lock.
+> + symfony.lock
+>   + Spécifique à Symfony Flex,  
+>     enregistre les versions des recettes (fichiers de configuration automatisés) associées aux packages installés.  
+>     Ces recettes configurent les bundles, créent des fichiers (comme config/packages/*.yaml),  
+>     ou modifient des fichiers comme .gitignore.
+>       + Symfony Flex, qui est un plugin de Composer,  
+>         lit symfony.lock pour appliquer les recettes dans l’état exact où elles ont été installées initialement.  
+>         Cela garantit que les configurations spécifiques à Symfony (comme les fichiers de configuration ou les scripts d’initialisation)  
+>         sont appliquées de manière cohérente.
+>
+> En résumé :  
+> composer.lock s’occupe des dépendances (les bibliothèques PHP elles-mêmes).  
+> symfony.lock s’occupe des configurations (recettes) appliquées à ces dépendances pour intégrer correctement les bundles ou packages.
+>
+> La commande `composer install` lance également les commandes :  
+> + `bin/console cache:clear`
+>   + Vide le cache (var/cache/).
+> + `bin/console assets:install public`
+>   + Copie les fichiers statiques des bundles installés (fichier composer.lock)  
+      dans le dossier "public/bundles/".
+> + `bin/console importmap:install`
+>   + Installe les dépendances Javascript/CSS (fichier importmap.php)  
+      dans le dossier "assets/vendor/".
+
+Contrôle de l'installation  
+(éléments requis et audit) :  
 `symfony check:requirements`  
+`symfony check:security`  
+`bin/console importmap:audit`
 
-Prochaine étape pour la feature suivante :  
-Déplacer le contenu du projet Symfony dans notre dossier de travail :  
-(toujours en étant dans le conteneur)  
-`cp -rp /home/votre_user_name/job-search/. /var/www/`
+## Accéder au projet
+<a name="access-project"></a>
+[Retour en haut de page](#top)
 
-Et faire quelques ajustements pour afficher la page d'accueil.
+Si les conteneurs sont stoppés (vous reprenez le projet un autre jour ou vous redémarrer votre pc),  
+Relancer la commande :  
+`./docker/bin/docker-up.sh`
+
+Vérifier leurs états avec la commande :  
+`docker ps`
+
+### Pages web
+
+[Page d'accueil Symfony 7.3](http://jobsearch.localhost)
+
+[Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)
+
+### Conteneurs
+
+Syntaxe pour accéder au conteneur :  
+`docker exec -it nom_conteneur bash`
+
+Lister les conteneurs lancés :  
+`docker ps`  
+
+> Nom des conteneurs (colonne NAMES) :  
+> job-search-web-1  
+> job-search-database-1
+
+```
+# Le projet web basé sur le Dockerfile (Symfony/Php/Apache2/etc.)
+docker exec -it job-search-web-1 bash
+
+# La base de donnée  MariaDB  
+docker exec -it job-search-database-1 bash
+```

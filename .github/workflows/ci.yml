@@ -18,11 +18,22 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Ensure docker-up.sh is executable
+      run: chmod +x ./docker/bin/docker-up.sh
+
     - name: Build and start containers
-      run: docker compose up -d
+      run: ./docker/bin/docker-up.sh
+
+    - name: Check containers status
+      run: |
+        docker ps -a
+        docker logs job-search-web-1
+
+    - name: Verify rights on /var/www/
+      run: docker compose exec web ls -l /var/ | grep www
 
     - name: Install Composer dependencies
-      run: docker exec -w /home/dev/job-search job-search-web-1 composer install --no-interaction --optimize-autoloader
+      run: docker compose exec web composer install --no-interaction --optimize-autoloader
 
     - name: Check Symfony requirements
-      run: docker exec -w /home/dev/job-search job-search-web-1 symfony check:requirements
+      run: docker compose exec web symfony check:requirements
