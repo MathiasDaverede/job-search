@@ -1,13 +1,11 @@
 name: CI
 
-# We only want Github actions runs on pull request from develop because of the free plan (500 Mo 2000 min/month)
+# We only want Github actions runs on pull requests because of the free plan (500 Mo 2000 min/month)
 on:
   #push:
   #  branches: [ feature/*, release/*, hotfix/* ]
   pull_request:
-  #  branches: [ develop, main ]
-    branches: [ develop ]
-
+    branches: [ develop, main ]
 jobs:
   test:
     runs-on: ubuntu-latest
