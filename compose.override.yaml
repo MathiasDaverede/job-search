@@ -25,9 +25,12 @@ services:
       - "5432"
 ###< doctrine/doctrine-bundle ###
 
+  phpmyadmin:
     ports:
+      - 8082:80
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.localhost`)"
 
 ###> symfony/mailer ###
 #  mailer:
