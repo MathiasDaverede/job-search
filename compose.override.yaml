@@ -1,5 +1,17 @@
 
 services:
+  traefik:
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      # The HTTPS port
+      #- "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+
   web:
     ports:
       - "8081:80"
@@ -13,29 +25,9 @@ services:
       - "5432"
 ###< doctrine/doctrine-bundle ###
 
-  traefik:
-    image: traefik:3.4.0
-    restart: always
-    command:
-      - "--log.level=DEBUG"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entryPoints.web.address=:80"
-      #- "--entryPoints.websecure.address=:443"
     ports:
-      # The HTTP port
-      - "80:80"
-      # The Web UI (enabled by --api.insecure=true)
-      - "8080:8080"
-      # The HTTPS port
-      #- "443:443"
-    volumes:
-      # So that Traefik can listen to the Docker events (ro : readonly)
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
 
 ###> symfony/mailer ###
 #  mailer:

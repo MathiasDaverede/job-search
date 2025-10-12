@@ -3,6 +3,20 @@
 # this will bug "docker compose up -d" : yaml: invalid trailing UTF-8 octet
 # No need network for services, Docker create a common one by default
 services:
+  traefik:
+    image: traefik:3.4.0
+    restart: always
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      #- "--entryPoints.websecure.address=:443"
+    volumes:
+      # So that Traefik can listen to the Docker events (ro : readonly)
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   web:
     tty: true
     build:
