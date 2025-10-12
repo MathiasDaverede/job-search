@@ -50,6 +50,9 @@ Php 8.2
 [Sass 0.8.3](https://packagist.org/packages/symfonycasts/sass-bundle)  
 `composer require symfonycasts/sass-bundle`
 
+[KnpSnappyBundle 1.10](https://packagist.org/packages/knplabs/knp-snappy-bundle)  
+`composer require knplabs/knp-snappy-bundle`
+
 ### Assets installées via importmap
 
 [Bootstrap 5.3.8](https://www.npmjs.com/package/bootstrap)  
