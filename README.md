@@ -44,6 +44,10 @@ Composer 2.2.25
 Symfony 7.3  
 Php 8.2
 
+### Bundles installés via Composer
+
+[Sass 0.8.3](https://packagist.org/packages/symfonycasts/sass-bundle)  
+`composer require symfonycasts/sass-bundle`
 
 ## Comment l'utiliser
 <a name="how-to-use"></a>
@@ -123,6 +127,9 @@ Installation des dépendances Symfony :
 > + `bin/console importmap:install`
 >   + Installe les dépendances Javascript/CSS (fichier importmap.php)  
       dans le dossier "assets/vendor/".
+
+Génération des assets Sass :  
+`bin/console sass:build`
 
 Contrôle de l'installation  
 (éléments requis et audit) :  
