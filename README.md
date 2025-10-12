@@ -67,6 +67,12 @@ MARIADB_ROOT_PASSWORD=un_mot_de_passe
 Se placer dans le projet :  
 `cd emplacement/job-search/`
 
+S'assurer que le script de démarrage des conteneurs est en LF :  
+`sed -i 's/\r$//' docker/bin/docker-up.sh`
+
+Rendre le script exécutable :  
+`chmod +x docker/bin/docker-up.sh`
+
 Construire les images et démarrer les conteneurs en mode détachés :  
 `./docker/bin/docker-up.sh`
  + Il arrive que ça plante car l'un des serveurs ne répont (momentanément) pas.  
