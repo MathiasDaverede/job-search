@@ -138,6 +138,10 @@ Installation des dépendances Symfony :
 >   + Installe les dépendances Javascript/CSS (fichier importmap.php)  
       dans le dossier "assets/vendor/".
 
+Mise à jour de la base de données  
+(déjà créée automatiquement lors du premier démarrage de son conteneur) :  
+`bin/console doctrine:migrations:migrate`
+
 Génération des assets Sass :  
 `bin/console sass:build`
 
