@@ -48,9 +48,18 @@ Avec 4 issues :
 #4 Implémenter la génération de lettres de motivation en PDF
     KnpSnappyBundle 
     commande symfony pour test avec la CI
-#4 Ajouter des liens utiles pour développeurs
+#5 Afficher le changelog et la version sur le site
+    footer : version => clique dessus => frontcontroller changelog
+#6 Ajouter des liens utiles pour développeurs
 
 ...mettre les commit ici comme ça je refais une dernière fois propre
+
+release 1.0.0
+    ajout du changelog et version (mais pas d'affichage)
+    #1 à #4
+release 1.1.0
+    #5 et #6
+
 
 peux-tu me donner un exemple de comment je pourrais mettre en place Symfony messenger dans ce contexte
 avec des exemples de tests CI également
