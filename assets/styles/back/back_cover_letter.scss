@@ -15,6 +15,14 @@ $light-blue: #9ac6f6;
 }
 
 .letter {
+    .note {
+        .btn-copy {
+            background-color: $light-blue;
+            border: 0;
+            border-radius: 5px;
+        }
+    }
+
     textarea {
         min-height: 550px;
     }

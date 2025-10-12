@@ -8,6 +8,49 @@
     {{ importmap('back_cover_letter') }}
 {% endblock %}
 
+{% set dataMarkerMadamMister %}
+    Vous pouvez ajouter la balise 
+
+    <span>
+        <span>{{ markerMadamMister }}</span>,
+        <button class="btn-copy" type="button"><i class="fa-regular fa-copy"></i><span>Copier</span></button>
+    </span>
+    
+    <br>
+
+    pour que ce soit généré automatiquement si le destinataire est renseigné<br><br>
+
+    Exemple :<br>
+
+    <ul>
+        <li>Au début de la lettre,</li>
+        <li>
+            Dans la formule de politesse, telle que :
+            <ul>
+                <li>Je vous prie d'agréer, {{ markerMadamMister }},</li>
+            </ul>
+        </li>
+    </ul>
+{% endset %}
+
+{% set dataMarkerCompany %}
+    Vous pouvez ajouter la balise
+
+    <span>
+        <span>{{ markerCompany }}</span>,
+        <button class="btn-copy" type="button"><i class="fa-regular fa-copy"></i><span>Copier</span></button>
+    </span>
+
+    <br>
+
+    pour que ce soit généré automatiquement si l'entreprise est renseignée<br>
+    Exemple :<br>
+
+    <ul>
+        <li>Afin de mettre mes compétences au service de {{ markerCompany }},</li>
+    </ul>
+{% endset %}
+
 {% block back %}
     {{ form_start(form) }}
         <div class="buttons">
@@ -37,6 +80,18 @@
             <div class="row">
                 <div class="col">
                     <h2>{{ form_label(form.letter) }}</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataMarkerMadamMister} %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataMarkerCompany} %}
                 </div>
             </div>
 
