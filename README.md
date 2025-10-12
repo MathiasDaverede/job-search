@@ -49,6 +49,12 @@ Php 8.2
 [Sass 0.8.3](https://packagist.org/packages/symfonycasts/sass-bundle)  
 `composer require symfonycasts/sass-bundle`
 
+### Assets installées via importmap
+
+[Bootstrap 5.3.8](https://www.npmjs.com/package/bootstrap)  
+`bin/console importmap:require bootstrap`
++ Installe automatiquement "@popperjs/core 2.11.8".
+
 ## Comment l'utiliser
 <a name="how-to-use"></a>
 [Retour en haut de page](#top)
