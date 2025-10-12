@@ -3,6 +3,9 @@ symfonycasts_sass:
   root_sass:
     - '%kernel.project_dir%/assets/styles/app.scss'
 
+    - '%kernel.project_dir%/assets/styles/back/back_global.scss'
+    - '%kernel.project_dir%/assets/styles/back/back_cover_letter.scss'
+
   # The Sass binary to use
   binary: null
 

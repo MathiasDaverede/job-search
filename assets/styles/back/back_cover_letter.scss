@@ -1,0 +1,21 @@
+$light-blue: #9ac6f6;
+
+.sender, .recipient, .object, .letter {
+    margin-bottom: 10px;
+}
+
+.recipient {
+    position: relative;
+
+    a {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+    }
+}
+
+.letter {
+    textarea {
+        min-height: 550px;
+    }
+}

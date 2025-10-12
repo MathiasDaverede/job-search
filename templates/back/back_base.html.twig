@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block importmap %}
+    {{ parent() }}
+    {{ importmap('back_global') }}
+{% endblock %}
+
+{% block flashes %}
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="flash-{{ label }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}
+
+{% block body %}
+    <div id="back">
+        <h1>{% block h1 %}{% endblock %}</h1>
+
+        {% block back %}{% endblock %}
+    </div>
+{% endblock %}
