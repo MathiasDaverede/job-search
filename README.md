@@ -55,6 +55,9 @@ Php 8.2
 `bin/console importmap:require bootstrap`
 + Installe automatiquement "@popperjs/core 2.11.8".
 
+[Fontawesome-free 7.1.0](https://www.npmjs.com/package/@fortawesome/fontawesome-free)  
+`bin/console importmap:require @fortawesome/fontawesome-free/css/fontawesome.min.css`
+
 ## Comment l'utiliser
 <a name="how-to-use"></a>
 [Retour en haut de page](#top)
