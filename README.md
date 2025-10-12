@@ -36,7 +36,7 @@ Docker Compose version v2.35.1-desktop.1
 
 Reverse proxy : Traefik 3.4.0  
 Web : Debian 12.12 (Bookworm 12)  
-Database : MariaDB 11.7.2
+Database : MariaDB 11.7.2 / PhpMyAdmin 5.2.2-apache
 
 ### Projet
 
@@ -161,7 +161,8 @@ Vérifier leurs états avec la commande :
 
 [Page d'accueil Symfony 7.3](http://jobsearch.localhost)
 
-[Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)
+[Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)  
+[PhpMyAdmin](http://phpmyadmin.localhost)
 
 ### Conteneurs
 
