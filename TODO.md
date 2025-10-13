@@ -8,8 +8,8 @@ docker exec -it job-search-web-1 bash
 
 bin/console sass:build --watch
 
-sudo find job-search/ -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*"
-sudo find job-search/ -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*" -exec rm -rf {} +
+sudo find job-search/ -not -path "job-search/" -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*"
+sudo find job-search/ -not -path "job-search/" -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*" -exec rm -rf {} +
 
 Paramètrage github
     protections des branches main et develop (pull request)
