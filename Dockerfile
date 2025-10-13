@@ -20,6 +20,9 @@ RUN apt-get install -y vim
 # ifconfig, arp, netstat, nameif, route.
 RUN apt-get install net-tools
 
+# Needed for KnpSnappyBundle
+RUN apt-get install -y wkhtmltopdf fonts-liberation
+
 RUN rm -rf /var/lib/apt/lists/*; \
     apt-get purge -y --auto-remove; \
     apt-get autoremove; \
