@@ -51,11 +51,11 @@ jobs:
     - name: Generate Sass assets
       run: docker compose exec web bin/console sass:build
 
-    - name: Ensure pupunit is executable
-      run: chmod +x ./vendor/bin/phpunit
-
     - name: Test Pdf generation
       run: docker compose exec web bin/console app:generate-pdf
 
+    - name: Ensure pupunit is executable
+      run: chmod +x ./bin/phpunit
+
     - name: Run unit tests
-      run: docker compose exec web vendor/bin/phpunit
+      run: docker compose exec web bin/phpunit
