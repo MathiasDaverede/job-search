@@ -1,3 +1,5 @@
+Ajouter dans les liens utiles des liens pour la préparation des entretiens d'embauche
+
 docker compose stop
 docker sytem prune -a
 
