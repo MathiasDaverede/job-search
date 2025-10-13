@@ -1,9 +1,15 @@
+docker compose stop
 docker sytem prune -a
 
-find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -ls
+chmod +x docker/bin/docker-up.sh
+./docker/bin/docker-up.sh
 
-# Plutot sudo find job-search/ au cas ou
-sudo find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -exec rm -rf {} +
+docker exec -it job-search-web-1 bash
+
+bin/console sass:build --watch
+
+sudo find job-search/ -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*"
+sudo find job-search/ -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*" -exec rm -rf {} +
 
 Paramètrage github
     protections des branches main et develop (pull request)
