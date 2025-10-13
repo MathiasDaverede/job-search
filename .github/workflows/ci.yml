@@ -30,8 +30,32 @@ jobs:
     - name: Verify rights on /var/www/
       run: docker compose exec web ls -l /var/ | grep www
 
-    - name: Install Composer dependencies
-      run: docker compose exec web composer install --no-interaction --optimize-autoloader
+    - name: Check Composer platform requirements
+      run: docker compose exec web composer check-platform-reqs
 
     - name: Check Symfony requirements
       run: docker compose exec web symfony check:requirements
+
+    - name: Check Symfony security issues in project dependencies
+      run: docker compose exec web symfony check:security
+
+    - name: Audit importmap
+      run: docker compose exec web bin/console importmap:audit
+
+    - name: Install Composer dependencies
+      run: docker compose exec web composer install --no-interaction --optimize-autoloader
+      
+    - name: Run Doctrine migrations
+      run: docker compose exec web bin/console doctrine:migrations:migrate --no-interaction
+
+    - name: Generate Sass assets
+      run: docker compose exec web bin/console sass:build
+
+    - name: Ensure pupunit is executable
+      run: chmod +x ./vendor/bin/phpunit
+
+    - name: Test Pdf generation
+      run: docker compose exec web bin/console app:generate-pdf
+
+    - name: Run unit tests
+      run: docker compose exec web vendor/bin/phpunit
