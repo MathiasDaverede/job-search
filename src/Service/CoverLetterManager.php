@@ -51,4 +51,14 @@ class CoverLetterManager
 
         $this->entityManager->flush();
     }
+
+    /**
+     * @param string $company
+     *
+     * @return string
+     */
+    public function getPdfFileName(string $company): string
+    {
+        return 'LM_' . $company . '_' . (new DateTime())->format('Y-m-d') . '.pdf';
+    }
 }

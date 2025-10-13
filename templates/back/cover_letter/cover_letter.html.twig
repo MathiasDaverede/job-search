@@ -55,6 +55,10 @@
     {{ form_start(form) }}
         <div class="buttons">
             {{ form_widget(form.save) }}
+
+            {% if form.sender.lastName.vars['value'] != '' %}
+                <a class="btn btn-success" role="button" href="{{ path('front_generate_pdf') }}" target="_blank">Générer le PDF</a>
+            {% endif %}
         </div>
 
         {% block flashes %}{{ parent() }}{% endblock %}
