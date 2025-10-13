@@ -1,6 +1,14 @@
+docker sytem prune -a
+
 find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -ls
 
+# Plutot sudo find job-search/ au cas ou
 sudo find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -exec rm -rf {} +
+
+Paramètrage github
+    protections des branches main et develop (pull request)
+    auto suppression des features une fois merge
+
 
 Post linked in : 
 demander des conseil pour le docker-up.sh
@@ -30,6 +38,7 @@ FROM debian:12.12
 Avec 4 issues :
 
 #1 Initialiser le projet avec Docker et Symfony 7.3
+    feature/1-docker-symfony-init
     dockerfile, .env, compose.yaml, CI, README
     
     Ajout de la configuration Docker.
@@ -37,20 +46,25 @@ Avec 4 issues :
     Configuration du workflow GitHub Actions.
 
 #2 Afficher la page d’accueil de Symfony
+    feature/2-display-symfony-home
     Récupération des fichiers Symfony générés lors de la feature précédente.
     Paramètrage d'Apache2.
     Ajout du service Traefik.
 #3 Implémenter le back-office de génération de lettres de motivation
+    feature/3-back-cover-letter
     sass, bootstrap, fontawesome
     entité, formtype
     tests unitaires
     ci
 #4 Implémenter la génération de lettres de motivation en PDF
+    feature/4-pdf-generation
     KnpSnappyBundle 
     commande symfony pour test avec la CI
 #5 Afficher le changelog et la version sur le site
+    feature/5-display-version-changelog
     footer : version => clique dessus => frontcontroller changelog
 #6 Ajouter des liens utiles pour développeurs
+    feature/6-useful-links
 
 ...mettre les commit ici comme ça je refais une dernière fois propre
 
