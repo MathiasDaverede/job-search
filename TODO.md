@@ -1,7 +1,7 @@
 Ajouter dans les liens utiles des liens pour la préparation des entretiens d'embauche
 
 docker compose stop
-docker sytem prune -a
+docker system prune -a
 
 chmod +x docker/bin/docker-up.sh
 ./docker/bin/docker-up.sh

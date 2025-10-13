@@ -50,7 +50,10 @@ Php 8.2
 [Sass 0.8.3](https://packagist.org/packages/symfonycasts/sass-bundle)  
 `composer require symfonycasts/sass-bundle`
 
-[KnpSnappyBundle 1.10](https://packagist.org/packages/knplabs/knp-snappy-bundle)  
+[DoctrineFixtures 4.2](https://packagist.org/packages/doctrine/doctrine-fixtures-bundle)  
+`composer require --dev doctrine/doctrine-fixtures-bundle`
+
+[KnpSnappy 1.10](https://packagist.org/packages/knplabs/knp-snappy-bundle)  
 `composer require knplabs/knp-snappy-bundle`
 
 ### Assets installées via importmap
