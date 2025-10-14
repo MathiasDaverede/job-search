@@ -1,13 +1,14 @@
-name: CI
+name: Project
 
-# We only want Github actions runs on pull requests because of the free plan (500 Mo 2000 min/month)
+# Run GitHub Actions only on pull requests to stay within the free plan limits (500 MB storage, 2000 minutes/month).
 on:
-  #push:
-  #  branches: [ feature/*, release/*, hotfix/* ]
   pull_request:
-    branches: [ develop, main ]
+    branches: [main, develop]
+
 jobs:
-  test:
+  test-project:
+    # Skip this job if triggered by commits from the version-changelog.yml workflow to avoid redundant runs.
+    if: github.actor != 'github-action' && github.actor != 'GitHub Action'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -42,11 +43,32 @@ jobs:
     - name: Audit importmap
       run: docker compose exec web bin/console importmap:audit
 
+    - name: Cache Composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: composer-${{ hashFiles('composer.lock') }}
+        restore-keys: composer-
+
+    - name: Cache Importmap dependencies
+      uses: actions/cache@v4
+      with:
+        path: assets/vendor
+        key: importmap-${{ hashFiles('importmap.php') }}
+        restore-keys: importmap-
+
     - name: Install Composer dependencies
       run: docker compose exec web composer install --no-interaction --optimize-autoloader
       
     - name: Run Doctrine migrations
       run: docker compose exec web bin/console doctrine:migrations:migrate --no-interaction
+
+    - name: Cache Sass assets
+      uses: actions/cache@v4
+      with:
+        path: public/assets
+        key: sass-${{ hashFiles('assets/**/*.scss') }}
+        restore-keys: sass-
 
     - name: Generate Sass assets
       run: docker compose exec web bin/console sass:build
@@ -54,8 +76,9 @@ jobs:
     - name: Test Pdf generation
       run: docker compose exec web bin/console app:generate-pdf
 
-    - name: Ensure pupunit is executable
-      run: chmod +x ./bin/phpunit
-
-    - name: Run unit tests
-      run: docker compose exec web bin/phpunit
+    - name: Unit tests
+      run: |
+        chmod +x ./bin/phpunit
+        docker compose exec web bin/console --env=test doctrine:database:create
+        docker compose exec web bin/console --env=test doctrine:schema:create
+        docker compose exec web bin/phpunit
