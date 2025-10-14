@@ -35,6 +35,7 @@ class UsefulLink
     ];
 
     public const OTHER = [
+        'Redis' => 'https://redis.io/',
         'Trello' => 'https://trello.com/fr',
         'Grok' => 'https://grok.com/chat',
         'ChatGPT' => 'https://chatgpt.com/',
