@@ -1,4 +1,18 @@
-ajouter dans le readme git flow
+ajouter dans le readme
+    git flow ?
+    logique CI :
+        pull request  :
+            created/updated :
+                 develop :
+                    project.yml
+                main :
+                    project.yml
+                    version-changelog.yml
+            closed :
+                tag.yml
+
+Questions linkedIn 
+
 
 remettre PostgreSQL
 
@@ -265,3 +279,25 @@ Quand l'utiliser : Si tu travailles sur des optimisations de performance.
 pousser un .md => tutos utiles pour moi 
 et pour les autres du coup ?
 du style paramétrage sourcetree LF : dans le terminal sourcetree : git config --global core.autocrlf input
+
+
+sauvegarde du CHANGELOG.md au cas où :
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+## v1.1.0 - 2025-10-13
+[Release v1.1.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.1.0)
+
+- feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version and changelog link
+- feature [#6](https://github.com/MathiasDaverede/job-search/issues/6) Useful links for developers
+
+## v1.0.0 - 2025-10-13
+[Release v1.0.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.0.0)
+
+- feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Project initialization
+- feature [#2](https://github.com/MathiasDaverede/job-search/issues/2) Symfony homepage display 
+- feature [#3](https://github.com/MathiasDaverede/job-search/issues/3) Cover letter back-office
+- feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) PDF cover letter generation 
+
+https://github.com/symfony/symfony/releases
