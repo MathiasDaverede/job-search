@@ -3,9 +3,22 @@
 
 ![Docker](https://img.shields.io/badge/Docker-28.1-blue)
 ![Symfony](https://img.shields.io/badge/Symfony-7.3-blue)
+![GitHub Workflow Status](https://github.com/MathiasDaverede/job-search/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 Outil pour générer des lettres de motivation en PDF et regrouper des liens utiles pour développeurs. 
+
+## Fonctionnalités
+- Back-office pour créer des lettres de motivation.
+- Génération de ces lettres en PDF avec `KnpSnappyBundle`.
+- Liens utiles pour les développeurs.
+
+## Prérequis
+- Git
+- Docker et Docker Compose
+
+## Contact
+Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/<ton-profil>) pour discuter de ce projet ou d’opportunités professionnelles !
 
 > [!IMPORTANT]
 > Le dossier du projet est monté en tant que données persistantes.  
@@ -21,7 +34,8 @@ Outil pour générer des lettres de motivation en PDF et regrouper des liens uti
 [Comment l'utiliser](#how-to-use)  
 [Démarrer le projet](#start-project)  
 [Accéder au projet](#access-project)  
-[Modifier le projet](#modify-project)
+[Modifier le projet](#modify-project)  
+[Tests unitaires](#unit-tests)
 
 ## Versions du projet
 <a name="project-versions"></a>
@@ -221,3 +235,28 @@ lancez la commande (une fois) :
 `bin/console sass:build --watch`  
 + Tant que le terminal est ouvert avec la commande lancée dedans,  
 vos modifications seront mises à jour automatiquement.
+
+## Tests unitaires
+<a name="unit-tests"></a>
+
+Les tests unitaires sont lancés automatiquement lors de la création de pull requests sur Github.  
+Les commandes lancés, que vous pouvez retrouver dans le fichier [ci.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/ci.yml), sont :
+
+Création de la base de données de test :  
+`bin/console --env=test doctrine:database:create`
+
+Création des tables/colonnes dans la base de données de test :  
+`bin/console --env=test doctrine:schema:create`
+
+Lancement des tests :  
+`bin/phpunit`
+
+Pour information :
+
+```
+# Vide la base de données de test et recharge toutes les classes de fixture
+bin/console --env=test doctrine:fixtures:load
+
+# Créé un nouveau test unitaire
+bin/console make:test
+```
