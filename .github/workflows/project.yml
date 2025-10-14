@@ -81,4 +81,5 @@ jobs:
         chmod +x ./bin/phpunit
         docker compose exec web bin/console --env=test doctrine:database:create
         docker compose exec web bin/console --env=test doctrine:schema:create
+        docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
         docker compose exec web bin/phpunit
