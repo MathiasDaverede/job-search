@@ -245,7 +245,11 @@ vos modifications seront mises à jour automatiquement.
 <a name="unit-tests"></a>
 
 Les tests unitaires sont lancés automatiquement lors de la création de pull requests sur Github.  
-Les commandes lancés, que vous pouvez retrouver dans le fichier [ci.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/ci.yml), sont :
+Les commandes lancées, que vous pouvez retrouver dans le fichier [project.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/project.yml), sont :
+
+> [!NOTE]
+> Ces commandes sont à lancer dans le conteneur du projet :  
+> `docker exec -it job-search-web-1 bash`
 
 Création de la base de données de test :  
 `bin/console --env=test doctrine:database:create`
@@ -253,15 +257,11 @@ Création de la base de données de test :
 Création des tables/colonnes dans la base de données de test :  
 `bin/console --env=test doctrine:schema:create`
 
+Initialisation de la base de données de test :  
+`bin/console --env=test doctrine:fixtures:load`
+
 Lancement des tests :  
 `bin/phpunit`
 
-Pour information :
-
-```
-# Vide la base de données de test et recharge toutes les classes de fixture
-bin/console --env=test doctrine:fixtures:load
-
-# Créé un nouveau test unitaire
-bin/console make:test
-```
+Pour information, la création d'un test unitaire ce fait grâce à la commande :  
+`bin/console make:test`
