@@ -17,6 +17,11 @@ Outil pour générer des lettres de motivation en PDF et regrouper des liens uti
 - Git
 - Docker et Docker Compose
 
+## Captures d’écran
+![Entête et première partie du back-office](screenshots/backoffice1.png)
+![deuxième partie du back-office](screenshots/backoffice2.png)
+![troisième partie du back-office et pied de page](screenshots/backoffice3.png)
+
 ## Contact
 Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/<ton-profil>) pour discuter de ce projet ou d’opportunités professionnelles !
 
