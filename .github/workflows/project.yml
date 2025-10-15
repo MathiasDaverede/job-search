@@ -17,6 +17,14 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Verify rights on /var/www/
+      run: docker compose exec web ls -l /var/ | grep www
+
+    - name: Verify rights on executables files
+      run: |
+        docker compose exec web ls -l /var/www/bin/
+        docker compose exec web ls -l /var/www/docker/bin/
+
     - name: Ensure docker-up.sh is executable
       run: chmod +x ./docker/bin/docker-up.sh
 
@@ -30,6 +38,11 @@ jobs:
 
     - name: Verify rights on /var/www/
       run: docker compose exec web ls -l /var/ | grep www
+
+    - name: Verify rights on executables files
+      run: |
+        docker compose exec web ls -l /var/www/bin/
+        docker compose exec web ls -l /var/www/docker/bin/
 
     - name: Check Composer platform requirements
       run: docker compose exec web composer check-platform-reqs
