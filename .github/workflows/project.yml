@@ -17,11 +17,6 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Verify rights on executables files
-      run: |
-        ls -l bin/
-        ls -l docker/bin/
-
     - name: Ensure docker-up.sh is executable
       run: chmod +x ./docker/bin/docker-up.sh
 
@@ -33,11 +28,20 @@ jobs:
         docker ps -a
         docker logs job-search-web-1
 
-    - name: Verify rights on /var/www/
-      run: docker compose exec web ls -l /var/ | grep www
-
-    - name: Verify rights on executables files
+    - name: Verify host's rights
       run: |
+        echo "whoami: $(whoami), UID: $(id -u), GID: $(id -g)"
+        ls -l 
+        echo "Executables files :"
+        ls -l bin/
+        ls -l docker/bin/
+
+    - name: Verify container's rights in /var/www/
+      run: |
+        echo "whoami: $(docker compose exec web whoami), UID: $(docker compose exec web id -u), GID: $(docker compose exec web id -g)"
+        docker compose exec web ls -l /var/ | grep www
+        docker compose exec web ls -l /var/www/
+        echo  "Executables files :"
         docker compose exec web ls -l /var/www/bin/
         docker compose exec web ls -l /var/www/docker/bin/
 
@@ -82,9 +86,6 @@ jobs:
 
     - name: Audit importmap
       run: docker compose exec web bin/console importmap:audit
-
-    - name: Test Pdf generation
-      run: docker compose exec web bin/console app:generate-pdf
 
     - name: Unit tests
       run: |

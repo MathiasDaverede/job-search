@@ -162,7 +162,7 @@ docker compose --env-file .env.local up -d
 ```
 
 Soit :
-`docker compose --env-file .env.local --build up -d`
+`docker compose --env-file .env.local up --build -d`
 
 Accédez au conteneur web lorsqu'il est démarré (Container job-search-web-1 Started) :  
 `docker exec -it job-search-web-1 bash`
@@ -212,10 +212,7 @@ Installation des dépendances Symfony :
 
 Mise à jour de la base de données  
 (déjà créée automatiquement lors du premier démarrage de son conteneur) :  
-`bin/console doctrine:migrations:migrate`
-
-- Appuyez sur "Entrée" à la question :  
-  WARNING! You are about to execute a migration in database "job_search" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]" :
+`bin/console doctrine:migrations:migrate --no-interaction`
 
 Génération des assets Sass :  
 `bin/console sass:build`
