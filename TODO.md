@@ -5,6 +5,7 @@ git config core.fileMode true
 git config --global core.fileMode true # ou globalement
 
 git add --chmod=+x docker/bin/docker-up.sh bin/console bin/phpunit
+git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
 
 git config --get core.fileMode
 git ls-files --stage | grep bin/
