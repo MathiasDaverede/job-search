@@ -129,8 +129,20 @@ Placez vous dans le projet :
 Assurez vous que le script de démarrage des conteneurs est en LF :  
 `sed -i 's/\r$//' docker/bin/docker-up.sh`
 
-Rendez le script exécutable :  
-`chmod +x docker/bin/docker-up.sh`
+Selon comment vous avez cloné le projet, il se peut que les fichiers exécutables ne le soient pas (SourceTree sur Windows avec Ubuntu (WSL)).  
+Vérifiez les droits des fichiers :
+
+```bash
+ls -l bin/
+ls -l docker/bin/
+```
+
+Si les fichiers ne sont pas exécutables :
+
+```bash
+chmod +x bin/*
+chmod +x docker/bin/*
+```
 
 Construisez les images et démarrez les conteneurs en mode détachés :  
 `docker compose --env-file .env.local up -d`
