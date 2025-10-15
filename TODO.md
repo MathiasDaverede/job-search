@@ -1,3 +1,8 @@
+Paramétrage Sourcetree :
+
+# Git ne suit pas toutes les permissions des fichiers. Par défaut, Git ne versionne que le bit d'exécution (+x) pour les fichiers (et uniquement si le fichier est marqué comme exécutable ou non).
+git config core.fileMode true
+
 ajouter dans le readme
     git flow ?
     logique CI :
