@@ -1,4 +1,5 @@
 # Recherche d'emploi
+
 <a name="top"></a>
 
 ![Docker](https://img.shields.io/badge/Docker-28.1-blue)
@@ -9,20 +10,24 @@
 Outil pour générer des lettres de motivation en PDF et regrouper des liens utiles pour développeurs. 
 
 ## Fonctionnalités
+
 - Back-office pour créer des lettres de motivation.
 - Génération de ces lettres en PDF avec `KnpSnappyBundle`.
 - Liens utiles pour les développeurs.
 
 ## Prérequis
+
 - Git
 - Docker et Docker Compose
 
 ## Captures d’écran
+
 ![Entête et première partie du back-office](screenshots/backoffice1.png)
 ![deuxième partie du back-office](screenshots/backoffice2.png)
 ![troisième partie du back-office et pied de page](screenshots/backoffice3.png)
 
 ## Contact
+
 Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/<ton-profil>) pour discuter de ce projet ou d’opportunités professionnelles !
 
 > [!IMPORTANT]
@@ -43,6 +48,7 @@ Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/<ton-profil>) pour disc
 [Tests unitaires](#unit-tests)
 
 ## Versions du projet
+
 <a name="project-versions"></a>
 
 Créé depuis un environnement Windows 11 /WSL2 (Ubuntu 24.04).
@@ -79,24 +85,41 @@ Php 8.2
 
 [Bootstrap 5.3.8](https://www.npmjs.com/package/bootstrap)  
 `bin/console importmap:require bootstrap`
-+ Installe automatiquement "@popperjs/core 2.11.8".
+
+- Installe automatiquement "@popperjs/core 2.11.8".
 
 [Fontawesome-free 7.1.0](https://www.npmjs.com/package/@fortawesome/fontawesome-free)  
 `bin/console importmap:require @fortawesome/fontawesome-free/css/all.min.css`
-+ On ne prend que le all.min.css du package, j'avais des bugs sinon
+
+- On ne prend que le all.min.css du package, j'avais des bugs sinon
 
 ## Comment l'utiliser
+
 <a name="how-to-use"></a>
 [Retour en haut de page](#top)
 
 Clonez le projet :  
 `git clone git@github.com:MathiasDaverede/job-search.git`
 
-Remplissez le .env :  
-MARIADB_DATABASE_NAME=un_nom_pour_la_base_de_donnees  
+## Créez et remplissez un fichier .env.local (à la racine du projet)
+
+### Données utilisateur
+
+Pour que lorsque vous lancez des commandes qui écrivent des fichiers dans le projet,  
+telles que `bin/console make:entity`,  
+les fichiers soient écrit avec les même droits que l'utilisateur connecté sur le système hôte
+
+USER_NAME=votre_nom_d_utilisateur (`whoami`)  
+USER_ID=votre_uid (`id -u`)  
+GROUP_ID=votre_gid (`id -g`)
+
+### Données pour la base de données
+
 MARIADB_ROOT_PASSWORD=un_mot_de_passe
+MARIADB_DATABASE_NAME=un_nom_pour_la_base_de_donnees
 
 ## Démarrer le projet
+
 <a name="start-project"></a>
 [Retour en haut de page](#top)
 
@@ -110,9 +133,24 @@ Rendez le script exécutable :
 `chmod +x docker/bin/docker-up.sh`
 
 Construisez les images et démarrez les conteneurs en mode détachés :  
-`./docker/bin/docker-up.sh`
- + Il arrive que ça plante car l'un des serveurs ne répont (momentanément) pas.  
+`docker compose --env-file .env.local up -d`
+
+- Il arrive que ça plante car l'un des serveurs ne répont (momentanément) pas.  
    Si c'est le cas, relancez la commande.
+
+Si par la suite vous modifiez le Dockerfile,  
+ou que vous avez oublié de créer le .env.local avant de lancer la commande up
+vous devrez lancez la commande build,
+c.-à-d. :
+Soit :
+
+```bash
+docker compose build
+docker compose --env-file .env.local up -d
+```
+
+Soit :
+`docker compose --env-file .env.local --build up -d`
 
 Accédez au conteneur web lorsqu'il est démarré (Container job-search-web-1 Started) :  
 `docker exec -it job-search-web-1 bash`
@@ -128,20 +166,20 @@ Installation des dépendances Symfony :
 > Ensuite, Symfony Flex intervient (si activé dans le projet)  
   et utilise symfony.lock pour appliquer les recettes associées à ces dépendances.  
 >
-> + composer.lock
->   + Contient les versions exactes des dépendances PHP (packages et leurs sous-dépendances)  
+> - composer.lock
+>   - Contient les versions exactes des dépendances PHP (packages et leurs sous-dépendances)  
       installées dans le projet.
->   + Composer lit composer.lock (s'il existe) pour installer les versions précises des dépendances listées,  
+>   - Composer lit composer.lock (s'il existe) pour installer les versions précises des dépendances listées,  
 >     ignorant les contraintes de version du composer.json pour ces dépendances.  
->       + Si composer.lock n’existe pas,  
+>       - Si composer.lock n’existe pas,  
 >         Composer utilise les contraintes du composer.json pour télécharger les versions compatibles  
 >         et crée un nouveau composer.lock.
-> + symfony.lock
->   + Spécifique à Symfony Flex,  
+> - symfony.lock
+>   - Spécifique à Symfony Flex,  
 >     enregistre les versions des recettes (fichiers de configuration automatisés) associées aux packages installés.  
 >     Ces recettes configurent les bundles, créent des fichiers (comme config/packages/*.yaml),  
 >     ou modifient des fichiers comme .gitignore.
->       + Symfony Flex, qui est un plugin de Composer,  
+>       - Symfony Flex, qui est un plugin de Composer,  
 >         lit symfony.lock pour appliquer les recettes dans l’état exact où elles ont été installées initialement.  
 >         Cela garantit que les configurations spécifiques à Symfony (comme les fichiers de configuration ou les scripts d’initialisation)  
 >         sont appliquées de manière cohérente.
@@ -151,18 +189,21 @@ Installation des dépendances Symfony :
 > symfony.lock s’occupe des configurations (recettes) appliquées à ces dépendances pour intégrer correctement les bundles ou packages.
 >
 > La commande `composer install` lance également les commandes :  
-> + `bin/console cache:clear`
->   + Vide le cache (var/cache/).
-> + `bin/console assets:install public`
->   + Copie les fichiers statiques des bundles installés (fichier composer.lock)  
+> - `bin/console cache:clear`
+>   - Vide le cache (var/cache/).
+> - `bin/console assets:install public`
+>   - Copie les fichiers statiques des bundles installés (fichier composer.lock)  
       dans le dossier "public/bundles/".
-> + `bin/console importmap:install`
->   + Installe les dépendances Javascript/CSS (fichier importmap.php)  
+> - `bin/console importmap:install`
+>   - Installe les dépendances Javascript/CSS (fichier importmap.php)  
       dans le dossier "assets/vendor/".
 
 Mise à jour de la base de données  
 (déjà créée automatiquement lors du premier démarrage de son conteneur) :  
 `bin/console doctrine:migrations:migrate`
+
+- Appuyez sur "Entrée" à la question :  
+  WARNING! You are about to execute a migration in database "job_search" that could result in schema changes and data loss. Are you sure you wish to continue? (yes/no) [yes]" :
 
 Génération des assets Sass :  
 `bin/console sass:build`
@@ -174,6 +215,7 @@ Contrôle de l'installation
 `bin/console importmap:audit`
 
 ## Accéder au projet
+
 <a name="access-project"></a>
 [Retour en haut de page](#top)
 
@@ -204,7 +246,7 @@ Listez les conteneurs lancés :
 > job-search-web-1  
 > job-search-database-1
 
-```
+```bash
 # Le projet web basé sur le Dockerfile (Symfony/Php/Apache2/etc.)
 docker exec -it job-search-web-1 bash
 
@@ -213,6 +255,7 @@ docker exec -it job-search-database-1 bash
 ```
 
 ## Modifier le projet
+
 <a name="modify-project"></a>
 [Retour en haut de page](#top)
 
@@ -222,8 +265,9 @@ Placez vous dans le projet :
 Etant donné que c'est un projet basé sur le Framework Symfony,  
 si vous modifiez les entités (ou que vous en ajoutez de nouvelles),  
 lancez la commande :  
-`bin/console make:migration`  
-+ Pour ajouter les modifications au versioning (migrations/).  
+`bin/console make:migration`
+
+- Pour ajouter les modifications au versioning (migrations/).
 
 Pour prendre en compte ces modifications,  
 lancez la commande :  
@@ -237,11 +281,13 @@ vous pouvez utiliser :
 
 Si vous modifiez l'un des fichiers Sass (.scss),
 lancez la commande (une fois) :  
-`bin/console sass:build --watch`  
-+ Tant que le terminal est ouvert avec la commande lancée dedans,  
-vos modifications seront mises à jour automatiquement.
+`bin/console sass:build --watch`
+
+- Tant que le terminal est ouvert avec la commande lancée dedans,  
+  vos modifications seront mises à jour automatiquement.
 
 ## Tests unitaires
+
 <a name="unit-tests"></a>
 
 Les tests unitaires sont lancés automatiquement lors de la création de pull requests sur Github.  
