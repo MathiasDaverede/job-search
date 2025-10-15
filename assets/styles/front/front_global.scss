@@ -1,0 +1,11 @@
+$medium-blue: #294564;
+
+#front {
+    margin-bottom: 20px;
+
+    & > .content {
+        background-color: $medium-blue;
+        padding: 20px;
+        border-radius: 5px;
+    }
+}

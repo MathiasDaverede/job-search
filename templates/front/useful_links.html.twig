@@ -1,0 +1,73 @@
+{% extends 'front/front_base.html.twig' %}
+
+{% block title %}Front - Liens utiles{% endblock %}
+
+{% block h1 %}Liens utiles{% endblock %}
+
+{% block front_content %}
+    <div class="row">
+        <div class="col">
+            <h2><u>Back</u></h2>
+
+            <ul>
+                {% for name, link in constant('App\\Constant\\UsefulLink::BACK') %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col">
+            <h2><u>Front</u></h2>
+
+            <ul>
+                {% for name, link in constant('App\\Constant\\UsefulLink::FRONT') %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <h2><u>Cool</u></h2>
+
+            <ul>
+                {% for name, link in constant('App\\Constant\\UsefulLink::COOL') %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col">
+            <h2><u>Autre</u></h2>
+
+            <ul>
+                {% for name, link in constant('App\\Constant\\UsefulLink::OTHER') %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <h2><u>Dev Ops</u></h2>
+
+    {% for category, links in devOpsLinks %}
+        {% if loop.index % 2 == 1 %}
+            <div class="row">
+        {% endif %}
+                    
+        <div class="col">
+            <h3>{{ category }}</h3>
+
+            <ul>
+                {% for name, link in links %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% if loop.index % 2 == 0 or loop.last %}
+            </div>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

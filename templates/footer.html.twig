@@ -1,5 +1,12 @@
-{% set githubLink = 'https://github.com/MathiasDaverede/job-search' %}
-{% set codingGameProfileLink = 'https://www.codingame.com/profile/8ee16a3f95abdb6ba27dd653534e016e4923462' %}
+{% set githubRepoLink = constant('App\\Constant\\UsefulLink::GITHUB_REPO') %}
+{% set githubChangelogLink = constant('App\\Constant\\UsefulLink::GITHUB_CHANGELOG') %}
+{% set codingGameProfileLink = constant('App\\Constant\\UsefulLink::CODINGAME_PROFILE') %}
 
-<a href="{{ githubLink }}" target="_blank">GitHub</a>
+<a href="{{ githubRepoLink }}" target="_blank">GitHub</a>
 <a href="{{ codingGameProfileLink }}" target="_blank">CodinGame</a>
+
+<div class="project-version">
+    <a href="{{ githubChangelogLink }}">
+        {{ versionFilePath|content }}
+    </a>
+</div>

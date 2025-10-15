@@ -1,0 +1,96 @@
+name: Project
+
+# Run GitHub Actions only on pull requests to stay within the free plan limits (500 MB storage, 2000 minutes/month).
+on:
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test-project:
+    # Skip this job if triggered by commits from the version-changelog.yml workflow to avoid redundant runs.
+    if: github.actor != 'github-action' && github.actor != 'GitHub Action'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Ensure docker-up.sh is executable
+      run: chmod +x ./docker/bin/docker-up.sh
+
+    - name: Build and start containers
+      run: ./docker/bin/docker-up.sh
+
+    - name: Check containers status
+      run: |
+        docker ps -a
+        docker logs job-search-web-1
+
+    - name: Verify host's rights
+      run: |
+        echo "whoami: $(whoami), UID: $(id -u), GID: $(id -g)"
+        ls -l 
+        echo "Executables files :"
+        ls -l bin/
+        ls -l docker/bin/
+
+    - name: Verify container's rights in /var/www/
+      run: |
+        echo "whoami: $(docker compose exec web whoami), UID: $(docker compose exec web id -u), GID: $(docker compose exec web id -g)"
+        docker compose exec web ls -l /var/ | grep www
+        docker compose exec web ls -l /var/www/
+        echo  "Executables files :"
+        docker compose exec web ls -l /var/www/bin/
+        docker compose exec web ls -l /var/www/docker/bin/
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: composer-${{ hashFiles('composer.lock') }}
+        restore-keys: composer-
+
+    - name: Cache Importmap dependencies
+      uses: actions/cache@v4
+      with:
+        path: assets/vendor
+        key: importmap-${{ hashFiles('importmap.php') }}
+        restore-keys: importmap-
+
+    - name: Install Composer dependencies
+      run: docker compose exec web composer install --no-interaction --optimize-autoloader
+      
+    - name: Run Doctrine migrations
+      run: docker compose exec web bin/console doctrine:migrations:migrate --no-interaction
+
+    - name: Cache Sass assets
+      uses: actions/cache@v4
+      with:
+        path: var/sass
+        key: sass-${{ hashFiles('assets/**/*.scss') }}
+        restore-keys: sass-
+
+    - name: Generate Sass assets
+      run: docker compose exec web bin/console sass:build
+
+    - name: Check Composer platform requirements
+      run: docker compose exec web composer check-platform-reqs
+
+    - name: Check Symfony requirements
+      run: docker compose exec web symfony check:requirements
+
+    - name: Check Symfony security issues in project dependencies
+      run: docker compose exec web symfony check:security
+
+    - name: Audit importmap
+      run: docker compose exec web bin/console importmap:audit
+
+    - name: Unit tests
+      run: |
+        chmod +x ./bin/phpunit
+        docker compose exec web bin/console --env=test doctrine:database:create
+        docker compose exec web bin/console --env=test doctrine:schema:create
+        docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
+        docker compose exec web bin/phpunit

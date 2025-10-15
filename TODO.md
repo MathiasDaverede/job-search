@@ -1,9 +1,70 @@
-docker sytem prune -a
+Paramétrage Sourcetree :
 
-find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -ls
+# Git ne suit pas toutes les permissions des fichiers. Par défaut, Git ne versionne que le bit d'exécution (+x) pour les fichiers (et uniquement si le fichier est marqué comme exécutable ou non).
+git config core.fileMode true
+git config --global core.fileMode true # ou globalement
 
-# Plutot sudo find job-search/ au cas ou
-sudo find . -not \( -path "./.git" -o -path "./.git/*" -o -path "./.vs" -o -path "./.vs/*" \) -exec rm -rf {} +
+git add --chmod=+x docker/bin/docker-up.sh bin/console bin/phpunit
+git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
+
+git config --get core.fileMode
+git ls-files --stage | grep bin/
+
+ajouter dans le readme
+    git flow ?
+    logique CI :
+        pull request  :
+            created/updated :
+                 develop :
+                    project.yml
+                main :
+                    project.yml
+                    version-changelog.yml
+            closed :
+                tag.yml
+
+Questions linkedIn 
+
+
+remettre PostgreSQL (et du coup phpmyadmin => phpPgAdmin)
+
+commande test knpsnappy
+ci 
+
+mieux service CommandeTest
+comme ça je lance tous les test avec juste bin/phpunit
+
+
+Tests unitaires (#3) : Mentionner les tests unitaires est excellent, mais pour un recruteur, il serait intéressant de préciser le type de tests (par exemple, PHPUnit) et le pourcentage de couverture. Cela renforce l’aspect professionnel.
+
+Rendre le projet attractif : Ajoute des captures d’écran ou une courte vidéo démo dans ton dépôt GitHub et sur LinkedIn. Cela permettra aux recruteurs de visualiser le résultat final (par exemple, la page d’accueil, le back-office, un PDF généré).
+
+Mise en avant sur LinkedIn : Pour maximiser l’impact :
+
+Publie un post LinkedIn avec un lien vers ton dépôt GitHub et une description claire de ce que fait le projet.
+Mentionne les technologies clés et les compétences (Docker, Symfony, CI/CD, tests, PDF).
+Ajoute un appel à l’action, par exemple : “Je suis à la recherche d’opportunités en tant que développeur PHP/Symfony, contactez-moi pour discuter !”
+
+
+LinkedIn : Quand tu publieras sur LinkedIn, utilise des hashtags comme #Symfony, #PHP, #Docker, #WebDev, et #JobSearch pour augmenter la visibilité. Mentionne aussi que le projet est open-source sur GitHub avec un lien direct.
+
+Ajouter dans les liens utiles des liens pour la préparation des entretiens d'embauche
+
+Supprimer l'affichage du changelog
+    Ajouter le lien vers le changelog.md sur github
+
+docker compose stop
+docker system prune -a
+
+chmod +x docker/bin/docker-up.sh
+./docker/bin/docker-up.sh
+
+docker exec -it job-search-web-1 bash
+
+bin/console sass:build --watch
+
+sudo find job-search/ -not -path "job-search/" -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*"
+sudo find job-search/ -not -path "job-search/" -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*" -exec rm -rf {} +
 
 Paramètrage github
     protections des branches main et develop (pull request)
@@ -230,3 +291,25 @@ Quand l'utiliser : Si tu travailles sur des optimisations de performance.
 pousser un .md => tutos utiles pour moi 
 et pour les autres du coup ?
 du style paramétrage sourcetree LF : dans le terminal sourcetree : git config --global core.autocrlf input
+
+
+sauvegarde du CHANGELOG.md au cas où :
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+## v1.1.0 - 2025-10-13
+[Release v1.1.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.1.0)
+
+- feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version and changelog link
+- feature [#6](https://github.com/MathiasDaverede/job-search/issues/6) Useful links for developers
+
+## v1.0.0 - 2025-10-13
+[Release v1.0.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.0.0)
+
+- feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Project initialization
+- feature [#2](https://github.com/MathiasDaverede/job-search/issues/2) Symfony homepage display 
+- feature [#3](https://github.com/MathiasDaverede/job-search/issues/3) Cover letter back-office
+- feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) PDF cover letter generation 
+
+https://github.com/symfony/symfony/releases

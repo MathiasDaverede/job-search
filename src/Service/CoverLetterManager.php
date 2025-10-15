@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\CoverLetter;
 use App\Repository\CoverLetterRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CoverLetterManager
