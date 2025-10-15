@@ -14,7 +14,7 @@ ajouter dans le readme
 Questions linkedIn 
 
 
-remettre PostgreSQL
+remettre PostgreSQL (et du coup phpmyadmin => phpPgAdmin)
 
 commande test knpsnappy
 ci 
