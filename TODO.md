@@ -2,6 +2,12 @@ Paramétrage Sourcetree :
 
 # Git ne suit pas toutes les permissions des fichiers. Par défaut, Git ne versionne que le bit d'exécution (+x) pour les fichiers (et uniquement si le fichier est marqué comme exécutable ou non).
 git config core.fileMode true
+git config --global core.fileMode true # ou globalement
+
+git add --chmod=+x docker/bin/docker-up.sh bin/console bin/phpunit
+
+git config --get core.fileMode
+git ls-files --stage | grep bin/
 
 ajouter dans le readme
     git flow ?
