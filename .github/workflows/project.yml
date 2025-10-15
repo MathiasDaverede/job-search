@@ -41,18 +41,6 @@ jobs:
         docker compose exec web ls -l /var/www/bin/
         docker compose exec web ls -l /var/www/docker/bin/
 
-    - name: Check Composer platform requirements
-      run: docker compose exec web composer check-platform-reqs
-
-    - name: Check Symfony requirements
-      run: docker compose exec web symfony check:requirements
-
-    - name: Check Symfony security issues in project dependencies
-      run: docker compose exec web symfony check:security
-
-    - name: Audit importmap
-      run: docker compose exec web bin/console importmap:audit
-
     - name: Cache Composer dependencies
       uses: actions/cache@v4
       with:
@@ -82,6 +70,18 @@ jobs:
 
     - name: Generate Sass assets
       run: docker compose exec web bin/console sass:build
+
+    - name: Check Composer platform requirements
+      run: docker compose exec web composer check-platform-reqs
+
+    - name: Check Symfony requirements
+      run: docker compose exec web symfony check:requirements
+
+    - name: Check Symfony security issues in project dependencies
+      run: docker compose exec web symfony check:security
+
+    - name: Audit importmap
+      run: docker compose exec web bin/console importmap:audit
 
     - name: Test Pdf generation
       run: docker compose exec web bin/console app:generate-pdf
