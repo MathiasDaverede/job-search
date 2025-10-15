@@ -24,21 +24,14 @@ jobs:
           fetch-depth: 0 # Fetches the full Git history to analyse tags
           ref: ${{ github.event.pull_request.head.ref }} # Checkout the PR branch
 
-      - name: Check project.yml workflow status
-        uses: actions/github-script@v7
+      - name: Wait for project.yml workflow to succeed
+        uses: fountainhead/action-wait-for-check@v2
         with:
-          script: |
-            const response = await github.rest.actions.listWorkflowRuns({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'project.yml',
-              event: 'pull_request',
-              branch: context.payload.pull_request.head.ref,
-              status: 'success'
-            });
-            if (response.data.total_count === 0) {
-              core.setFailed('project.yml workflow has not succeeded');
-            }
+          token: ${{ secrets.GITHUB_TOKEN }}
+          checkName: 'test-project'
+          ref: ${{ github.event.pull_request.head.sha }}
+          timeoutSeconds: 600 # Maximum waiting time (10 minutes)
+          intervalSeconds: 120 # Check every 2 minutes
 
       - name: Validate branch name and extract version
         id: pr_info
