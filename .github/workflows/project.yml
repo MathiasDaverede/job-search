@@ -107,6 +107,16 @@ jobs:
         docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
         docker compose exec web bin/phpunit
 
+    - name: Stop and remove Docker containers
+      run: docker compose --env-file .env.local down
+
+    - name: Debug test-project job
+      run: |
+        echo "Test-project job executed!"
+        echo "Event: ${{ github.event_name }}"
+        echo "Ref: ${{ github.event.pull_request.head.ref }}"
+        echo "Actor: ${{ github.actor }}"
+
   update-version-changelog:
     # Only if precedent job succeed and come from a pull request on main (release or hotfix)
     needs: test-project
@@ -118,19 +128,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches the full Git history to analyse tags
-          ref: ${{ github.event.workflow_run.head_branch || github.event.inputs.ref || github.ref_name }}  # Use the PR branch
-
-      - name: Install GitHub CLI
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt update
-          sudo apt install gh
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Validate branch name and extract version
         id: pr_info
         run: |
-          PR_BRANCH=${{ github.event.workflow_run.head_branch || github.event.inputs.ref || github.ref_name }}
+          PR_BRANCH=${{ github.event.pull_request.head.ref }}
           if [[ ! "$PR_BRANCH" =~ ^(release|hotfix)/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Error: PR branch must be 'release/X.Y.Z' or 'hotfix/X.Y.Z'"
             exit 1
@@ -143,49 +146,93 @@ jobs:
         run: echo "${{ env.NEW_VERSION }}" > VERSION.md
 
       - name: Update CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          CHANGELOG_HEADER="# Changelog\nAll notable changes to this project are documented in this file.\n\n"
-          CHANGELOG_CONTENT="## ${{ env.NEW_VERSION }} - $(date +%Y-%m-%d)\n"
-          CHANGELOG_CONTENT+="[Release ${{ env.NEW_VERSION }}](https://github.com/MathiasDaverede/job-search/releases/tag/${{ env.NEW_VERSION }})\n"
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-          if [ -n "$PREVIOUS_TAG" ]; then
-            TAG_DATE=$(git log -1 --format=%ci ${PREVIOUS_TAG} | cut -d' ' -f1)
-          else
-            TAG_DATE="1970-01-01"
-          fi
-          PR_LIST=$(gh pr list --repo MathiasDaverede/job-search --state merged --base main --search "merged:>${TAG_DATE}" --json number,title,mergedAt --jq '.[] | "\(.number) \(.title)"')
-          while IFS= read -r PR; do
-            if [[ $PR =~ ^([0-9]+)[[:space:]]+(feat|fix):[[:space:]]*(.+?)([[:space:]]*\[closes[[:space:]]*#([0-9]+)\])?$ ]]; then
-              PR_NUMBER="${BASH_REMATCH[1]}"
-              TYPE="${BASH_REMATCH[2]}"
-              DESCRIPTION="${BASH_REMATCH[3]}"
-              ISSUE_NUMBER="${BASH_REMATCH[5]}" # Will be empty if [closes #N] is not present
-              if [ -n "$ISSUE_NUMBER" ]; then
-                ISSUE_TITLE=$(gh issue view $ISSUE_NUMBER --repo MathiasDaverede/job-search --json title --jq .title 2>/dev/null || echo "Issue not found")
-                if [ -n "$ISSUE_TITLE" ] && [ "$ISSUE_TITLE" != "Issue not found" ]; then
-                  CHANGELOG_CONTENT+="- ${TYPE} [#${ISSUE_NUMBER}](https://github.com/MathiasDaverede/job-search/issues/${ISSUE_NUMBER}) ${ISSUE_TITLE}\n"
-                else
-                  echo "Warning: Issue #${ISSUE_NUMBER} not found for PR #${PR_NUMBER}, using PR title"
-                  CHANGELOG_CONTENT+="- ${TYPE} [#${PR_NUMBER}](https://github.com/MathiasDaverede/job-search/pull/${PR_NUMBER}) ${DESCRIPTION}\n"
-                fi
-              else
-                echo "Info: No issue linked for PR #${PR_NUMBER}, using PR title"
-                CHANGELOG_CONTENT+="- ${TYPE} [#${PR_NUMBER}](https://github.com/MathiasDaverede/job-search/pull/${PR_NUMBER}) ${DESCRIPTION}\n"
-              fi
-            else
-              echo "Warning: Skipping PR #${PR%%[[:space:]]*}: Title does not match 'feat|fix' format"
-            fi
-          done <<< "$PR_LIST"
-          if [ -z "$PR_LIST" ]; then
-            echo "Warning: No merged PRs found since ${TAG_DATE}, changelog will only include header"
-          fi
-          if [ -f CHANGELOG.md ]; then
-            echo -e "${CHANGELOG_HEADER}${CHANGELOG_CONTENT}\n$(cat CHANGELOG.md)" > CHANGELOG.md
-          else
-            echo -e "${CHANGELOG_HEADER}${CHANGELOG_CONTENT}" > CHANGELOG.md
-          fi
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs').promises;
+            const { Octokit } = require('@octokit/rest');
+            const github = new Octokit({ auth: process.env.GITHUB_TOKEN });
+
+            // Get the previous tag
+            let previousTag = '';
+            let tagDate = '1970-01-01';
+            try {
+              const { data: tags } = await github.rest.repos.listTags({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+              });
+              if (tags.length > 0) {
+                previousTag = tags[0].name;
+                const { data: commit } = await github.rest.git.getCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  commit_sha: tags[0].commit.sha,
+                });
+                tagDate = commit.committer.date.split('T')[0];
+              }
+            } catch (error) {
+              console.log('No previous tags found or error fetching tags:', error.message);
+            }
+
+            // Get merged PRs since the last tag
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'closed',
+              base: 'main',
+              sort: 'updated',
+              direction: 'desc',
+            });
+
+            let changelogContent = `## ${{ env.NEW_VERSION }} - ${new Date().toISOString().split('T')[0]}\n`;
+            changelogContent += `[Release ${{ env.NEW_VERSION }}](https://github.com/${context.repo.owner}/${context.repo.repo}/releases/tag/${{ env.NEW_VERSION }})\n`;
+
+            const prRegex = /^(\d+)\s+(feat|fix):\s*(.+?)(?:\s*\[closes\s*#(\d+)\])?$/;
+            for (const pr of prs) {
+              if (pr.merged_at && pr.merged_at > tagDate) {
+                const match = pr.title.match(prRegex);
+                if (match) {
+                  const prNumber = match[1];
+                  const type = match[2];
+                  const description = match[3];
+                  const issueNumber = match[4];
+
+                  if (issueNumber) {
+                    try {
+                      const { data: issue } = await github.rest.issues.get({
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        issue_number: issueNumber,
+                      });
+                      changelogContent += `- ${type} [#${issueNumber}](https://github.com/${context.repo.owner}/${context.repo.repo}/issues/${issueNumber}) ${issue.title}\n`;
+                    } catch (error) {
+                      console.log(`Warning: Issue #${issueNumber} not found for PR #${prNumber}, using PR title`);
+                      changelogContent += `- ${type} [#${prNumber}](https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}) ${description}\n`;
+                    }
+                  } else {
+                    console.log(`Info: No issue linked for PR #${prNumber}, using PR title`);
+                    changelogContent += `- ${type} [#${prNumber}](https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}) ${description}\n`;
+                  }
+                } else {
+                  console.log(`Warning: Skipping PR #${pr.number}: Title does not match 'feat|fix' format`);
+                }
+              }
+            }
+
+            if (!prs.some(pr => pr.merged_at && pr.merged_at > tagDate)) {
+              console.log('Warning: No merged PRs found since', tagDate, ', changelog will only include header');
+            }
+
+            const changelogHeader = '# Changelog\nAll notable changes to this project are documented in this file.\n\n';
+            let existingChangelog = '';
+            try {
+              existingChangelog = await fs.readFile('CHANGELOG.md', 'utf8');
+            } catch (error) {
+              console.log('No existing CHANGELOG.md found, creating new one');
+            }
+
+            await fs.writeFile('CHANGELOG.md', changelogHeader + changelogContent + '\n' + existingChangelog);
 
       - name: Output files content
         run: |
@@ -197,8 +244,15 @@ jobs:
 
       - name: Commit and push files
         run: |
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add VERSION.md CHANGELOG.md
           git commit -m "Update VERSION.md to ${{ env.NEW_VERSION }} and CHANGELOG.md"
           git push origin ${{ env.PR_BRANCH }}
+
+      - name: Debug update-version-changelog job
+        run: |
+          echo "Update-version-changelog job executed!"
+          echo "Event: ${{ github.event_name }}"
+          echo "Ref: ${{ github.event.pull_request.head.ref }}"
+          echo "Actor: ${{ github.actor }}"
