@@ -7,11 +7,6 @@ on:
   pull_request:
     branches: [main, develop]
 
-permissions:
-  contents: write # For committing changes to VERSION.md and CHANGELOG.md
-  pull-requests: read # For fetching pull request data via GitHub API
-  issues: read # For fetching issue titles via GitHub API
-
 jobs:
   test-project:
     runs-on: ubuntu-latest
@@ -102,59 +97,3 @@ jobs:
 
     - name: Stop and remove Docker containers
       run: docker compose --env-file .env.local down
-
-    - name: Debug test-project job
-      run: |
-        echo "Test-project job executed!"
-        echo "Event: ${{ github.event_name }}"
-        echo "Ref: ${{ github.event.pull_request.head.ref }}"
-        echo "Actor: ${{ github.actor }}"
-
-  update-version-changelog:
-    # Only if precedent job succeed and come from a pull request on main (release or hotfix)
-    needs: test-project
-    if: github.event.pull_request.base.ref == 'main'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Fetches the full Git history to analyse tags
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Update VERSION.md
-        run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
-
-      - name: Set up GitHub CLI
-        run: |
-          gh version || (echo "Installing GitHub CLI..." && sudo apt-get update && sudo apt-get install -y gh)
-
-      - name: Update CHANGELOG.md
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: .github/bin/update_changelog.sh
-
-      - name: Output files content
-        run: |
-          echo "Generated version ${{ env.NEW_VERSION }}"
-          echo "VERSION.md content:"
-          cat VERSION.md
-          echo "CHANGELOG.md content:"
-          cat CHANGELOG.md
-
-      - name: Commit and push files
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add VERSION.md CHANGELOG.md
-          git commit -m "Update VERSION.md to ${{ env.NEW_VERSION }} and CHANGELOG.md"
-          git push origin ${{ env.PR_BRANCH }}
-
-      - name: Debug update-version-changelog job
-        run: |
-          echo "Update-version-changelog job executed!"
-          echo "Event: ${{ github.event_name }}"
-          echo "Ref: ${{ github.event.pull_request.head.ref }}"
-          echo "Actor: ${{ github.actor }}"
