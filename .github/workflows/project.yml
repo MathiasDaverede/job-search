@@ -14,8 +14,6 @@ permissions:
 
 jobs:
   test-project:
-    # Skip this job if triggered by commits from github-actions[bot] to avoid infinite loops.
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -114,7 +112,7 @@ jobs:
       # Runs only if all previous steps succeed, triggering version-changelog.yml for main branch PRs.
       uses: actions/github-script@v7
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.PAT_REPO_WORKFLOW }}
         script: |
           console.log("Owner: ", context.repo.owner);
           console.log("Repo: ", context.repo.repo);

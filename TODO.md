@@ -158,6 +158,17 @@ Github : protéger le projet :
 Protection des branches : Sur GitHub, va dans Settings > Branches > Add rule : Protège main et develop (require PR, status checks, approvals).
 approvals => moi
 
+Création d'un PAT 
+    clique sur mon avatar > Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate new token > Generate new token (classic)
+        le nommé genre pat_repo_workflow
+        expiration:  90 jours
+        scopes repo/workflow
+Intégrer ce token aux secrets du repo :
+    Settings (du repo) > Secrets and variables > Actions > New repository secret
+        Name : PAT_REPO_WORKFLOW
+        Secrets : le token qu'on en voit qu'une fois lors de la génération dans l'étape précédente
+
+
 .github/workflows/ci.yml :
 
 # Affiche la version et les commandes disponilbes
