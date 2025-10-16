@@ -12,8 +12,6 @@ permissions:
 
 jobs:
   update-version-changelog:
-    # Skip this job if triggered by its own commit to avoid redundant runs.
-    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
