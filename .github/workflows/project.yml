@@ -116,6 +116,10 @@ jobs:
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          console.log("Owner: ", context.repo.owner);
+          console.log("Repo: ", context.repo.repo);
+          console.log("Workflow ID: ", 'version-changelog.yml');
+          console.log("Ref: ", context.payload.pull_request.head.ref);
           await github.rest.actions.createWorkflowDispatch({
             owner: context.repo.owner,
             repo: context.repo.repo,
