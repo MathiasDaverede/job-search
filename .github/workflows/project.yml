@@ -46,11 +46,10 @@ jobs:
 
     - name: Verify host's rights
       run: |
-        echo "$(whoami) UID: $(id -u) GID: $(id -g)"
+        echo "$(whoami) $(id -u) $(id -g)"
         ls -l 
         echo "Executables files :"
         ls -l bin/
-        ls -l docker/bin/
 
     - name: Verify container's rights in /var/www/
       run: |
@@ -59,7 +58,6 @@ jobs:
         docker compose exec web ls -l /var/www/
         echo  "Executables files :"
         docker compose exec web ls -l /var/www/bin/
-        docker compose exec web ls -l /var/www/docker/bin/
 
     - name: Cache Composer dependencies
       uses: actions/cache@v4
