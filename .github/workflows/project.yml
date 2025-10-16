@@ -151,8 +151,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs').promises;
-            const { Octokit } = require('@octokit/rest');
-            const github = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
             // Get the previous tag
             let previousTag = '';
