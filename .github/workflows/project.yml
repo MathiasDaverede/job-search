@@ -120,9 +120,15 @@ jobs:
           console.log("Repo: ", context.repo.repo);
           console.log("Workflow ID: ", 'version-changelog.yml');
           console.log("Ref: ", context.payload.pull_request.head.ref);
-          await github.rest.actions.createWorkflowDispatch({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            workflow_id: 'version-changelog.yml',
-            ref: context.payload.pull_request.head.ref
-          });
+          try {
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'version-changelog.yml',
+              ref: context.payload.pull_request.head.ref
+            });
+            console.log("Workflow dispatch triggered successfully");
+          } catch (error) {
+            console.error("Error triggering workflow:", error);
+            core.setFailed(`Failed to trigger workflow: ${error.message}`);
+          }
