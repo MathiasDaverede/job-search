@@ -23,13 +23,7 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Create .env.local with host data
-      run: |
-        file_content="USER_NAME=$(whoami)\n"
-        file_content+="USER_ID=$(id -u)\n"
-        file_content+="GROUP_ID=$(id -g)\n"
-        file_content+="MARIADB_DATABASE_NAME=job_search\n"
-        file_content+="MARIADB_ROOT_PASSWORD=root"
-        echo -e $file_content > .env.local
+      run: .github/bin/create_env_local.sh
 
     - name: Display .env.local
       run: cat .env.local
@@ -101,7 +95,6 @@ jobs:
 
     - name: Unit tests
       run: |
-        chmod +x ./bin/phpunit
         docker compose exec web bin/console --env=test doctrine:database:create
         docker compose exec web bin/console --env=test doctrine:schema:create
         docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
@@ -130,107 +123,18 @@ jobs:
           fetch-depth: 0 # Fetches the full Git history to analyse tags
           ref: ${{ github.event.pull_request.head.ref }}
 
-      - name: Validate branch name and extract version
-        id: pr_info
-        run: |
-          PR_BRANCH=${{ github.event.pull_request.head.ref }}
-          if [[ ! "$PR_BRANCH" =~ ^(release|hotfix)/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "Error: PR branch must be 'release/X.Y.Z' or 'hotfix/X.Y.Z'"
-            exit 1
-          fi
-          VERSION=$(echo "$PR_BRANCH" | sed -E 's/^(release|hotfix)\/([0-9]+\.[0-9]+\.[0-9]+)$/\2/')
-          echo "NEW_VERSION=v$VERSION" >> $GITHUB_ENV
-          echo "PR_BRANCH=$PR_BRANCH" >> $GITHUB_ENV
-          
       - name: Update VERSION.md
-        run: echo "${{ env.NEW_VERSION }}" > VERSION.md
+        run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
+
+      - name: Set up GitHub CLI
+        run: |
+          gh version || (echo "Installing GitHub CLI..." && sudo apt-get update && sudo apt-get install -y gh)
 
       - name: Update CHANGELOG.md
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const fs = require('fs').promises;
-
-            // Get the previous tag
-            let previousTag = '';
-            let tagDate = '1970-01-01';
-            try {
-              const { data: tags } = await github.rest.repos.listTags({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-              });
-              if (tags.length > 0) {
-                previousTag = tags[0].name;
-                const { data: commit } = await github.rest.git.getCommit({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  commit_sha: tags[0].commit.sha,
-                });
-                tagDate = commit.committer.date.split('T')[0];
-              }
-            } catch (error) {
-              console.log('No previous tags found or error fetching tags:', error.message);
-            }
-
-            // Get merged PRs since the last tag
-            const { data: prs } = await github.rest.pulls.list({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              state: 'closed',
-              base: 'main',
-              sort: 'updated',
-              direction: 'desc',
-            });
-
-            let changelogContent = `## ${{ env.NEW_VERSION }} - ${new Date().toISOString().split('T')[0]}\n`;
-            changelogContent += `[Release ${{ env.NEW_VERSION }}](https://github.com/${context.repo.owner}/${context.repo.repo}/releases/tag/${{ env.NEW_VERSION }})\n`;
-
-            const prRegex = /^(\d+)\s+(feat|fix):\s*(.+?)(?:\s*\[closes\s*#(\d+)\])?$/;
-            for (const pr of prs) {
-              if (pr.merged_at && pr.merged_at > tagDate) {
-                const match = pr.title.match(prRegex);
-                if (match) {
-                  const prNumber = match[1];
-                  const type = match[2];
-                  const description = match[3];
-                  const issueNumber = match[4];
-
-                  if (issueNumber) {
-                    try {
-                      const { data: issue } = await github.rest.issues.get({
-                        owner: context.repo.owner,
-                        repo: context.repo.repo,
-                        issue_number: issueNumber,
-                      });
-                      changelogContent += `- ${type} [#${issueNumber}](https://github.com/${context.repo.owner}/${context.repo.repo}/issues/${issueNumber}) ${issue.title}\n`;
-                    } catch (error) {
-                      console.log(`Warning: Issue #${issueNumber} not found for PR #${prNumber}, using PR title`);
-                      changelogContent += `- ${type} [#${prNumber}](https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}) ${description}\n`;
-                    }
-                  } else {
-                    console.log(`Info: No issue linked for PR #${prNumber}, using PR title`);
-                    changelogContent += `- ${type} [#${prNumber}](https://github.com/${context.repo.owner}/${context.repo.repo}/pull/${prNumber}) ${description}\n`;
-                  }
-                } else {
-                  console.log(`Warning: Skipping PR #${pr.number}: Title does not match 'feat|fix' format`);
-                }
-              }
-            }
-
-            if (!prs.some(pr => pr.merged_at && pr.merged_at > tagDate)) {
-              console.log('Warning: No merged PRs found since', tagDate, ', changelog will only include header');
-            }
-
-            const changelogHeader = '# Changelog\nAll notable changes to this project are documented in this file.\n\n';
-            let existingChangelog = '';
-            try {
-              existingChangelog = await fs.readFile('CHANGELOG.md', 'utf8');
-            } catch (error) {
-              console.log('No existing CHANGELOG.md found, creating new one');
-            }
-
-            await fs.writeFile('CHANGELOG.md', changelogHeader + changelogContent + '\n' + existingChangelog);
+          script: .github/bin/update_changelog.sh
 
       - name: Output files content
         run: |
