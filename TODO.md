@@ -301,15 +301,15 @@ All notable changes to this project are documented in this file.
 ## v1.1.0 - 2025-10-13
 [Release v1.1.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.1.0)
 
-- feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version and changelog link
+- feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version in footer
 - feature [#6](https://github.com/MathiasDaverede/job-search/issues/6) Useful links for developers
 
 ## v1.0.0 - 2025-10-13
 [Release v1.0.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.0.0)
 
-- feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Project initialization
-- feature [#2](https://github.com/MathiasDaverede/job-search/issues/2) Symfony homepage display 
-- feature [#3](https://github.com/MathiasDaverede/job-search/issues/3) Cover letter back-office
-- feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) PDF cover letter generation 
+- feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Initialize Project
+- feature [#2](https://github.com/MathiasDaverede/job-search/issues/2) Display Symfony placeholder page
+- feature [#3](https://github.com/MathiasDaverede/job-search/issues/3) Create cover letters back-office
+- feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) Generate cover letters PDF
 
 https://github.com/symfony/symfony/releases

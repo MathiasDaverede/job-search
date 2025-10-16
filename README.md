@@ -101,7 +101,13 @@ Php 8.2
 Clonez le projet :  
 `git clone git@github.com:MathiasDaverede/job-search.git`
 
-## Créez et remplissez un fichier .env.local (à la racine du projet)
+## Créez un fichier .env.local à la racine du projet
+
+Symfony charge d'abord .env, puis .env.local (s'il existe),  
+en remplaçant les variables identiques par celles de .env.local pour l'environnement local.
+
+Il faut quand même, au minimum, les données dont docker aura besoin puisqu'on utilisera par la suite la commande :  
+`docker compose --env-file .env.local up -d`
 
 ### Données utilisateur
 

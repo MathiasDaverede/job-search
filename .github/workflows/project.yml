@@ -1,16 +1,21 @@
 name: Project
 
 # Run GitHub Actions only on pull requests to stay within the free plan limits (500 MB storage, 2000 minutes/month).
-# Pull requests on develop : features
-# Pull request on main : releases or hotfixs
+# Pull requests to 'develop' are for feature branches.
+# Pull requests to 'main' are for release or hotfix branches.
 on:
   pull_request:
     branches: [main, develop]
 
+permissions:
+  contents: read # Allows reading repository contents (e.g., for checkout and file access)
+  pull-requests: read # For fetching pull request data via GitHub API
+  actions: write  # Necessary to trigger another workflow via workflow_dispatch
+
 jobs:
   test-project:
-    # Skip this job if triggered by commits from the version-changelog.yml workflow to avoid redundant runs.
-    if: github.actor != 'github-action' && github.actor != 'GitHub Action'
+    # Skip this job if triggered by commits from github-actions[bot] to avoid infinite loops.
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
@@ -19,11 +24,19 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Ensure docker-up.sh is executable
-      run: chmod +x ./docker/bin/docker-up.sh
+    - name: Create .env.local with host data
+      run: |
+        echo "USER_NAME=$(whoami)\n" > .env.local
+        echo "USER_ID=$(id -u)\n" > .env.local
+        echo "GROUP_ID=$(id -g)\n" > .env.local
+        echo "MARIADB_DATABASE_NAME=job_search\n" > .env.local
+        echo "MARIADB_ROOT_PASSWORD=root" > .env.local
+
+    - name: Display .env.local
+      run: cat .env.local
 
     - name: Build and start containers
-      run: ./docker/bin/docker-up.sh
+      run: docker compose --env-file .env.local up -d
 
     - name: Check containers status
       run: |
@@ -32,7 +45,7 @@ jobs:
 
     - name: Verify host's rights
       run: |
-        echo "whoami: $(whoami), UID: $(id -u), GID: $(id -g)"
+        echo "$(whoami) UID: $(id -u) GID: $(id -g)"
         ls -l 
         echo "Executables files :"
         ls -l bin/
@@ -40,7 +53,7 @@ jobs:
 
     - name: Verify container's rights in /var/www/
       run: |
-        echo "whoami: $(docker compose exec web whoami), UID: $(docker compose exec web id -u), GID: $(docker compose exec web id -g)"
+        echo "$(docker compose exec web whoami) $(docker compose exec web id -u) $(docker compose exec web id -g)"
         docker compose exec web ls -l /var/ | grep www
         docker compose exec web ls -l /var/www/
         echo  "Executables files :"
@@ -98,7 +111,8 @@ jobs:
         docker compose exec web bin/phpunit
 
     - name: Trigger version-changelog.yml workflow
-      if: github.event.pull_request.base.ref == 'main'
+      if: github.event.pull_request.base.ref == 'main' # Only for releases or hotfixes
+      # Runs only if all previous steps succeed, triggering version-changelog.yml for main branch PRs.
       uses: actions/github-script@v7
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}

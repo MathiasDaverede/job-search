@@ -13,7 +13,7 @@ permissions:
 jobs:
   update-version-changelog:
     # Skip this job if triggered by its own commit to avoid redundant runs.
-    if: github.actor != 'github-action' && github.actor != 'GitHub Action'
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
 
     steps:
@@ -21,12 +21,19 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetches the full Git history to analyse tags
-          ref: ${{ github.event.pull_request.head.ref }} # Checkout the PR branch
+          ref: ${{ github.event.workflow_run.head_branch || github.event.inputs.ref || github.ref_name }}  # Use the PR branch
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
 
       - name: Validate branch name and extract version
         id: pr_info
         run: |
-          PR_BRANCH=${{ github.event.pull_request.head.ref }}
+          PR_BRANCH=${{ github.event.workflow_run.head_branch || github.event.inputs.ref || github.ref_name }}
           if [[ ! "$PR_BRANCH" =~ ^(release|hotfix)/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Error: PR branch must be 'release/X.Y.Z' or 'hotfix/X.Y.Z'"
             exit 1
@@ -45,13 +52,9 @@ jobs:
           CHANGELOG_HEADER="# Changelog\nAll notable changes to this project are documented in this file.\n\n"
           CHANGELOG_CONTENT="## ${{ env.NEW_VERSION }} - $(date +%Y-%m-%d)\n"
           CHANGELOG_CONTENT+="[Release ${{ env.NEW_VERSION }}](https://github.com/MathiasDaverede/job-search/releases/tag/${{ env.NEW_VERSION }})\n"
-          if [ "${{ env.LATEST_TAG }}" != "v0.0.0" ]; then
-            PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-            if [ -n "$PREVIOUS_TAG" ]; then
-              TAG_DATE=$(git log -1 --format=%ci ${PREVIOUS_TAG} | cut -d' ' -f1)
-            else
-              TAG_DATE="1970-01-01"
-            fi
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$PREVIOUS_TAG" ]; then
+            TAG_DATE=$(git log -1 --format=%ci ${PREVIOUS_TAG} | cut -d' ' -f1)
           else
             TAG_DATE="1970-01-01"
           fi
