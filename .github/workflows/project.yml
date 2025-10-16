@@ -1,6 +1,8 @@
 name: Project
 
 # Run GitHub Actions only on pull requests to stay within the free plan limits (500 MB storage, 2000 minutes/month).
+# Pull requests on develop : features
+# Pull request on main : releases or hotfixs
 on:
   pull_request:
     branches: [main, develop]
@@ -94,3 +96,16 @@ jobs:
         docker compose exec web bin/console --env=test doctrine:schema:create
         docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
         docker compose exec web bin/phpunit
+
+    - name: Trigger version-changelog.yml workflow
+      if: github.event.pull_request.base.ref == 'main'
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          await github.rest.actions.createWorkflowDispatch({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            workflow_id: 'version-changelog.yml',
+            ref: context.payload.pull_request.head.ref
+          });

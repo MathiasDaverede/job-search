@@ -1,10 +1,9 @@
 name: Version and Changelog
 
-# Triggered for PRs to main from release/X.Y.Z or hotfix/X.Y.Z branches.
+# Triggered by project.yml after successful completion of the test-project job, for pull requests to main (releases or hotfixs).
+# Ensures the workflow only runs if project.yml succeeds, via workflow_dispatch.
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize] # PR creation or updated
+  workflow_dispatch:
 
 permissions:
   contents: write # For committing changes to VERSION.md and CHANGELOG.md
@@ -23,15 +22,6 @@ jobs:
         with:
           fetch-depth: 0 # Fetches the full Git history to analyse tags
           ref: ${{ github.event.pull_request.head.ref }} # Checkout the PR branch
-
-      - name: Wait for project.yml workflow to succeed
-        uses: fountainhead/action-wait-for-check@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: 'test-project'
-          ref: ${{ github.event.pull_request.head.sha }}
-          timeoutSeconds: 600 # Maximum waiting time (10 minutes)
-          intervalSeconds: 120 # Check every 2 minutes
 
       - name: Validate branch name and extract version
         id: pr_info
