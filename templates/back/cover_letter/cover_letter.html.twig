@@ -1,0 +1,109 @@
+{% extends 'back/back_base.html.twig' %}
+
+{% block title %}Back - Lettre de motivation{% endblock %}
+{% block h1 %}Les informations qui apparaîtront dans votre lettre de motivation{% endblock %}
+
+{% block importmap %}
+    {{ parent() }}
+    {{ importmap('back_cover_letter') }}
+{% endblock %}
+
+{% set dataMarkerMadamMister %}
+    Vous pouvez ajouter la balise 
+
+    <span>
+        <span>{{ markerMadamMister }}</span>,
+        <button class="btn-copy" type="button"><i class="fa-regular fa-copy"></i><span>Copier</span></button>
+    </span>
+    
+    <br>
+
+    pour que ce soit généré automatiquement si le destinataire est renseigné<br><br>
+
+    Exemple :<br>
+
+    <ul>
+        <li>Au début de la lettre,</li>
+        <li>
+            Dans la formule de politesse, telle que :
+            <ul>
+                <li>Je vous prie d'agréer, {{ markerMadamMister }},</li>
+            </ul>
+        </li>
+    </ul>
+{% endset %}
+
+{% set dataMarkerCompany %}
+    Vous pouvez ajouter la balise
+
+    <span>
+        <span>{{ markerCompany }}</span>,
+        <button class="btn-copy" type="button"><i class="fa-regular fa-copy"></i><span>Copier</span></button>
+    </span>
+
+    <br>
+
+    pour que ce soit généré automatiquement si l'entreprise est renseignée<br>
+    Exemple :<br>
+
+    <ul>
+        <li>Afin de mettre mes compétences au service de {{ markerCompany }},</li>
+    </ul>
+{% endset %}
+
+{% block back %}
+    {{ form_start(form) }}
+        <div class="buttons">
+            {{ form_widget(form.save) }}
+
+            {% if form.sender.lastName.vars['value'] != '' %}
+                <a class="btn btn-success" role="button" href="{{ path('front_generate_pdf') }}" target="_blank">Générer le PDF</a>
+            {% endif %}
+        </div>
+
+        {% block flashes %}{{ parent() }}{% endblock %}
+
+        {% include 'back/cover_letter/sender_form.html.twig' with {'senderForm': form.sender} %}
+        {% include 'back/cover_letter/recipient_form.html.twig' with {'recipientForm': form.recipient} %}
+
+        <div class="object form-control">
+            <div class="row">
+                <div class="col">
+                    <h2>{{ form_label(form.object) }}</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {{ form_widget(form.object) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="letter form-control">
+            <div class="row">
+                <div class="col">
+                    <h2>{{ form_label(form.letter) }}</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataMarkerMadamMister} %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataMarkerCompany} %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {{ form_widget(form.letter) }}
+                </div>
+            </div>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}
