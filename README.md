@@ -329,6 +329,7 @@ Pour information, la création d'un test unitaire ce fait grâce à la commande 
 `bin/console make:test`
 
 TODO à compléter améliorer
+
 ## Github et Git flow
 
 <a name="git"></a>
@@ -355,6 +356,7 @@ Display version in footer
 Useful links for developers
 
 ### Features
+
 Création d'une branche feature/[numero_issue]-ma-feature à partir de develop.
 feature/1-init-project
 ...
