@@ -2,24 +2,15 @@
 
 set -e  # Exit on any error
 
-# Ensure required environment variables are set
-if [ -z "$NEW_VERSION" ]; then
-  echo "Error: NEW_VERSION environment variable is not set" >&2
-  exit 1
-fi
-
-if [ -z "$GITHUB_TOKEN" ]; then
-  echo "Error: GITHUB_TOKEN environment variable is not set" >&2
-  exit 1
-fi
+new_version=$1 # ${{ env.NEW_VERSION }}
 
 repo="MathiasDaverede/job-search"
 
 changelog_header="# Changelog\n\n"
 changelog_header+="All notable changes to this project are documented in this file.\n\n"
 
-changelog_content="## ${NEW_VERSION} - $(date +%Y-%m-%d)\n"
-changelog_content+="[Release ${NEW_VERSION}](https://github.com/${repo}/releases/tag/${NEW_VERSION})\n\n"
+changelog_content="## $new_version - $(date +%Y-%m-%d)\n"
+changelog_content+="[Release $new_version](https://github.com/$repo/releases/tag/$new_version)\n\n"
 
 # Get the previous tag to determine the date range for merged PRs
 previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -30,7 +21,7 @@ else
 fi
 
 # Fetch PRs merged into develop since the last tag
-pr_list=$(gh pr list --repo "${repo}" --state merged --base develop --search "merged:>${tag_date}" --json number,title,mergedAt --jq '.[] | "\(.number) \(.title)"')
+pr_list=$(gh pr list --repo "$repo" --state merged --base develop --search "merged:>$tag_date" --json number,title,mergedAt --jq '.[] | "\(.number) \(.title)"')
 
 # Process merged PRs
 pr_found=0

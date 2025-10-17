@@ -1,4 +1,4 @@
-name: Update version, changelog, create tag and release
+name: Merged PR on main
 
 # Triggered after merging PRs to main from release/X.Y.Z or hotfix/X.Y.Z branches.
 on:
@@ -12,50 +12,50 @@ permissions:
   issues: read # For rendering issue links in CHANGELOG.md and release notes
 
 jobs:
-  version-changelog-tag:
+  # Update VERSION.md and CHANGELOG.md, create tag and release, synchronize develop
+  merged-pr-on-main:
     # Prevent closed (abandoned) PR to launch the job
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: main # Checkout the main branch after merge
+          ref: main
           fetch-depth: 0 # Fetches the full Git history to analyse tags
+          token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Debug version-changelog-tag job
+      - name: Debug job
         run: |
           echo "Event: ${{ github.event_name }}"
           echo "PR Number: ${{ github.event.pull_request.number }}"
           echo "Actor: ${{ github.actor }}"
-          echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
           echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
-
-      - name: Set up GitHub CLI
-        run: |
-          gh version || (echo "Installing GitHub CLI..." && sudo apt-get update && sudo apt-get install -y gh)
+          echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
       - name: Update VERSION.md
         run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
 
       - name: Update CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: .github/bin/update_changelog.sh
+        run: .github/bin/update_changelog.sh ${{ env.NEW_VERSION }}
 
       - name: Output files content
         run: |
-          echo "Generated version ${{ env.NEW_VERSION }}"
           echo "VERSION.md content:"
           cat VERSION.md
           echo "CHANGELOG.md content:"
           cat CHANGELOG.md
 
-      - name: Commit and push files
+      - name: Git config
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push files
+        run: |
           git add VERSION.md CHANGELOG.md
           git commit -m "Update VERSION.md to ${{ env.NEW_VERSION }} and CHANGELOG.md"
           git push origin main
@@ -66,9 +66,17 @@ jobs:
           git push origin ${{ env.NEW_VERSION }}
 
       - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          gh version
           gh release create ${{ env.NEW_VERSION }} --title "${{ env.NEW_VERSION }}" --notes-file CHANGELOG.md --target main
-
       
+      - name: Create PR to sync develop
+        run: |
+          pr_title="Sync develop with main after release ${{ env.NEW_VERSION }}"
+          pr_body="This PR synchronizes the develop branch with main after merging release ${{ env.NEW_VERSION }}."
+          pr_number=$(gh pr create --base develop --head main --title "$pr_title" --body "$pr_body" --label "sync" --output json | jq -r .number)
+          # Vérifier si la PR a des conflits
+          conflict_status=$(gh api repos/{owner}/{repo}/pulls/$pr_number | jq -r .mergeable)
+          if [ "$conflict_status" = "false" ]; then
+            gh pr comment $pr_number --body "This PR has merge conflicts. Please resolve them manually."
+          fi
