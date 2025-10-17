@@ -4,17 +4,6 @@ set -e  # Exit on any error
 
 new_version=$1 # ${{ env.NEW_VERSION }}
 
-# Check if the new version is empty
-if [ -z "$new_version" ]; then
-  echo "Error: No PR branch provided."
-  exit 1
-fi
-
-if ! [[ $new_version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-  echo "Error: The new version must be in the format 'vX.Y.Z'."
-  exit 1
-fi
-
 repo="MathiasDaverede/job-search"
 
 changelog_header="# Changelog\n\n"
