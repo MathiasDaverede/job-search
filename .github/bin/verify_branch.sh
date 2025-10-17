@@ -32,4 +32,4 @@ if [ "$target_branch" = "main" ]; then
   fi
 fi
 
-echo "Branch name '$branch_name' is valid."
+echo "Branch name '$source_branch' is valid."
