@@ -326,3 +326,5 @@ All notable changes to this project are documented in this file.
 - feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) Generate cover letters PDF
 
 https://github.com/symfony/symfony/releases
+
+Les fichiers executables doivent etre executables chmod +x et en LF
