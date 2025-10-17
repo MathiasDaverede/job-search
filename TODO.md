@@ -327,7 +327,6 @@ All notable changes to this project are documented in this file.
 
 https://github.com/symfony/symfony/releases
 
-
 Logique git flow à mettre dans le readme:
 
 Features :
