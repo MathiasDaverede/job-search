@@ -1,14 +1,16 @@
 Paramétrage Sourcetree :
 
+git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
+
 # Git ne suit pas toutes les permissions des fichiers. Par défaut, Git ne versionne que le bit d'exécution (+x) pour les fichiers (et uniquement si le fichier est marqué comme exécutable ou non).
 git config core.fileMode true
 git config --global core.fileMode true # ou globalement
 
-git add --chmod=+x docker/bin/docker-up.sh bin/console bin/phpunit
-git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
-
 git config --get core.fileMode
-git ls-files --stage | grep bin/
+
+git add --chmod=+x bin/* .github/bin/*
+
+git ls-files --stage | grep bin/ | grep .github/bin/
 
 ajouter dans le readme
     git flow ?
@@ -158,6 +160,17 @@ Github : protéger le projet :
 Protection des branches : Sur GitHub, va dans Settings > Branches > Add rule : Protège main et develop (require PR, status checks, approvals).
 approvals => moi
 
+Création d'un PAT 
+    clique sur mon avatar > Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate new token > Generate new token (classic)
+        le nommé genre pat_repo_workflow
+        expiration:  90 jours
+        scopes repo/workflow
+Intégrer ce token aux secrets du repo :
+    Settings (du repo) > Secrets and variables > Actions > New repository secret
+        Name : PAT_REPO_WORKFLOW
+        Secrets : le token qu'on en voit qu'une fois lors de la génération dans l'étape précédente
+
+
 .github/workflows/ci.yml :
 
 # Affiche la version et les commandes disponilbes
@@ -301,15 +314,43 @@ All notable changes to this project are documented in this file.
 ## v1.1.0 - 2025-10-13
 [Release v1.1.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.1.0)
 
-- feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version and changelog link
+- feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version in footer
 - feature [#6](https://github.com/MathiasDaverede/job-search/issues/6) Useful links for developers
 
 ## v1.0.0 - 2025-10-13
 [Release v1.0.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.0.0)
 
-- feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Project initialization
-- feature [#2](https://github.com/MathiasDaverede/job-search/issues/2) Symfony homepage display 
-- feature [#3](https://github.com/MathiasDaverede/job-search/issues/3) Cover letter back-office
-- feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) PDF cover letter generation 
+- feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Initialize Project
+- feature [#2](https://github.com/MathiasDaverede/job-search/issues/2) Display Symfony placeholder page
+- feature [#3](https://github.com/MathiasDaverede/job-search/issues/3) Create cover letters back-office
+- feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) Generate cover letters PDF
 
 https://github.com/symfony/symfony/releases
+
+
+Logique git flow à mettre dans le readme:
+
+Features :
+
+Création d'une branche feature/[numero_issue]-ma-feature à partir de develop.
+Ouverture d'une PR de feature/[numero_issue]-ma-feature vers develop.
+Après validation (tests via project.yml), la PR est mergée dans develop.
+
+
+Releases :
+
+Création d'une branche release/X.Y.Z à partir de develop (qui contient les nouvelles features).
+Ouverture d'une PR de release/X.Y.Z vers main.
+Après validation (tests via project.yml), la PR est mergée dans main.
+Le workflow Merged PR on main met à jour VERSION.md, CHANGELOG.md, crée un tag/release, et synchronise develop avec main.
+
+Synchronisation de develop :
+Ouverture d'une PR automatiquement dans la CI de main vers develop.
+Pour gérer manuellement les conflits potentiels
+si conflits :
+fetch
+se placer sur la branche develop
+merger main dans develop
+commit de merge conflit auto
+résolution des conflits
+push sur develop > PR mise à jour mergeable > merge

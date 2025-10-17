@@ -1,27 +1,41 @@
 name: Project
 
 # Run GitHub Actions only on pull requests to stay within the free plan limits (500 MB storage, 2000 minutes/month).
+# Pull requests to 'develop' are for feature branches.
+# Pull requests to 'main' are for release or hotfix branches.
 on:
   pull_request:
     branches: [main, develop]
 
 jobs:
   test-project:
-    # Skip this job if triggered by commits from the version-changelog.yml workflow to avoid redundant runs.
-    if: github.actor != 'github-action' && github.actor != 'GitHub Action'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      
+    - name: Debug job
+      run: |
+        echo "Event: ${{ github.event_name }}"
+        echo "PR Number: ${{ github.event.pull_request.number }}"
+        echo "Actor: ${{ github.actor }}"
+        echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
+        echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
+
+    - name: Verify branch
+      run: .github/bin/verify_branch.sh ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Ensure docker-up.sh is executable
-      run: chmod +x ./docker/bin/docker-up.sh
+    - name: Create .env.local with host data
+      run: .github/bin/create_env_local.sh
+
+    - name: Display .env.local
+      run: cat .env.local
 
     - name: Build and start containers
-      run: ./docker/bin/docker-up.sh
+      run: docker compose --env-file .env.local up -d
 
     - name: Check containers status
       run: |
@@ -30,20 +44,18 @@ jobs:
 
     - name: Verify host's rights
       run: |
-        echo "whoami: $(whoami), UID: $(id -u), GID: $(id -g)"
+        echo "$(whoami) $(id -u) $(id -g)"
         ls -l 
         echo "Executables files :"
         ls -l bin/
-        ls -l docker/bin/
 
     - name: Verify container's rights in /var/www/
       run: |
-        echo "whoami: $(docker compose exec web whoami), UID: $(docker compose exec web id -u), GID: $(docker compose exec web id -g)"
+        echo "$(docker compose exec web whoami) $(docker compose exec web id -u) $(docker compose exec web id -g)"
         docker compose exec web ls -l /var/ | grep www
         docker compose exec web ls -l /var/www/
         echo  "Executables files :"
         docker compose exec web ls -l /var/www/bin/
-        docker compose exec web ls -l /var/www/docker/bin/
 
     - name: Cache Composer dependencies
       uses: actions/cache@v4
@@ -89,8 +101,10 @@ jobs:
 
     - name: Unit tests
       run: |
-        chmod +x ./bin/phpunit
         docker compose exec web bin/console --env=test doctrine:database:create
         docker compose exec web bin/console --env=test doctrine:schema:create
         docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
         docker compose exec web bin/phpunit
+
+    - name: Stop and remove Docker containers
+      run: docker compose --env-file .env.local down
