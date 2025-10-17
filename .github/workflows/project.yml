@@ -6,6 +6,7 @@ name: Project
 on:
   pull_request:
     branches: [main, develop]
+    types: [opened, synchronize] # PR creation or updated
 
 jobs:
   test-project:
