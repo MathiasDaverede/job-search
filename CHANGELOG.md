@@ -2,6 +2,14 @@
 
 All notable changes to this project are documented in this file.
 
+## v1.5.2 - 2025-10-17
+[Release v1.5.2](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.2)
+
+
+# Changelog
+
+All notable changes to this project are documented in this file.
+
 ## v1.5.1 - 2025-10-17
 [Release v1.5.1](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.1)
 
