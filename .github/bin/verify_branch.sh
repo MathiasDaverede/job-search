@@ -1,10 +1,22 @@
 #!/bin/bash
 
-target_branch=${{ github.base_ref }}
-source_branch=${{ github.event.pull_request.head.ref }}
+target_branch=$1 # ${{ github.base_ref }}
+source_branch=$2 # ${{ github.event.pull_request.head.ref }}
 
 echo "Target branch '$target_branch'."
 echo "Source branch '$source_branch'."
+
+# Check if the target branch is empty
+if [ -z "$target_branch" ]; then
+  echo "Error: No target branch provided."
+  exit 1
+fi
+
+# Check if the source branch is empty
+if [ -z "$source_branch" ]; then
+  echo "Error: No source branch provided."
+  exit 1
+fi
 
 if [ "$target_branch" = "develop" ]; then
   if ! [[ $source_branch =~ ^feature/ ]]; then

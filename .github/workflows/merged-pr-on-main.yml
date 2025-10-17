@@ -17,32 +17,30 @@ jobs:
     # Prevent closed (abandoned) PR to launch the job
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0 # Fetches the full Git history to analyse tags
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Debug job
         run: |
           echo "Event: ${{ github.event_name }}"
           echo "PR Number: ${{ github.event.pull_request.number }}"
           echo "Actor: ${{ github.actor }}"
-          echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
           echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
-
-      - name: Verify GitHub CLI
-        run: gh version
+          echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
       - name: Update VERSION.md
-        run: .github/bin/update_version.sh
+        run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
 
       - name: Update CHANGELOG.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NEW_VERSION: ${{ env.NEW_VERSION }}
-        run: .github/bin/update_changelog.sh
+        run: .github/bin/update_changelog.sh ${{ env.NEW_VERSION }}
 
       - name: Output files content
         run: |
@@ -68,19 +66,17 @@ jobs:
           git push origin ${{ env.NEW_VERSION }}
 
       - name: Create GitHub Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          gh version
           gh release create ${{ env.NEW_VERSION }} --title "${{ env.NEW_VERSION }}" --notes-file CHANGELOG.md --target main
       
-      - name: Checkout develop
-        uses: actions/checkout@v4
-        with:
-          ref: develop # Checkout the main branch after merge
-
-      - name: Merge main into develop
+      - name: Create PR to sync develop
         run: |
-          git merge origin/main
-          git push origin develop
-
-      
+          pr_title="Sync develop with main after release ${{ env.NEW_VERSION }}"
+          pr_body="This PR synchronizes the develop branch with main after merging release ${{ env.NEW_VERSION }}."
+          pr_number=$(gh pr create --base develop --head main --title "$pr_title" --body "$pr_body" --label "sync" --output json | jq -r .number)
+          # Vérifier si la PR a des conflits
+          conflict_status=$(gh api repos/{owner}/{repo}/pulls/$pr_number | jq -r .mergeable)
+          if [ "$conflict_status" = "false" ]; then
+            gh pr comment $pr_number --body "This PR has merge conflicts. Please resolve them manually."
+          fi

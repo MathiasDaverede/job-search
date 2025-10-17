@@ -13,9 +13,17 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      
+    - name: Debug job
+      run: |
+        echo "Event: ${{ github.event_name }}"
+        echo "PR Number: ${{ github.event.pull_request.number }}"
+        echo "Actor: ${{ github.actor }}"
+        echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
+        echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
     - name: Verify branch
-      run: .github/bin/verify_branch.sh
+      run: .github/bin/verify_branch.sh ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3

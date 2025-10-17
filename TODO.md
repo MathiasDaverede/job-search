@@ -326,3 +326,31 @@ All notable changes to this project are documented in this file.
 - feature [#4](https://github.com/MathiasDaverede/job-search/issues/4) Generate cover letters PDF
 
 https://github.com/symfony/symfony/releases
+
+
+Logique git flow à mettre dans le readme:
+
+Features :
+
+Création d'une branche feature/[numero_issue]-ma-feature à partir de develop.
+Ouverture d'une PR de feature/[numero_issue]-ma-feature vers develop.
+Après validation (tests via project.yml), la PR est mergée dans develop.
+
+
+Releases :
+
+Création d'une branche release/X.Y.Z à partir de develop (qui contient les nouvelles features).
+Ouverture d'une PR de release/X.Y.Z vers main.
+Après validation (tests via project.yml), la PR est mergée dans main.
+Le workflow Merged PR on main met à jour VERSION.md, CHANGELOG.md, crée un tag/release, et synchronise develop avec main.
+
+Synchronisation de develop :
+Ouverture d'une PR automatiquement dans la CI de main vers develop.
+Pour gérer manuellement les conflits potentiels
+si conflits :
+fetch
+se placer sur la branche develop
+merger main dans develop
+commit de merge conflit auto
+résolution des conflits
+push sur develop > PR mise à jour mergeable > merge

@@ -2,13 +2,26 @@
 
 set -e  # Exit on any error
 
+new_version=$1 # ${{ env.NEW_VERSION }}
+
+# Check if the new version is empty
+if [ -z "$new_version" ]; then
+  echo "Error: No PR branch provided."
+  exit 1
+fi
+
+if ! [[ $new_version =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Error: The new version must be in the format 'vX.Y.Z'."
+  exit 1
+fi
+
 repo="MathiasDaverede/job-search"
 
 changelog_header="# Changelog\n\n"
 changelog_header+="All notable changes to this project are documented in this file.\n\n"
 
-changelog_content="## ${NEW_VERSION} - $(date +%Y-%m-%d)\n"
-changelog_content+="[Release ${NEW_VERSION}](https://github.com/${repo}/releases/tag/${NEW_VERSION})\n\n"
+changelog_content="## $new_version - $(date +%Y-%m-%d)\n"
+changelog_content+="[Release $new_version](https://github.com/$repo/releases/tag/$new_version)\n\n"
 
 # Get the previous tag to determine the date range for merged PRs
 previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
@@ -19,7 +32,7 @@ else
 fi
 
 # Fetch PRs merged into develop since the last tag
-pr_list=$(gh pr list --repo "${repo}" --state merged --base develop --search "merged:>${tag_date}" --json number,title,mergedAt --jq '.[] | "\(.number) \(.title)"')
+pr_list=$(gh pr list --repo "$repo" --state merged --base develop --search "merged:>$tag_date" --json number,title,mergedAt --jq '.[] | "\(.number) \(.title)"')
 
 # Process merged PRs
 pr_found=0
