@@ -36,11 +36,15 @@ jobs:
           echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
           echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
+      - name: Verify executable files
+        run: |
+          ls -l .github/bin/
+
       - name: Update VERSION.md
         run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
 
       - name: Update CHANGELOG.md
-        run: .github/bin/update_changelog.sh ${{ env.NEW_VERSION }}
+        run: .github/bin/update_changelog.sh ${{ github.repository }} ${{ env.NEW_VERSION }}
 
       - name: Output files content
         run: |
