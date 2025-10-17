@@ -45,26 +45,12 @@ jobs:
           git tag ${{ env.NEW_VERSION }}
           git push origin ${{ env.NEW_VERSION }}
 
-      - name: Create GitHub Release
+      - name: Display gh version
         run: |
-          gh version
-          gh release create ${{ env.NEW_VERSION }} --title "${{ env.NEW_VERSION }}" --notes-file CHANGELOG.md --target main
+          gh --version
+
+      - name: Create GitHub Release
+        run: gh release create ${{ env.NEW_VERSION }} --title "${{ env.NEW_VERSION }}" --notes-file CHANGELOG.md --target main
       
       - name: Create PR to sync develop
-        run: |
-          pr_title="Sync develop with main after release ${{ env.NEW_VERSION }}"
-          pr_body="This PR synchronizes the develop branch with main after merging release ${{ env.NEW_VERSION }}.\n\nIf merge conflicts occur:\n1. Create a branch 'sync-develop-${{ env.NEW_VERSION }}' from main.\n2. Merge develop into this branch and resolve conflicts (e.g., via SourceTree).\n3. Push the branch to origin.\n4. Update this PR to use 'sync-develop-${{ env.NEW_VERSION }}' as the source branch.\n5. Verify tests pass before merging."
-          echo "pr_title: $pr_title"
-          echo "pr_body: $pr_body"
-          echo "gh version in this step:"
-          gh --version
-          pr_number=$(gh pr create --base develop --head main --title "$pr_title" --body "$pr_body" --label "sync" --output json | jq -r .number)
-          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
-          # Vérifier si la PR a des conflits
-          conflict_status=$(gh api repos/{owner}/{repo}/pulls/$pr_number | jq -r .mergeable)
-          echo "conflict_status=$conflict_status" >> $GITHUB_OUTPUT
-          if [ "$conflict_status" = "false" ]; then
-            gh pr comment $pr_number --body "This PR has merge conflicts. Since 'main' is protected, please resolve them manually:\n1. Create a branch 'sync-develop-${{ env.NEW_VERSION }}' from main.\n2. Merge develop into this branch and resolve conflicts (e.g., via SourceTree).\n3. Push the branch to origin.\n4. Update this PR to use 'sync-develop-${{ env.NEW_VERSION }}' as the source branch.\n5. Verify tests pass."
-          else
-            echo "No merge conflicts detected in PR #$pr_number"
-          fi
+        run: .github/bin/create_pr_to_sync_develop.sh ${{ env.NEW_VERSION }}
