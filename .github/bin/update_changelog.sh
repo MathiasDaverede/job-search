@@ -2,9 +2,11 @@
 
 set -e  # Exit on any error
 
-new_version=$1 # ${{ env.NEW_VERSION }}
+repo=$1 # ${{ github.repository }}
+new_version=$2 # ${{ env.NEW_VERSION }}
 
-repo="MathiasDaverede/job-search"
+echo "Repository '$repo'."
+echo "New version '$new_version'."
 
 changelog_header="# Changelog\n\n"
 changelog_header+="All notable changes to this project are documented in this file.\n\n"
