@@ -45,7 +45,8 @@ Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/<ton-profil>) pour disc
 [Démarrer le projet](#start-project)  
 [Accéder au projet](#access-project)  
 [Modifier le projet](#modify-project)  
-[Tests unitaires](#unit-tests)
+[Tests unitaires](#unit-tests)  
+[Github et Git flow](#git)
 
 ## Versions du projet
 
@@ -326,3 +327,66 @@ Lancement des tests :
 
 Pour information, la création d'un test unitaire ce fait grâce à la commande :  
 `bin/console make:test`
+
+TODO à compléter améliorer
+## Github et Git flow
+
+<a name="git"></a>
+
+## Paramétrage Github
+
+Création d'un repository "job-search"
+
+J'utilise SourceTree sur Windows
+
+Git flow > initialisation : main/develop/....
+
+git push develop
+
+Repo github > Settings > autoremove branches merged + d'autre truc (squash and merge)
+Protections des branches main et develop
+
+Création des issues :
+Initialize Project
+Display Symfony placeholder page
+Create cover letters back-office
+Generate cover letters PDF
+Display version in footer
+Useful links for developers
+
+### Features
+Création d'une branche feature/[numero_issue]-ma-feature à partir de develop.
+feature/1-init-project
+...
+
+Ouverture d'une PR de feature/[numero_issue]-ma-feature vers develop.
+titre : feat: Initialize Project [closes #1]
+description :
+
+Après validation (tests via project.yml), squash and merge dans develop.
+
+### Releases
+
+Création d'une branche release/X.Y.Z à partir de develop (qui contient les nouvelles features).
+release/1.0.0
+
+Ouverture d'une PR de release/X.Y.Z vers main.
+titre : Release 1.0.0
+description : la liste des features contenues
+
+Après validation (tests via project.yml), squash and merge dans main.
+
+CI on merge auto : version etc.
+
+Synchronisation de main vers develop
+étant donné que les branches main et develop sont protégées (pull requests only)
+Et pour gérer les potentiels conflits :
+Création d'une branche sync-develop-vX.Y.Z depuis develop
+sync-develop-v1.0.0
+
+merger main dans la branche
+résolution des conflits
+commit + push
+
+Ouverture d'une PR de sync-develop-vX.Y.Z vers develop.
+merge
