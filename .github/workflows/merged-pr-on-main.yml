@@ -40,6 +40,18 @@ jobs:
         run: |
           ls -l .github/bin/
 
+      - name: Check line endings
+        run: |
+          echo "Checking line endings for files in .github/bin/:"
+          for file in .github/bin/*; do
+            if [ -f "$file" ]; then
+              echo "Line endings for $file:"
+              file "$file"
+            else
+              echo "No files found in .github/bin/"
+            fi
+          done
+
       - name: Update VERSION.md
         run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
 
