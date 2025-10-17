@@ -370,6 +370,8 @@ Après validation (tests via project.yml), squash and merge dans develop.
 Création d'une branche release/X.Y.Z à partir de develop (qui contient les nouvelles features).
 release/1.0.0
 
+(merger main dans la release si conflit dans la PR après)
+
 Ouverture d'une PR de release/X.Y.Z vers main.
 titre : Release 1.0.0
 description : la liste des features contenues
