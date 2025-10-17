@@ -327,7 +327,6 @@ All notable changes to this project are documented in this file.
 
 https://github.com/symfony/symfony/releases
 
-
 Logique git flow à mettre dans le readme:
 
 Features :
@@ -348,9 +347,9 @@ Synchronisation de develop :
 Ouverture d'une PR automatiquement dans la CI de main vers develop.
 Pour gérer manuellement les conflits potentiels
 si conflits :
-fetch
-se placer sur la branche develop
-merger main dans develop
+création d'une branche depuis develop (puisque les branches main et develop sont protégées, pas le choix)
+    sync-develop-v1.1.0
+merger main dans la branche
 commit de merge conflit auto
 résolution des conflits
-push sur develop > PR mise à jour mergeable > merge
+push  > mettre à jour la PR avec la branche à la place de main (sync-develop-v1.1.0 vers develop) > merge

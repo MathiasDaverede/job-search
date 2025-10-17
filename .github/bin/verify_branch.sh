@@ -19,15 +19,17 @@ if [ -z "$source_branch" ]; then
 fi
 
 if [ "$target_branch" = "develop" ]; then
-  if ! [[ $source_branch =~ ^feature/ ]]; then
-    echo "Error: For target branch 'develop', the source branch must start with 'feature/'."
+  if ! [[ $source_branch =~ ^feature/|^sync-develop-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: For target branch 'develop', the source branch name '$source_branch' does not follow the convention (feature/* or sync-develop-vX.Y.Z)."
     exit 1
   fi
 fi
 
 if [ "$target_branch" = "main" ]; then
   if ! [[ $source_branch =~ ^(release|hotfix)/[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-    echo "Error: For target branch 'main', the source branch must be in the format 'release/X.Y.Z' or 'hotfix/X.Y.Z'."
+    echo "Error: For target branch 'main', the source branch name '$source_branch' does not follow the convention (release/X.Y.Z or hotfix/X.Y.Z)."
     exit 1
   fi
 fi
+
+echo "Branch name '$source_branch' is valid."
