@@ -384,7 +384,7 @@ Synchronisation de main vers develop
 étant donné que les branches main et develop sont protégées (pull requests only)
 Et pour gérer les potentiels conflits :
 Création d'une branche sync-develop-vX.Y.Z depuis develop
-sync-develop-v1.0.0
+sync-main-v1.0.0-to-develop
 
 merger main dans la branche
 résolution des conflits
