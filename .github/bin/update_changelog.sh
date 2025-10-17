@@ -2,17 +2,6 @@
 
 set -e  # Exit on any error
 
-# Ensure required environment variables are set
-if [ -z "$NEW_VERSION" ]; then
-  echo "Error: NEW_VERSION environment variable is not set" >&2
-  exit 1
-fi
-
-if [ -z "$GITHUB_TOKEN" ]; then
-  echo "Error: GITHUB_TOKEN environment variable is not set" >&2
-  exit 1
-fi
-
 repo="MathiasDaverede/job-search"
 
 changelog_header="# Changelog\n\n"

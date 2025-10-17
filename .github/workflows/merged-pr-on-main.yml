@@ -1,4 +1,4 @@
-name: Update version, changelog, create tag and release
+name: Merged PR on main
 
 # Triggered after merging PRs to main from release/X.Y.Z or hotfix/X.Y.Z branches.
 on:
@@ -12,19 +12,19 @@ permissions:
   issues: read # For rendering issue links in CHANGELOG.md and release notes
 
 jobs:
-  version-changelog-tag:
+  # Update VERSION.md and CHANGELOG.md, create tag and release, synchronize develop
+  merged-pr-on-main:
     # Prevent closed (abandoned) PR to launch the job
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: main # Checkout the main branch after merge
           fetch-depth: 0 # Fetches the full Git history to analyse tags
       
-      - name: Debug version-changelog-tag job
+      - name: Debug job
         run: |
           echo "Event: ${{ github.event_name }}"
           echo "PR Number: ${{ github.event.pull_request.number }}"
@@ -32,30 +32,32 @@ jobs:
           echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
           echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
 
-      - name: Set up GitHub CLI
-        run: |
-          gh version || (echo "Installing GitHub CLI..." && sudo apt-get update && sudo apt-get install -y gh)
+      - name: Verify GitHub CLI
+        run: gh version
 
       - name: Update VERSION.md
-        run: .github/bin/update_version.sh ${{ github.event.pull_request.head.ref }}
+        run: .github/bin/update_version.sh
 
       - name: Update CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEW_VERSION: ${{ env.NEW_VERSION }}
         run: .github/bin/update_changelog.sh
 
       - name: Output files content
         run: |
-          echo "Generated version ${{ env.NEW_VERSION }}"
           echo "VERSION.md content:"
           cat VERSION.md
           echo "CHANGELOG.md content:"
           cat CHANGELOG.md
 
-      - name: Commit and push files
+      - name: Git config
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Commit and push files
+        run: |
           git add VERSION.md CHANGELOG.md
           git commit -m "Update VERSION.md to ${{ env.NEW_VERSION }} and CHANGELOG.md"
           git push origin main
@@ -70,5 +72,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create ${{ env.NEW_VERSION }} --title "${{ env.NEW_VERSION }}" --notes-file CHANGELOG.md --target main
+      
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop # Checkout the main branch after merge
+
+      - name: Merge main into develop
+        run: |
+          git merge origin/main
+          git push origin develop
 
       
