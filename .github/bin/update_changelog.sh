@@ -31,8 +31,6 @@ get_pr_changes() {
   # Get commit SHAs in range (use --first-parent to focus on merge commits)
   commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref")
 
-  debug "Commits for ${from_ref}..${to_ref}:\n$commits"
-
   # Initialize arrays for categorized changes
   local added=""
   local fixed=""
@@ -74,10 +72,10 @@ get_pr_changes() {
   done <<< "$commits"
 
   # Output sections only if not empty
-  [ -n "$breaking" ] && echo -e "### Breaking Changes\n\n" && echo -e "$breaking"
-  [ -n "$added" ] && echo -e "### Added\n\n" && echo -e "$added"
-  [ -n "$fixed" ] && echo -e "### Fixed\n\n" && echo -e "$fixed"
-  [ -n "$changed" ] && echo -e "### Changed\n\n" && echo -e "$changed"
+  [ -n "$breaking" ] && echo -e "### Breaking Changes\n" && echo -e "$breaking"
+  [ -n "$added" ] && echo -e "### Added\n" && echo -e "$added"
+  [ -n "$fixed" ] && echo -e "### Fixed\n" && echo -e "$fixed"
+  [ -n "$changed" ] && echo -e "### Changed\n" && echo -e "$changed"
 }
 
 # Start fresh: overwrite CHANGELOG with header
@@ -86,7 +84,7 @@ changelog_header+="All notable changes to this project are documented in this fi
 changelog_header+="The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  \n"
 changelog_header+="and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
 
-echo -e "$changelog_header\n\n" > "$changelog_file"
+echo -e "$changelog_header\n" > "$changelog_file"
 
 # Get all tags sorted by version (assuming vX.Y.Z format)
 tags=$(git tag -l 'v*' --sort=-v:refname)
@@ -97,7 +95,7 @@ debug "tags :\n$tags"
 readarray -t TAG_ARRAY <<< "$tags"
 
 # Current version (not yet tagged, use HEAD)
-echo -e "## [${version}] - ${date}\n\n" >> "$changelog_file"
+echo -e "## [${version}] - ${date}\n" >> "$changelog_file"
 
 get_pr_changes "${TAG_ARRAY[0]}" HEAD >> "$changelog_file" || echo "No changes." >> "$changelog_file"
 

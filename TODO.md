@@ -1,3 +1,6 @@
+Pour annuler un commit non poussé :
+git resest --soft HEAD~
+
 Paramétrage Sourcetree :
 
 git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
