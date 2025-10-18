@@ -20,7 +20,8 @@ jobs:
         echo "Event: ${{ github.event_name }}"
         echo "PR Number: ${{ github.event.pull_request.number }}"
         echo "Actor: ${{ github.actor }}"
-        echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
+        echo "Base Ref: ${{ github.base_ref }}"
+        echo "Base Ref (event): ${{ github.event.pull_request.base.ref }}"
         echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
     - name: Verify branch

@@ -28,6 +28,8 @@ pr_list=$(gh pr list --repo "$repo" --state merged --base develop --search "merg
 # Process merged PRs
 pr_found=0
 while IFS= read -r pr; do
+  echo "PR: '$pr'."
+
   if [[ $pr =~ ^([0-9]+)[[:space:]]+(feat|fix):[[:space:]]*(.+?)([[:space:]]*\[closes[[:space:]]*#([0-9]+)\])?$ ]]; then
     pr_number="${BASH_REMATCH[1]}"
     type="${BASH_REMATCH[2]}"
@@ -35,8 +37,16 @@ while IFS= read -r pr; do
     issue_number="${BASH_REMATCH[5]}" # Will be empty if [closes #N] is not present
     pr_found=1
 
+    echo "pr_number: '$pr_number'."
+    echo "type: '$type'."
+    echo "description: '$description'."
+    echo "issue_number: '$issue_number'."
+
     if [ -n "$issue_number" ]; then
       issue_title=$(gh issue view "${issue_number}" --repo "${repo}" --json title --jq .title 2>/dev/null || echo "Issue not found")
+
+      echo "issue_title: '$issue_title'."
+
       if [ -n "$issue_title" ] && [ "$issue_title" != "Issue not found" ]; then
         changelog_content+="- ${type} [#${issue_number}](https://github.com/${repo}/issues/${issue_number}) ${issue_title}\n"
       else
@@ -59,6 +69,10 @@ fi
 
 # Ensure a newline before appending existing content
 changelog_content+="\n"
+
+echo -e "changelog_header :\n$changelog_header\n"
+echo -e "changelog_content :\n$changelog_content\n"
+echo -e "CHANGELOG.md :\n${cat CHANGELOG.md}"
 
 # Write to CHANGELOG.md
 if [ -f CHANGELOG.md ]; then
