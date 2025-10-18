@@ -36,9 +36,9 @@ jobs:
     - name: Display .env.local
       run: cat .env.local
 
-    - name: Generate hash for Dockerfile and scripts
+    - name: Generate hash for Dockerfile and .env.local
       id: files-hash
-      run: echo "hash=$(cat Dockerfile .github/bin/create_env_local.sh | sha256sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+      run: echo "hash=$(cat Dockerfile .env.local | sha256sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
 
     - name: Build Docker image
       uses: docker/build-push-action@v6
@@ -46,7 +46,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: false # Don't push the image, just build
-        tags: my-app:latest
+        tags: job-seach:latest
         cache-from: type=gha,scope=docker-image-${{ steps.files-hash.outputs.hash }}
         cache-to: type=gha,mode=max,scope=docker-image-${{ steps.files-hash.outputs.hash }}
 
