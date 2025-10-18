@@ -30,7 +30,7 @@ get_pr_changes() {
   local commits
 
   # Get commit SHAs in range (use --first-parent to focus on merge commits)
-  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref" --"$target_branch")
+  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref" -- "$target_branch")
 
   # Initialize arrays for categorized changes
   local added=""
