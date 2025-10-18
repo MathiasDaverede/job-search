@@ -15,6 +15,11 @@ version=$2 # ${{ env.NEW_VERSION }}
 changelog_file="CHANGELOG.md"
 date=$(date +%Y-%m-%d)
 
+# Debug function to print to stderr
+debug() {
+  echo -e "Debug: $@" >&2
+}
+
 # Function to get PR titles for commits between two refs (from_ref..to_ref)
 # Uses `gh pr list` to fetch merged PRs associated with commits
 get_pr_changes() {
@@ -26,7 +31,7 @@ get_pr_changes() {
   # Get commit SHAs in range (use --first-parent to focus on merge commits)
   commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref")
 
-  echo -e "commits :\n$commits"
+  debug "Commits for ${from_ref}..${to_ref}:\n$commits"
 
   # Initialize arrays for categorized changes
   local added=""
@@ -36,17 +41,19 @@ get_pr_changes() {
 
   # Iterate over commits to find associated PRs
   while IFS= read -r commit; do
+    debug "Processing commit: $commit"
+
     # Find PR associated with the commit
     pr_info=$(gh pr list --state merged --repo "$repo" --search "$commit" --json title,labels,mergedAt --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
 
-    echo -e "pr_info :\n$pr_info"
+    debug "pr_info :\n$pr_info"
 
     if [ -n "$pr_info" ]; then
       title=$(echo "$pr_info" | cut -d'|' -f1)
       labels=$(echo "$pr_info" | cut -d'|' -f2)
 
-      echo "title : $title"
-      echo -e "labels :\n$labels"
+      debug "title : $title"
+      debug "labels :\n$labels"
 
       # TODO label breaking ?
 
@@ -83,6 +90,8 @@ echo -e $changelog_header > "$changelog_file"
 
 # Get all tags sorted by version (assuming vX.Y.Z format)
 tags=$(git tag -l 'v*' --sort=-v:refname)
+
+debug "tags :\n$tags"
 
 # Convert tags to array
 readarray -t TAG_ARRAY <<< "$tags"

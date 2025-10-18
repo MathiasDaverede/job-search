@@ -443,3 +443,37 @@ Cette release inclut :
 - feat(auth): add OAuth2 login support
 - fix(session): resolve session timeout issue
 - chore(deps): update Symfony to 7.3.2
+
+Explication de la partie du code
+Voici le fragment de code dans la fonction get_pr_changes du script update_changelog.sh :
+bash# Check for breaking change label
+if echo "$labels" | grep -q "breaking"; then
+  breaking+="- $title\n"
+fi
+Contexte
+Ce code fait partie de la boucle qui parcourt les Pull Requests (PR) associées aux commits dans une plage donnée (par exemple, entre deux tags Git ou jusqu’à HEAD). Pour chaque PR, le script récupère :
+
+Le titre de la PR (ex: feat(auth): add OAuth2 login support).
+Les labels associés à la PR, via la commande gh pr list --json title,labels,mergedAt.
+
+Les labels sont récupérés sous forme d’une liste de noms séparés par des barres verticales () dans la variable $labels (par exemple, feature|bug si la PR a les labels feature et bug).
+Que fait ce code ?
+
+Vérification du label breaking :
+
+La ligne echo "$labels" | grep -q "breaking" vérifie si le mot breaking apparaît dans la liste des labels de la PR.
+grep -q est une version "silencieuse" de grep : elle ne produit pas de sortie, mais définit un code de retour (0 si le motif est trouvé, 1 sinon).
+La condition if vérifie donc si le label breaking est présent parmi les labels de la PR.
+
+
+Ajout à la section Breaking Changes :
+
+Si le label breaking est trouvé, le titre de la PR (stocké dans $title) est ajouté à la variable breaking avec le format - <titre>\n.
+La variable breaking est utilisée plus tard pour générer la section ### Breaking Changes dans le CHANGELOG.md si elle n’est pas vide.
+
+
+Pourquoi cette section ? :
+
+Les breaking changes (changements cassants) sont des modifications qui peuvent casser la compatibilité avec les versions précédentes (par exemple, une modification d’API, une suppression de fonctionnalité, ou un changement dans la structure de la base de données).
+Selon Semantic Versioning (SemVer), ces changements justifient une incrémentation de la version majeure (ex: de 1.5.3 à 2.0.0).
+En les mettant dans une section dédiée (Breaking Changes), tu rends le CHANGELOG plus clair pour les utilisateurs, qui peuvent voir immédiatement les changements nécessitant une attention particulière.
