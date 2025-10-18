@@ -74,19 +74,19 @@ get_pr_changes() {
   done <<< "$commits"
 
   # Output sections only if not empty
-  [ -n "$breaking" ] && echo "### Breaking Changes" && echo -e "$breaking"
-  [ -n "$added" ] && echo "### Added" && echo -e "$added"
-  [ -n "$fixed" ] && echo "### Fixed" && echo -e "$fixed"
-  [ -n "$changed" ] && echo "### Changed" && echo -e "$changed"
+  [ -n "$breaking" ] && echo -e "### Breaking Changes\n\n" && echo -e "$breaking"
+  [ -n "$added" ] && echo -e "### Added\n\n" && echo -e "$added"
+  [ -n "$fixed" ] && echo -e "### Fixed\n\n" && echo -e "$fixed"
+  [ -n "$changed" ] && echo -e "### Changed\n\n" && echo -e "$changed"
 }
 
 # Start fresh: overwrite CHANGELOG with header
 changelog_header="# Changelog\n\n"
 changelog_header+="All notable changes to this project are documented in this file.\n\n"
-changelog_header+="The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\n"
+changelog_header+="The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  \n"
 changelog_header+="and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
 
-echo -e $changelog_header > "$changelog_file"
+echo -e "$changelog_header\n\n" > "$changelog_file"
 
 # Get all tags sorted by version (assuming vX.Y.Z format)
 tags=$(git tag -l 'v*' --sort=-v:refname)
@@ -97,16 +97,22 @@ debug "tags :\n$tags"
 readarray -t TAG_ARRAY <<< "$tags"
 
 # Current version (not yet tagged, use HEAD)
-echo -e "\n## [${version}] - ${date}" >> "$changelog_file"
+echo -e "## [${version}] - ${date}\n\n" >> "$changelog_file"
+
 get_pr_changes "${TAG_ARRAY[0]}" HEAD >> "$changelog_file" || echo "No changes." >> "$changelog_file"
 
 # Loop over previous tags (from newest to oldest, excluding the first which is latest)
 for ((i=1; i<${#TAG_ARRAY[@]}; i++)); do
   prev_tag="${TAG_ARRAY[$i]}"
   curr_tag="${TAG_ARRAY[$i-1]}"
+
+  debug "prev_tag : $prev_tag"
+  debug "curr_tag : $curr_tag"
   
   # Get release date from tag commit
   release_date=$(git log -1 --format=%cd --date=format:%Y-%m-%d "$curr_tag")
+
+  debug "release_date : $release_date"
   
   echo -e "\n## [${curr_tag#v}] - ${release_date}" >> "$changelog_file"
   get_pr_changes "$prev_tag" "$curr_tag" >> "$changelog_file" || echo "No changes." >> "$changelog_file"
@@ -115,9 +121,9 @@ done
 # Handle changes before first tag (if any)
 if [ ${#TAG_ARRAY[@]} -gt 0 ]; then
   first_tag="${TAG_ARRAY[-1]}"
+
+  debug "first_tag : $first_tag"
+
   echo -e "\n## [${first_tag#v}] - $(git log -1 --format=%cd --date=format:%Y-%m-%d "$first_tag")" >> "$changelog_file"
   get_pr_changes "" "$first_tag" >> "$changelog_file" || echo "No changes." >> "$changelog_file"
 fi
-
-# Add the updated CHANGELOG to git (for commit in workflow)
-git add "$changelog_file"
