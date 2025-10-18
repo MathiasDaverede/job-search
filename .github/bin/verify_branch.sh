@@ -19,8 +19,8 @@ if [ -z "$source_branch" ]; then
 fi
 
 if [ "$target_branch" = "develop" ]; then
-  if ! [[ $source_branch =~ ^feature/|^sync-main-v[0-9]+\.[0-9]+\.[0-9]+-to-develop$ ]]; then
-    echo "Error: For target branch 'develop', the source branch name '$source_branch' does not follow the convention (feature/* or sync-develop-vX.Y.Z)."
+  if ! [[ $source_branch =~ ^feature/|^sync/main-to-develop-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Error: For target branch 'develop', the source branch name '$source_branch' does not follow the convention (feature/* or sync/main-to-develop-vX.Y.Z)."
     exit 1
   fi
 fi

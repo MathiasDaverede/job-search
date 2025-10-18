@@ -34,23 +34,23 @@ jobs:
           echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
           echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
-      - name: Set env.NEW_VERSION
-        run: .github/bin/set_env_new_version.sh ${{ github.event.pull_request.head.ref }}
+      - name: Set env.VERSION and env.V_VERSION
+        run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
 
       - name: Git config
         run: .github/bin/git_config_bot.sh
 
       - name: Create tag
         run: |
-          git tag ${{ env.NEW_VERSION }}
-          git push origin ${{ env.NEW_VERSION }}
+          git tag ${{ env.V_VERSION }}
+          git push origin ${{ env.V_VERSION }}
 
       - name: Display gh version
         run: |
           gh --version
 
       - name: Create GitHub Release
-        run: gh release create ${{ env.NEW_VERSION }} --title "${{ env.NEW_VERSION }}" --notes-file CHANGELOG.md --target main
+        run: gh release create ${{ env.V_VERSION }} --title "${{ env.V_VERSION }}" --notes-file CHANGELOG.md --target main
       
       - name: Create PR to sync develop
-        run: .github/bin/create_pr_to_sync_develop.sh ${{ env.NEW_VERSION }}
+        run: .github/bin/create_pr_to_sync_develop.sh ${{ github.repository }} ${{ env.VERSION }}

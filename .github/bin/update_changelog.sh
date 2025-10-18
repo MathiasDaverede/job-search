@@ -1,68 +1,125 @@
 #!/bin/bash
 
-set -e  # Exit on any error
+# This script regenerates the entire CHANGELOG.md file based on merged Pull Request titles.
+# It assumes:
+# - PR titles follow Conventional Commits (e.g., feat:, fix:, chore:).
+# - PRs are merged into develop (features) or main (releases or hotfixes).
+# - Git tags (e.g., vX.Y.Z) exist for previous releases.
+# - Overwrites CHANGELOG.md completely to allow header/structure changes.
+
+set -e # Exit on error
 
 repo=$1 # ${{ github.repository }}
-new_version=$2 # ${{ env.NEW_VERSION }}
+v_version=$2 # ${{ env.V_VERSION }}
 
-echo "Repository '$repo'."
-echo "New version '$new_version'."
+changelog_file="CHANGELOG.md"
+date=$(date +%Y-%m-%d)
 
+# Debug function to print to stderr
+debug() {
+  echo -e "Debug: $@" >&2
+}
+
+# Function to get PR titles for commits between two refs (from_ref..to_ref) on a target branch
+# Uses `gh pr list` to fetch merged PRs associated with commits
+get_pr_changes() {
+  local from_ref="$1"
+  local to_ref="$2"
+  local target_branch="$3" # develop or main
+  local prs
+  local commits
+
+  # Get commit SHAs in range (use --first-parent to focus on merge commits)
+  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref" -- "$target_branch")
+
+  # Initialize arrays for categorized changes
+  local added=""
+  local fixed=""
+  local changed=""
+  local breaking=""
+
+  # Iterate over commits to find associated PRs
+  while IFS= read -r commit; do
+    # Find PR associated with the commit
+    pr_info=$(gh pr list --state merged --repo "$repo" --search "$commit" --json title,labels,mergedAt --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
+
+    if [ -n "$pr_info" ]; then
+      title=$(echo "$pr_info" | cut -d'|' -f1)
+      labels=$(echo "$pr_info" | cut -d'|' -f2)
+
+      debug "pr_info :\n$pr_info"
+      debug "title : $title"
+      debug "labels :\n$labels"
+
+      # Categorize based on PR title prefix
+      if [[ "$title" =~ ^feat: ]]; then
+        added+="- $title\n"
+      elif [[ "$title" =~ ^fix: ]]; then
+        fixed+="- $title\n"
+      elif [[ "$title" =~ ^(chore|docs|refactor|style|test|perf|ci|build): ]]; then
+        changed+="- $title\n"
+      fi
+
+      # Check for breaking change label
+      if echo "$labels" | grep -q "breaking"; then
+        breaking+="- $title\n"
+      fi
+    fi
+  done <<< "$commits"
+
+  # Output sections only if not empty
+  [ -n "$breaking" ] && echo -e "### Breaking Changes\n" && echo -e "$breaking"
+  [ -n "$added" ] && echo -e "### Added\n" && echo -e "$added"
+  [ -n "$fixed" ] && echo -e "### Fixed\n" && echo -e "$fixed"
+  [ -n "$changed" ] && echo -e "### Changed\n" && echo -e "$changed"
+}
+
+# Start fresh: overwrite CHANGELOG with header
 changelog_header="# Changelog\n\n"
 changelog_header+="All notable changes to this project are documented in this file.\n\n"
+changelog_header+="The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  \n"
+changelog_header+="and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
 
-changelog_content="## $new_version - $(date +%Y-%m-%d)\n"
-changelog_content+="[Release $new_version](https://github.com/$repo/releases/tag/$new_version)\n\n"
+echo -e "$changelog_header\n" > "$changelog_file"
 
-# Get the previous tag to determine the date range for merged PRs
-previous_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
-if [ -n "$previous_tag" ]; then
-  tag_date=$(git log -1 --format=%ci "${previous_tag}" | cut -d' ' -f1)
-else
-  tag_date="1970-01-01"
-fi
+# Get all tags sorted by version (assuming vX.Y.Z format)
+tags=$(git tag -l 'v*' --sort=-v:refname)
 
-# Fetch PRs merged into develop since the last tag
-pr_list=$(gh pr list --repo "$repo" --state merged --base develop --search "merged:>$tag_date" --json number,title,mergedAt --jq '.[] | "\(.number) \(.title)"')
+debug "Tags found :\n$tags"
 
-# Process merged PRs
-pr_found=0
-while IFS= read -r pr; do
-  if [[ $pr =~ ^([0-9]+)[[:space:]]+(feat|fix):[[:space:]]*(.+?)([[:space:]]*\[closes[[:space:]]*#([0-9]+)\])?$ ]]; then
-    pr_number="${BASH_REMATCH[1]}"
-    type="${BASH_REMATCH[2]}"
-    description="${BASH_REMATCH[3]}"
-    issue_number="${BASH_REMATCH[5]}" # Will be empty if [closes #N] is not present
-    pr_found=1
+# Convert tags to array
+readarray -t TAG_ARRAY <<< "$tags"
 
-    if [ -n "$issue_number" ]; then
-      issue_title=$(gh issue view "${issue_number}" --repo "${repo}" --json title --jq .title 2>/dev/null || echo "Issue not found")
-      if [ -n "$issue_title" ] && [ "$issue_title" != "Issue not found" ]; then
-        changelog_content+="- ${type} [#${issue_number}](https://github.com/${repo}/issues/${issue_number}) ${issue_title}\n"
-      else
-        echo "Warning: Issue #${issue_number} not found for PR #${pr_number}, using PR title" >&2
-        changelog_content+="- ${type} [#${pr_number}](https://github.com/${repo}/pull/${pr_number}) ${description}\n"
-      fi
-    else
-      echo "Info: No issue linked for PR #${pr_number}, using PR title" >&2
-      changelog_content+="- ${type} [#${pr_number}](https://github.com/${repo}/pull/${pr_number}) ${description}\n"
-    fi
-  else
-    pr_number=$(echo "${pr}" | cut -d' ' -f1)
-    echo "Warning: Skipping PR #${pr_number}: Title does not match 'feat|fix' format" >&2
-  fi
-done <<< "${pr_list}"
+# Current version (no tag yet, use PRs merged into develop since last tag)
+echo -e "## [$v_version] - $date\n" >> "$changelog_file"
 
-if [ ${pr_found} -eq 0 ]; then
-  echo "Warning: No merged PRs found in develop since ${tag_date}, changelog will only include header" >&2
-fi
+# Use develop as the target branch for the current version
+# No tags exist yet, get all PRs merged into develop
+get_pr_changes "" "origin/develop" "develop" >> "$changelog_file" || echo "No changes." >> "$changelog_file"
 
-# Ensure a newline before appending existing content
-changelog_content+="\n"
+# Loop over previous tags (from newest to oldest, excluding the first which is latest)
+for ((i=1; i<${#TAG_ARRAY[@]}; i++)); do
+  prev_tag="${TAG_ARRAY[$i]}"
+  curr_tag="${TAG_ARRAY[$i-1]}"
 
-# Write to CHANGELOG.md
-if [ -f CHANGELOG.md ]; then
-  echo -e "${changelog_header}${changelog_content}$(cat CHANGELOG.md)" > CHANGELOG.md
-else
-  echo -e "${changelog_header}${changelog_content}" > CHANGELOG.md
+  debug "prev_tag : $prev_tag"
+  debug "curr_tag : $curr_tag"
+  
+  # Get release date from tag commit
+  release_date=$(git log -1 --format=%cd --date=format:%Y-%m-%d "$curr_tag")
+
+  debug "release_date : $release_date"
+  
+  echo -e "\n## [${curr_tag#v}] - ${release_date}" >> "$changelog_file"
+  get_pr_changes "$prev_tag" "$curr_tag" >> "$changelog_file" || echo "No changes." >> "$changelog_file"
+done
+
+# Handle changes before first tag (if any)
+if [ ${#TAG_ARRAY[@]} -gt 0 ]; then
+  first_tag="${TAG_ARRAY[-1]}"
+
+  debug "first_tag : $first_tag"
+
+  echo -e "\n## [${first_tag#v}] - $(git log -1 --format=%cd --date=format:%Y-%m-%d "$first_tag")" >> "$changelog_file"
+  get_pr_changes "" "$first_tag" >> "$changelog_file" || echo "No changes." >> "$changelog_file"
 fi

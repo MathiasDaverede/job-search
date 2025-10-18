@@ -1,3 +1,6 @@
+Pour annuler un commit non poussé :
+git resest --soft HEAD~
+
 Paramétrage Sourcetree :
 
 git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
@@ -328,3 +331,152 @@ All notable changes to this project are documented in this file.
 https://github.com/symfony/symfony/releases
 
 Les fichiers executables doivent etre executables chmod +x et en LF
+
+1. Bonnes pratiques pour les commits
+Pour maintenir un historique clair et faciliter la génération du CHANGELOG, je recommande d’utiliser la convention Conventional Commits. Voici les bonnes pratiques :
+Structure d’un message de commit
+text<type>(<portée>): <description courte>
+
+[Corps optionnel avec plus de détails]
+
+[Footer optionnel, ex: Référence à une issue]
+Types de commits courants
+
+feat: Nouvelle fonctionnalité (ex: feat(auth): add OAuth2 login support).
+fix: Correction de bug (ex: fix(database): resolve migration issue with user table).
+chore: Tâches de maintenance ou changements mineurs (ex: chore(deps): update PHPUnit to 10.5).
+docs: Mise à jour de la documentation (ex: docs(readme): update installation instructions).
+style: Changements de mise en forme, sans impact fonctionnel (ex: style(css): format code with Prettier).
+refactor: Refactorisation du code sans changement fonctionnel (ex: refactor(controller): simplify user controller logic).
+test: Ajout ou modification de tests (ex: test(auth): add unit tests for login endpoint).
+ci: Modifications des workflows CI/CD (ex: ci(github): add PHPStan to CI pipeline).
+
+Bonnes pratiques
+
+Soyez descriptif mais concis : La première ligne du commit doit être claire et ne pas dépasser 50-72 caractères.
+Utilisez une portée (scope) : Indiquez le module ou la partie du projet concernée (ex: auth, database, frontend).
+Ajoutez des détails dans le corps : Expliquez pourquoi le changement est nécessaire si besoin.
+Liez aux issues : Si le commit ferme une issue, utilisez Closes #123 dans le footer.
+Évitez les commits vagues : Par exemple, évitez fix: bug et préférez fix(auth): correct redirect after login failure.
+
+Exemple
+bashfeat(api): add endpoint for user profile retrieval
+
+- Implement GET /api/users/{id} endpoint
+- Add validation for user permissions
+- Update API documentation
+
+Closes #45
+
+2. Bonnes pratiques pour les titres et descriptions des Pull Requests
+Les Pull Requests (PR) doivent être claires pour faciliter la revue de code et la compréhension des changements. Voici des recommandations pour les PR dans ton contexte Git Flow (feature → develop, release → main).
+PR de feature vers develop
+
+Titre : Utilisez un format similaire aux Conventional Commits, en résumant le but de la feature.
+
+Ex: feat(auth): Implement OAuth2 login support
+Soyez précis et évitez des titres trop généraux comme Add new feature.
+
+
+Description :
+
+Contexte : Pourquoi cette feature est nécessaire (ex: lien vers une issue ou une spécification).
+Changements : Liste des principaux changements (ex: nouveaux endpoints, modifications de la base de données, etc.).
+Instructions de test : Comment tester la feature (ex: étapes manuelles ou tests automatisés).
+Impact : Mentionnez si cela affecte d’autres parties du projet (ex: migrations de base de données nécessaires).
+Checklist (optionnel) : Une liste pour confirmer que les standards sont respectés (tests passing, code formaté, etc.).
+
+
+Labels : Ajoutez des labels comme feature, enhancement, ou bug pour catégoriser la PR.
+
+Exemple :
+markdown**Titre** : feat(auth): Implement OAuth2 login support
+
+**Description** :
+- Ajout de l'authentification OAuth2 via Google.
+- Mise à jour des routes API dans `config/routes.yaml`.
+- Ajout de tests unitaires pour le service OAuth.
+
+**Instructions de test** :
+1. Configurer les variables d'environnement pour Google OAuth.
+2. Tester l'endpoint `/api/login/oauth` avec un compte Google.
+3. Vérifier que le token JWT est retourné.
+
+**Impact** :
+- Nécessite une mise à jour des variables d'environnement dans `.env`.
+- Compatible avec Symfony 7.3.
+
+**Checklist** :
+- [x] Tests unitaires passent
+- [x] Code formaté avec PHP-CS-Fixer
+- [x] Documentation mise à jour
+
+Closes #45
+PR de release vers main
+
+Titre : Indiquez le numéro de version et un résumé des changements majeurs.
+
+Ex: Release 1.5.3: OAuth2 support and bug fixes
+
+
+Description :
+
+Résumé des changements : Liste des features, fixes, et autres changements inclus dans la release (souvent basé sur le CHANGELOG).
+Type de release : Mentionnez si c’est une release majeure, mineure ou patch (selon SemVer).
+Instructions de déploiement : Notez tout ce qui est nécessaire pour déployer (migrations, mise à jour des dépendances, etc.).
+
+
+Labels : Utilisez des labels comme release ou version.
+
+Exemple :
+markdown**Titre** : Release 1.5.3: OAuth2 support and bug fixes
+
+**Description** :
+Cette release inclut :
+- Nouvelle fonctionnalité : Support de l'authentification OAuth2 (#45).
+- Correction de bugs dans la gestion des sessions (#47).
+- Mise à jour des dépendances Symfony.
+
+**Instructions de déploiement** :
+1. Exécuter `php bin/console doctrine:migrations:migrate`.
+2. Mettre à jour `.env` avec les nouvelles variables OAuth.
+3. Vérifier que le serveur Redis est en cours d'exécution.
+
+**Changelog** :
+- feat(auth): add OAuth2 login support
+- fix(session): resolve session timeout issue
+- chore(deps): update Symfony to 7.3.2
+
+Explication de la partie du code
+Voici le fragment de code dans la fonction get_pr_changes du script update_changelog.sh :
+bash# Check for breaking change label
+if echo "$labels" | grep -q "breaking"; then
+  breaking+="- $title\n"
+fi
+Contexte
+Ce code fait partie de la boucle qui parcourt les Pull Requests (PR) associées aux commits dans une plage donnée (par exemple, entre deux tags Git ou jusqu’à HEAD). Pour chaque PR, le script récupère :
+
+Le titre de la PR (ex: feat(auth): add OAuth2 login support).
+Les labels associés à la PR, via la commande gh pr list --json title,labels,mergedAt.
+
+Les labels sont récupérés sous forme d’une liste de noms séparés par des barres verticales () dans la variable $labels (par exemple, feature|bug si la PR a les labels feature et bug).
+Que fait ce code ?
+
+Vérification du label breaking :
+
+La ligne echo "$labels" | grep -q "breaking" vérifie si le mot breaking apparaît dans la liste des labels de la PR.
+grep -q est une version "silencieuse" de grep : elle ne produit pas de sortie, mais définit un code de retour (0 si le motif est trouvé, 1 sinon).
+La condition if vérifie donc si le label breaking est présent parmi les labels de la PR.
+
+
+Ajout à la section Breaking Changes :
+
+Si le label breaking est trouvé, le titre de la PR (stocké dans $title) est ajouté à la variable breaking avec le format - <titre>\n.
+La variable breaking est utilisée plus tard pour générer la section ### Breaking Changes dans le CHANGELOG.md si elle n’est pas vide.
+
+
+Pourquoi cette section ? :
+
+Les breaking changes (changements cassants) sont des modifications qui peuvent casser la compatibilité avec les versions précédentes (par exemple, une modification d’API, une suppression de fonctionnalité, ou un changement dans la structure de la base de données).
+Selon Semantic Versioning (SemVer), ces changements justifient une incrémentation de la version majeure (ex: de 1.5.3 à 2.0.0).
+En les mettant dans une section dédiée (Breaking Changes), tu rends le CHANGELOG plus clair pour les utilisateurs, qui peuvent voir immédiatement les changements nécessitant une attention particulière.
