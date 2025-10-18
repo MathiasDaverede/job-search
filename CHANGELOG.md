@@ -2,6 +2,15 @@
 
 All notable changes to this project are documented in this file.
 
+## v1.5.3 - 2025-10-18
+[Release v1.5.3](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.3)
+
+- fix [#40](https://github.com/MathiasDaverede/job-search/pull/40) Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+# Changelog
+
+All notable changes to this project are documented in this file.
+
 ## v1.5.2 - 2025-10-17
 [Release v1.5.2](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.2)
 
