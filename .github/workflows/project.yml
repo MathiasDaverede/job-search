@@ -36,6 +36,31 @@ jobs:
     - name: Display .env.local
       run: cat .env.local
 
+    - name: Generate hash for Dockerfile and .env.local
+      id: files-hash
+      run: echo "hash=$(cat Dockerfile .env.local | sha256sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+
+    - name: Load .env.local
+      id: dotenv
+      uses: falti/dotenv-action@v1
+      with:
+        path: .env.local
+        export-variables: true
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false # Don't push the image, just build
+        tags: job-seach:latest
+        build-args: |
+          USER_NAME=${{ steps.dotenv.outputs.USER_NAME }}
+          USER_ID=${{ steps.dotenv.outputs.USER_ID }}
+          GROUP_ID=${{ steps.dotenv.outputs.GROUP_ID }}
+        cache-from: type=gha,scope=docker-image-${{ steps.files-hash.outputs.hash }}
+        cache-to: type=gha,mode=max,scope=docker-image-${{ steps.files-hash.outputs.hash }}
+
     - name: Build and start containers
       run: docker compose --env-file .env.local up -d
 

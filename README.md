@@ -380,7 +380,9 @@ description : la liste des features contenues
 
 Après validation (tests via project.yml), squash and merge dans main.
 
-CI on merge auto : version etc.
+CI on PR opened sinchronise : auto generation de version et changelog
+le changelog se base sur le titre des PRS car modifiable même une fois fermés
+en cas d'erreurs, il sera toujours possible d'avoir un changelog propre
 
 Synchronisation de main vers develop
 étant donné que les branches main et develop sont protégées (pull requests only)
