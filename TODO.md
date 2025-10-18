@@ -480,3 +480,59 @@ Pourquoi cette section ? :
 Les breaking changes (changements cassants) sont des modifications qui peuvent casser la compatibilité avec les versions précédentes (par exemple, une modification d’API, une suppression de fonctionnalité, ou un changement dans la structure de la base de données).
 Selon Semantic Versioning (SemVer), ces changements justifient une incrémentation de la version majeure (ex: de 1.5.3 à 2.0.0).
 En les mettant dans une section dédiée (Breaking Changes), tu rends le CHANGELOG plus clair pour les utilisateurs, qui peuvent voir immédiatement les changements nécessitant une attention particulière.
+
+Voici les recommandations en fonction des bonnes pratiques :
+1. Pour les features (branches comme feature/xyz, bugfix/xyz)
+
+Meilleure pratique : Squash and merge :
+
+Les branches de features contiennent souvent des commits intermédiaires (ex. : WIP, fix tests, update docs) qui n’ont pas besoin d’être dans l’historique de main.
+Le squash merge combine ces commits en un seul, avec un message clair (ex. : Add user authentication feature), ce qui rend l’historique lisible.
+Exemple de message : Add feature XYZ (#123) (où #123 est le numéro de la PR).
+
+
+Pourquoi :
+
+Réduit le bruit dans main.
+Aligne avec ton objectif de clarté.
+Les features ne nécessitent généralement pas de synchronisation avec develop via cherry-pick, donc le squash ne pose pas de problème.
+
+
+Mise en œuvre :
+
+Dans GitHub, configure la règle de protection de branche pour main pour permettre “Allow squash merging” (Settings > Branches > Branch protection rules > main).
+Assure-toi que les développeurs rédigent des titres de PR clairs, car ils deviennent le message du commit squashé.
+
+
+
+2. Pour les releases (branches comme release/X.Y.Z)
+
+Meilleure pratique : Merge commit :
+
+Pour les releases, il est préférable d’utiliser un merge commit standard (pas squash ni rebase) pour fusionner release/X.Y.Z dans main.
+Cela crée un commit de merge avec un message comme Merge branch 'release/X.Y.Z', que ton script create_pr_to_sync_develop.sh peut détecter pour extraire les commits à cherry-pick dans develop.
+
+
+Pourquoi :
+
+Ton workflow tag-release-sync.yml repose sur l’identification du merge commit pour synchroniser release/X.Y.Z avec develop.
+Un merge commit préserve l’historique des commits de la branche release, ce qui est utile pour retracer les changements (ex. : pour auditer ou déboguer).
+Le squash merge aplatit tout, ce qui casse la logique de cherry-pick dans ton script (comme vu avec l’erreur ^2).
+
+
+Mise en œuvre :
+
+Dans GitHub, coche “Allow merge commits” pour main (et éventuellement décoche “Allow squash merging” pour les releases si tu veux forcer la discipline).
+Configure un message de merge standard ou utilise le titre de la PR pour le merge commit.
+
+
+
+3. Pour les hotfixes (branches comme hotfix/X.Y.Z)
+
+Meilleure pratique : Merge commit (similaire aux releases) :
+
+Les hotfixes sont similaires aux releases dans Git Flow : ils doivent être mergés dans main et synchronisés avec develop.
+Un merge commit facilite la détection dans ton script (en ajustant le grep pour inclure hotfix/$version).
+
+
+Alternative : Si tu veux utiliser squash pour les hotfixes (pour un historique encore plus propre), modifie le script pour gérer les hotfixes comme les releases (voir ci-dessous).
