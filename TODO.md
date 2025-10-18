@@ -539,3 +539,6 @@ Un merge commit facilite la détection dans ton script (en ajustant le grep pour
 
 
 Alternative : Si tu veux utiliser squash pour les hotfixes (pour un historique encore plus propre), modifie le script pour gérer les hotfixes comme les releases (voir ci-dessous).
+
+
+aze
