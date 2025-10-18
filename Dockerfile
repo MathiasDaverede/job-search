@@ -40,7 +40,7 @@ ARG USER_ID
 ARG GROUP_ID
 
 RUN addgroup ${USER_NAME} --gid ${GROUP_ID}
-RUN adduser ${USER_NAME} --uid ${USER_ID} --gid ${GROUP_ID}
+RUN useradd ${USER_NAME} --uid ${USER_ID} --gid ${GROUP_ID} --create-home
 
 # AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using x.x.x.x. Set the 'ServerName' directive globally to suppress this message
 RUN touch /home/apache2.conf
