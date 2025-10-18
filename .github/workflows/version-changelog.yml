@@ -54,5 +54,10 @@ jobs:
       - name: Commit and push files
         run: |
           git add VERSION.md CHANGELOG.md
-          git commit -m "Update VERSION.md to ${{ env.V_VERSION }} and CHANGELOG.md"
-          git push origin ${{ github.event.pull_request.head.ref }}
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Update VERSION.md to ${{ env.V_VERSION }} and CHANGELOG.md"
+            git push origin ${{ github.event.pull_request.head.ref }}
+          else
+            echo "No changes to commit in VERSION.md or CHANGELOG.md"
+          fi
