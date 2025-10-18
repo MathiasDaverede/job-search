@@ -7,32 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v1.5.3] - 2025-10-18
 
-### Added
-
-- feat: useful links [closes #7]
-feat: useful links [closes #7]
-Release 1.0.0
-Release 1.0.0
-- feat: cover letters pdfs generation [closes #4]
-feat: cover letters pdfs generation [closes #4]
-Release 1.0.0
-Release 1.0.0
-- feat: back cover letter [closes #3]
-feat: back cover letter [closes #3]
-Release 1.0.0
-Release 1.0.0
-- feat: display Symfony homepage [closes #2]
-feat: display Symfony homepage [closes #2]
-Release 1.0.0
-Release 1.0.0
-- feat: initialize Docker, Symfony 7.3 and add GitHub Actions workflow [closes #1]
-feat: initialize Docker, Symfony 7.3 and add GitHub Actions workflow [closes #1]
-Release 1.0.0
-Release 1.0.0
-
 ### Fixed
 
 - fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+Release 1.0.0
+Release 1.0.0
+feat: useful links [closes #7]
+feat: useful links [closes #7]
+feat: cover letters pdfs generation [closes #4]
+feat: cover letters pdfs generation [closes #4]
+feat: back cover letter [closes #3]
+feat: back cover letter [closes #3]
+feat: display Symfony homepage [closes #2]
+feat: display Symfony homepage [closes #2]
+feat: initialize Docker, Symfony 7.3 and add GitHub Actions workflow [closes #1]
+feat: initialize Docker, Symfony 7.3 and add GitHub Actions workflow [closes #1]
 
 No changes.
 
