@@ -1,3 +1,6 @@
+verifier les hash de cache CI
+ca n'a plus l'air de fonctionner
+
 Pour annuler un commit non poussé :
 git resest --soft HEAD~
 
