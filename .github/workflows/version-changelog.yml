@@ -32,14 +32,14 @@ jobs:
           echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
           echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
 
-      - name: Set env.NEW_VERSION
-        run: .github/bin/set_env_new_version.sh ${{ github.event.pull_request.head.ref }}
+      - name: Set env.VERSION and env.V_VERSION
+        run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
 
       - name: Update VERSION.md
-        run: echo "${{ env.NEW_VERSION }}" > VERSION.md
+        run: echo "${{ env.V_VERSION }}" > VERSION.md
 
       - name: Update CHANGELOG.md
-        run: .github/bin/update_changelog.sh ${{ github.repository }} ${{ env.NEW_VERSION }}
+        run: .github/bin/update_changelog.sh ${{ github.repository }} ${{ env.V_VERSION }}
 
       - name: Output files content
         run: |
@@ -54,5 +54,5 @@ jobs:
       - name: Commit and push files
         run: |
           git add VERSION.md CHANGELOG.md
-          git commit -m "Update VERSION.md to ${{ env.NEW_VERSION }} and CHANGELOG.md"
+          git commit -m "Update VERSION.md to ${{ env.V_VERSION }} and CHANGELOG.md"
           git push origin ${{ github.event.pull_request.head.ref }}

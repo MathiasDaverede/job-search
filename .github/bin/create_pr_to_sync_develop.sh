@@ -1,45 +1,66 @@
 #!/bin/bash
 
+# This script creates a PR to sync commits from a release branch into develop after a release is merged into main.
+# It cherry-picks all commits from release/X.Y.Z that are not in develop, mimicking "git flow release finish 'X.Y.Z'".
+# It respects protected branches by creating a PR to develop.
+
 set -e  # Exit on any error
 
-new_version=$1 # ${{ env.NEW_VERSION }}
+repo=$1 # ${{ github.repository }}
+version=$2 # ${{ env.VERSION }}
+v_version="v$version"
 
-pr_title="Sync develop with main after release $new_version"
+# Create a new branch for syncing
+sync_branch="sync/main-to-develop-$v_version"
 
-pr_body="This PR synchronizes the develop branch with main after merging release $new_version.\n\n"
-pr_body+="If merge conflicts occur:\n"
-pr_body+="1. Create a branch 'sync-main-$new_version-to-develop' from develop.\n"
-pr_body+="2. Merge main into this branch and resolve conflicts.\n"
-pr_body+="3. Push the branch to origin.\n"
-pr_body+="4. Update this PR to use 'sync-main-$new_version-to-develop' as the source branch.\n"
-pr_body+="5. Verify tests pass before merging."
+echo "version : $version"
+echo "v_version : $v_version"
+echo "sync_branch : $sync_branch"
+
+# Checkout develop and create sync branch
+git checkout develop
+git pull origin develop
+git checkout -b "$sync_branch"
+
+# Find the merge commit of the release in main
+merge_commit=$(git log --merges --first-parent --grep="Merge branch 'release/$version'" origin/main -1 --pretty=%H)
+echo "Merge commit for release/$version: $merge_commit"
+
+# Get the second parent of the merge commit (tip of release/X.Y.Z)
+release_tip=$(git rev-parse "$merge_commit^2" 2>/dev/null || echo "$merge_commit")
+echo "Release tip (release/$version): $release_tip"
+
+# Find commits in release/X.Y.Z that are not in develop
+# Use merge-base to find the common ancestor between release/X.Y.Z and develop
+merge_base=$(git merge-base "$release_tip" origin/develop)
+echo "Merge base between release/$version and develop: $merge_base"
+
+# Get all commits from release/X.Y.Z
+commits=$(git log --pretty=format:"%H" "$merge_base".."$release_tip")
+echo -e "Commits to cherry-pick:\n$commits"
+
+if [ -n "$commits" ]; then
+  while IFS= read -r commit; do
+    echo "Cherry-picking commit: $commit"
+
+    git cherry-pick "$commit" || {
+      echo "Conflicts detected during cherry-pick. Please resolve manually." >&2
+      exit 1
+    }
+  done <<< "$commits"
+else
+  debug "No commits to sync from release/$version"
+fi
+
+# Push the sync branch
+git push origin "$sync_branch"
+
+# Create a PR to merge sync branch into develop
+pr_title="Sync main $v_version to develop"
+pr_body="This PR synchronizes develop with main for release $v_version, including all changes from release/$version."
 
 echo "pr_title: $pr_title"
-echo -e "pr_body:\n$pr_body"
+echo  "pr_body: $pr_body"
 
-pr_url=$(gh pr create --base develop --head main --title "$pr_title" --body "$pr_body" --label synchronization)
-
-echo "pr_url: $pr_url"
-
-pr_number=$(echo "$pr_url" | grep -oE '[0-9]+$')
-
-echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
-
-# Verify if there are conflicts in PR
-conflict_status=$(gh api repos/{owner}/{repo}/pulls/$pr_number | jq -r .mergeable)
-
-echo "conflict_status=$conflict_status" >> $GITHUB_OUTPUT
-
-if [ "$conflict_status" = "false" ]; then
-    comment="This PR has merge conflicts.\n"
-    comment+="Since 'main' is protected, please resolve them manually:\n"
-    comment+="1. Create a branch 'sync-main-$new_version-to-develop' from develop.\n"
-    comment+="2. Merge main into this branch and resolve conflicts.\n"
-    comment+="3. Push the branch to origin.\n"
-    comment+="4. Update this PR to use 'sync-main-$new_version-to-develop' as the source branch.\n"
-    comment+="5. Verify tests pass."
-    
-    gh pr comment $pr_number --body $comment
-else
-    echo "No merge conflicts detected in PR #$pr_number"
-fi
+gh pr create --base develop --head "$sync_branch" --title "$pr_title" --body "$pr_body" --repo "$repo" --label synchronization
+echo "PR created successfully"

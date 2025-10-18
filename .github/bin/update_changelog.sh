@@ -10,7 +10,7 @@
 set -e # Exit on error
 
 repo=$1 # ${{ github.repository }}
-version=$2 # ${{ env.NEW_VERSION }}
+v_version=$2 # ${{ env.V_VERSION }}
 
 changelog_file="CHANGELOG.md"
 date=$(date +%Y-%m-%d)
@@ -91,7 +91,7 @@ debug "Tags found :\n$tags"
 readarray -t TAG_ARRAY <<< "$tags"
 
 # Current version (no tag yet, use PRs merged into develop since last tag)
-echo -e "## [${version}] - ${date}\n" >> "$changelog_file"
+echo -e "## [$v_version] - $date\n" >> "$changelog_file"
 
 # Use develop as the target branch for the current version
 # No tags exist yet, get all PRs merged into develop
