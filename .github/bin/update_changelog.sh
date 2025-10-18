@@ -72,7 +72,7 @@ changelog_content+="\n"
 
 echo -e "changelog_header :\n$changelog_header\n"
 echo -e "changelog_content :\n$changelog_content\n"
-echo -e "CHANGELOG.md :\n${cat CHANGELOG.md}"
+echo -e "CHANGELOG.md :\n$(cat CHANGELOG.md)"
 
 # Write to CHANGELOG.md
 if [ -f CHANGELOG.md ]; then
