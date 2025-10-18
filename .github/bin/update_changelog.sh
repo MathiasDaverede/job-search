@@ -20,16 +20,17 @@ debug() {
   echo -e "Debug: $@" >&2
 }
 
-# Function to get PR titles for commits between two refs (from_ref..to_ref)
+# Function to get PR titles for commits between two refs (from_ref..to_ref) on a target branch
 # Uses `gh pr list` to fetch merged PRs associated with commits
 get_pr_changes() {
   local from_ref="$1"
   local to_ref="$2"
+  local target_branch="$3" # develop or main
   local prs
   local commits
 
   # Get commit SHAs in range (use --first-parent to focus on merge commits)
-  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref")
+  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref" --"$target_branch")
 
   # Initialize arrays for categorized changes
   local added=""
@@ -39,21 +40,16 @@ get_pr_changes() {
 
   # Iterate over commits to find associated PRs
   while IFS= read -r commit; do
-    debug "Processing commit: $commit"
-
     # Find PR associated with the commit
     pr_info=$(gh pr list --state merged --repo "$repo" --search "$commit" --json title,labels,mergedAt --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
-
-    debug "pr_info :\n$pr_info"
 
     if [ -n "$pr_info" ]; then
       title=$(echo "$pr_info" | cut -d'|' -f1)
       labels=$(echo "$pr_info" | cut -d'|' -f2)
 
+      debug "pr_info :\n$pr_info"
       debug "title : $title"
       debug "labels :\n$labels"
-
-      # TODO label breaking ?
 
       # Categorize based on PR title prefix
       if [[ "$title" =~ ^feat: ]]; then
@@ -89,15 +85,17 @@ echo -e "$changelog_header\n" > "$changelog_file"
 # Get all tags sorted by version (assuming vX.Y.Z format)
 tags=$(git tag -l 'v*' --sort=-v:refname)
 
-debug "tags :\n$tags"
+debug "Tags found :\n$tags"
 
 # Convert tags to array
 readarray -t TAG_ARRAY <<< "$tags"
 
-# Current version (not yet tagged, use HEAD)
+# Current version (no tag yet, use PRs merged into develop since last tag)
 echo -e "## [${version}] - ${date}\n" >> "$changelog_file"
 
-get_pr_changes "${TAG_ARRAY[0]}" HEAD >> "$changelog_file" || echo "No changes." >> "$changelog_file"
+# Use develop as the target branch for the current version
+# No tags exist yet, get all PRs merged into develop
+get_pr_changes "" "origin/develop" "develop" >> "$changelog_file" || echo "No changes." >> "$changelog_file"
 
 # Loop over previous tags (from newest to oldest, excluding the first which is latest)
 for ((i=1; i<${#TAG_ARRAY[@]}; i++)); do
