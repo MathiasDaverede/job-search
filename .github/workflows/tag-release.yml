@@ -26,7 +26,8 @@ jobs:
           fetch-depth: 0 # Fetches the full Git history to analyse tags
       
       - name: Debug job
-        run: echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
+        run: |
+          echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
 
       - name: Set env.VERSION and env.V_VERSION
         run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
