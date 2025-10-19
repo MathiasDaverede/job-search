@@ -542,3 +542,44 @@ Alternative : Si tu veux utiliser squash pour les hotfixes (pour un historique e
 
 
 aze
+
+
+VS code clique gauche ouverture fichier dans un nouvel onglet :
+Ouvrez les paramètres : Fichier > Préférences > Paramètres (ou Ctrl + ,).
+Dans la barre de recherche en haut, tapez "workbench.editor.enablePreview".
+Décochez la case pour Workbench > Editor: Enable Preview (elle doit passer à false).
+Faites de même pour Workbench > Editor: Enable Preview From Quick Open si vous utilisez souvent Ctrl + P pour ouvrir des fichiers.
+
+Paramétrage github
+ After pull requests are merged, you can have head branches deleted automatically.
+    Automatically delete head branches => NON
+        CI pour supprimer auto les features mergée dans develop
+        mais les release/X.Y.Z ou hotfix/X.Y.Z, il vaut mieux les garder après merge dans main via PR
+        comme ça script CI sync release dans develop => PR et une fois mergée dans develop => suppression :
+
+            dit moi ce que tu penses de ça :
+            en général dans les entreprises les features sont ensuite intégrées via des PR sur develop
+            ces PR sont validées par un lead dev via code review, du coup une fois mergées les branches feature/ n'ont pas grand intérêt à être gardées
+            D'autant plus qu'après il y a création d'une release qui intègre ces features cette release est souvent déployée sur un environnement de test
+            et s'il y a des retours de PR ils sont fait dans la release directement.
+            On peut donc mettre en place une ci "on PR closed and branche feature/ merged sur develop => suppression de la branche"
+            Par contre il vaut mieux garder les release/ hotfix/ car même si on créer un script de création automatique de PR pour synchroniser la release/ ou hotfix/ avec develop (après que la branche a été mergée via PR sur main) s'il y a des conflits ou que le script plante il vaut mieux garder ces branches et les supprimer manuellement quand on est sûr qu'elles sont bien intégrées partout
+            Qu'en penses-tu ?
+
+
+Ajouter la création auto des labels (genre synchronization) dans la CI :
+
+# Vérifier si le label existe déjà (optionnel, pour éviter de le recréer)
+if ! gh api repos/:owner/:repo/labels/$pr_label >/dev/null 2>&1; then
+    echo "Label '$pr_label' does not exist. Creating it..."
+    # Créer le label avec une couleur et une description (optionnels)
+    gh label create "$pr_label" \
+        --color "9C27B0" \  # Couleur hex (violet, par exemple ; random si omis)
+        --description "Automatic synchronization PR from main to develop" \
+        --force  # Met à jour si existant (mais la vérif ci-dessus l'évite)
+else
+    echo "Label '$pr_label' already exists. Skipping creation."
+fi
+
+Remplace repos/:owner/:repo par repos/${{ github.repository }} dans la commande gh api. Par exemple :
+bashif ! gh api repos/${{ github.repository }}/labels/$pr_label >/dev/null 2>&1; then

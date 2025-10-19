@@ -1,18 +1,17 @@
-name: Tag, release and PR to synchronize develop with main
+name: Create tag and release
 
 # Triggered after merging PRs to main from release/X.Y.Z or hotfix/X.Y.Z branches.
 on:
   pull_request:
     branches: [main]
-    types: [closed] # PR merged
-
+    types: [closed]
+  
 permissions:
   contents: write # For creating and pushing tags and releases
   pull-requests: read # For fetching pull request data via GitHub API
 
 jobs:
-  # Update VERSION.md and CHANGELOG.md, create tag and release, synchronize develop
-  tag-release-sync:
+  tag-release:
     # Prevent closed (abandoned) PR to launch the job
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
@@ -28,11 +27,7 @@ jobs:
       
       - name: Debug job
         run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "PR Number: ${{ github.event.pull_request.number }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
-          echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
+          echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
 
       - name: Set env.VERSION and env.V_VERSION
         run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
@@ -51,6 +46,3 @@ jobs:
 
       - name: Create GitHub Release
         run: gh release create ${{ env.V_VERSION }} --title "${{ env.V_VERSION }}" --notes-file CHANGELOG.md --target main
-      
-      - name: Create PR to sync develop
-        run: .github/bin/create_pr_to_sync_develop.sh ${{ github.repository }} ${{ env.VERSION }}
