@@ -565,3 +565,21 @@ Paramétrage github
             On peut donc mettre en place une ci "on PR closed and branche feature/ merged sur develop => suppression de la branche"
             Par contre il vaut mieux garder les release/ hotfix/ car même si on créer un script de création automatique de PR pour synchroniser la release/ ou hotfix/ avec develop (après que la branche a été mergée via PR sur main) s'il y a des conflits ou que le script plante il vaut mieux garder ces branches et les supprimer manuellement quand on est sûr qu'elles sont bien intégrées partout
             Qu'en penses-tu ?
+
+
+Ajouter la création auto des labels (genre synchronization) dans la CI :
+
+# Vérifier si le label existe déjà (optionnel, pour éviter de le recréer)
+if ! gh api repos/:owner/:repo/labels/$pr_label >/dev/null 2>&1; then
+    echo "Label '$pr_label' does not exist. Creating it..."
+    # Créer le label avec une couleur et une description (optionnels)
+    gh label create "$pr_label" \
+        --color "9C27B0" \  # Couleur hex (violet, par exemple ; random si omis)
+        --description "Automatic synchronization PR from main to develop" \
+        --force  # Met à jour si existant (mais la vérif ci-dessus l'évite)
+else
+    echo "Label '$pr_label' already exists. Skipping creation."
+fi
+
+Remplace repos/:owner/:repo par repos/${{ github.repository }} dans la commande gh api. Par exemple :
+bashif ! gh api repos/${{ github.repository }}/labels/$pr_label >/dev/null 2>&1; then
