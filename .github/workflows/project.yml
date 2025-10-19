@@ -1,12 +1,12 @@
 name: Project
 
 # Run GitHub Actions only on pull requests to stay within the free plan limits (500 MB storage, 2000 minutes/month).
-# Pull requests to 'develop' are for feature branches.
+# Pull requests to 'develop' are for feature or sync-vX.Y.Z-to-develop branches.
 # Pull requests to 'main' are for release or hotfix branches.
 on:
   pull_request:
-    branches: [main, develop]
-    types: [opened, synchronize] # PR creation or updated
+    branches: [develop, main]
+    types: [opened, synchronize] # PR creation or updated (not manually closed)
 
 jobs:
   test-project:
@@ -17,12 +17,13 @@ jobs:
       
     - name: Debug job
       run: |
-        echo "Event: ${{ github.event_name }}"
-        echo "PR Number: ${{ github.event.pull_request.number }}"
-        echo "Actor: ${{ github.actor }}"
-        echo "Base Ref: ${{ github.base_ref }}"
-        echo "Base Ref (event): ${{ github.event.pull_request.base.ref }}"
-        echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
+        echo "github.actor : ${{ github.actor }}"
+        echo "github.repository : ${{ github.repository }}"
+        echo "github.event_name : ${{ github.event_name }}"
+        echo "github.event.pull_request.number : ${{ github.event.pull_request.number }}"
+        echo "github.base_ref : ${{ github.base_ref }}"
+        echo "github.event.pull_request.base.ref : ${{ github.event.pull_request.base.ref }}"
+        echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
 
     - name: Verify branch
       run: .github/bin/verify_branch.sh ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
