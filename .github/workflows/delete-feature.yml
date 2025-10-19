@@ -1,0 +1,21 @@
+name: Delete features branches merged on develop
+
+on:
+  pull_request:
+    branches: [develop]
+    types: [closed]
+
+jobs:
+  delete-feature:
+    runs-on: ubuntu-latest
+    # Prevent closed (abandoned) PR or not feature/ branches to launch the job
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feature/')
+    steps:
+      - name: Debug job
+        run: echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
+
+      - name: Delete feature branch
+        run: git push origin --delete ${{ github.event.pull_request.head.ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
