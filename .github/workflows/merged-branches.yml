@@ -5,9 +5,11 @@ on:
     branches: [develop, main]
     types: [closed]
 
+# Permissions for creating labels, PRs, and managing branches
 permissions:
-  contents: write # For creating and pushing tags and releases
-  pull-requests: read # For fetching pull request data via GitHub API
+  contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   # Job to delete feature/* branches after merge into develop
@@ -21,6 +23,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Git config
+        run: .github/bin/git_config_bot.sh
+
       - name: Delete feature branch
         run: git push origin --delete ${{ github.event.pull_request.head.ref }}
 
