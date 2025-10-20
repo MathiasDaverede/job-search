@@ -23,6 +23,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Checkout repository with full history
+        uses: actions/checkout@v4
+
       - name: Git config
         run: .github/bin/git_config_bot.sh
 
