@@ -7,8 +7,28 @@ class UsefulLink
     public const GITHUB_REPO = 'https://github.com/MathiasDaverede/job-search';
     public const GITHUB_CHANGELOG = 'https://github.com/MathiasDaverede/job-search/blob/main/CHANGELOG.md';
     public const CODINGAME_PROFILE = 'https://www.codingame.com/profile/8ee16a3f95abdb6ba27dd653534e016e4923462';
+    
+    public const JOB_OFFERS = [
+        'Indeed' => 'https://fr.indeed.com/',
+        'LinkedIn' => 'https://www.linkedin.com/jobs/',
+        'Welcome to the Jungle' => 'https://www.welcometothejungle.com/fr/jobs',
+        'France Travail' => 'https://candidat.francetravail.fr/rechercheoffre/landing',
+        'WeLoveDevs' => 'https://welovedevs.com/fr/app/jobs',
+        'Jooble' => 'https://fr.jooble.org/',
+        'Hellowork' => 'https://www.hellowork.com/fr-fr/',
+        'Meteojob' => 'https://www.meteojob.com/jobs',
+        'Apec' => 'https://www.apec.fr/parcourir-les-emplois.html',
+    ];
 
-    //Ajouter des liens : préparation aux entretiens d'embauche + liens où trouver du taff (indeed, etc)
+    public const JOB_INTERVIEW_PREPARATION = [
+        'CVBoost' => 'https://www.cvboost.co/',
+        'SymfonyCasts' => 'https://symfonycasts.com/',
+        'CadreEmploi' => 'https://www.cadremploi.fr/editorial/conseils/conseils-candidature/entretien-embauche/detail/article/les-20-questions-les-plus-courantes-en-entretien-dembauche.html',
+        'Hellowork' => 'https://www.hellowork.com/fr-fr/outil/preparation-entretien.html',
+        'France Travail' => 'https://www.francetravail.fr/candidat/vos-recherches/preparer-votre-candidature/entretien/entretien-embauche-pose-question.html',
+        'Mon Campus' => 'https://www.mon-campus.fr/2025/06/16/questions-entretien-embauche-guide-complet-2025/',
+        'Make my CV' => 'https://makemycv.fr/entretien-embauche',
+    ];
 
     public const BACK = [
         'Symfony 7.3' => 'https://symfony.com/doc/7.3',
