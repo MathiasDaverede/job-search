@@ -23,6 +23,9 @@ echo "sync_branch : $sync_branch"
 git checkout develop
 git checkout -b "$sync_branch"
 
+# Fetch the release/hotfix branch explicitly
+git fetch origin $branch
+
 # Merge the release/hotfix branch into the temporary branch
 git merge --no-ff $branch
 
