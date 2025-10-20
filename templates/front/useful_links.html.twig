@@ -7,6 +7,28 @@
 {% block front_content %}
     <div class="row">
         <div class="col">
+            <h2><u>Offres d'emplois</u></h2>
+
+            <ul>
+                {% for name, link in constant('App\\Constant\\UsefulLink::JOB_OFFERS') %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col">
+            <h2><u>Préparation aux entretiens d'embauche</u></h2>
+
+            <ul>
+                {% for name, link in constant('App\\Constant\\UsefulLink::JOB_INTERVIEW_PREPARATION') %}
+                    <li><a href="{{ link }}" target="_blank">{{ name }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
             <h2><u>Back</u></h2>
 
             <ul>

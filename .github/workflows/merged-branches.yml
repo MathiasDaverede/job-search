@@ -71,5 +71,8 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Git config
+        run: .github/bin/git_config_bot.sh
+
       - name: Delete release or hotfix branch
         run: git push origin --delete ${{ github.event.pull_request.head.ref }}

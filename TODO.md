@@ -583,3 +583,13 @@ fi
 
 Remplace repos/:owner/:repo par repos/${{ github.repository }} dans la commande gh api. Par exemple :
 bashif ! gh api repos/${{ github.repository }}/labels/$pr_label >/dev/null 2>&1; then
+
+conseil grok pour cvboost: Essaie-le pour 2-3 candidatures Symfony. C'est un game-changer pour les ATS, mais complète avec une relecture humaine pour ajouter ta touche perso. Si ça bugue, fallback sur des outils gratuits comme Jobscan ou Resume.io pour tester l'ATS-compatibilité.
+
+Autres conseils pour maximiser tes chances
+
+Mise à jour profil : Sur LinkedIn, ajoute des projets Symfony récents (GitHub links), certifications (Symfony Certified Developer si tu en as). Mets "Ouvert aux opportunités" en privé.
+Réseautage : Rejoins communautés comme Symfony France (Meetup, Slack) ou forums Reddit (r/symfony, r/cscareerquestionsEU). Contacte alumni/ex-collègues – 70% des jobs tech se pourvoient via réseau.
+Préparation entretiens : Révise architecture Symfony (bundles, security), TDD, Docker/K8s (souvent demandés). Pratique sur LeetCode pour algo si fullstack.
+Freelance en complément : Si tu vises du CDI, teste Malt.fr ou Comet.co pour missions courtes (Symfony pur) – ça paie bien et élargit ton réseau.
+Suivi : Track tes candidatures dans un sheet (offre, date, follow-up). Si pas de retour en 1-2 semaines, relance poliment.
