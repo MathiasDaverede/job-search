@@ -8,9 +8,17 @@ on:
     branches: [develop, main]
     types: [opened, synchronize] # PR creation or updated (not manually closed)
 
+permissions:
+  contents: read
+  issues: write # Required for managing labels
+  pull-requests: write # Required for managing PRs and labels
+
 jobs:
   test-project:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For creating repository labels
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -24,6 +32,10 @@ jobs:
         echo "github.base_ref : ${{ github.base_ref }}"
         echo "github.event.pull_request.base.ref : ${{ github.event.pull_request.base.ref }}"
         echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
+
+    # To have "feature" label on first PR creation for merging a feature into develop
+    - name: Check and create repository labels
+      run: .github/bin/create_labels.sh ${{ github.repository }} ${{ github.event.pull_request.head.ref }}
 
     - name: Verify branch
       run: .github/bin/verify_branch.sh ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
