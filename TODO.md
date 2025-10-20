@@ -593,3 +593,9 @@ Réseautage : Rejoins communautés comme Symfony France (Meetup, Slack) ou forum
 Préparation entretiens : Révise architecture Symfony (bundles, security), TDD, Docker/K8s (souvent demandés). Pratique sur LeetCode pour algo si fullstack.
 Freelance en complément : Si tu vises du CDI, teste Malt.fr ou Comet.co pour missions courtes (Symfony pur) – ça paie bien et élargit ton réseau.
 Suivi : Track tes candidatures dans un sheet (offre, date, follow-up). Si pas de retour en 1-2 semaines, relance poliment.
+
+Paramétrage Visual Studio code :
+Afficher les espaces :
+    File > Preferences > Settings
+        chercher "renderWhitespace"
+        Editor : Render whitespace : all
