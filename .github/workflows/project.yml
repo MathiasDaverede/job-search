@@ -11,6 +11,9 @@ on:
 jobs:
   test-project:
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For creating repository labels
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
