@@ -8,6 +8,11 @@ on:
     branches: [develop, main]
     types: [opened, synchronize] # PR creation or updated (not manually closed)
 
+permissions:
+  contents: read
+  issues: write # Required for managing labels
+  pull-requests: write # Required for managing PRs and labels
+
 jobs:
   test-project:
     runs-on: ubuntu-latest
