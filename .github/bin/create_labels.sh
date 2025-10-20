@@ -12,9 +12,9 @@ echo "head_ref: $head_ref"
 
 declare -A labels=(
   ["synchronization"]="fef2c0|Automatic synchronization PR from release or hotfix to develop"
-  ["feature"]="2fac4aff|New feature"
-  ["release"]="43469fff|Release that contains some features"
-  ["hotfix"]="a43a2eff|Hotfix to debug production fast"
+  ["feature"]="2fac4a|New feature"
+  ["release"]="43469f|Release that contains some features"
+  ["hotfix"]="a43a2e|Hotfix to debug production fast"
 )
 
 # For PR auto created to sync develop
