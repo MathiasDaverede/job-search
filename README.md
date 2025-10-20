@@ -1,13 +1,11 @@
 # Recherche d'emploi
 
-<a name="top"></a>
-
 ![Docker](https://img.shields.io/badge/Docker-28.1-blue)
 ![Symfony](https://img.shields.io/badge/Symfony-7.3-blue)
 ![GitHub Workflow Status](https://github.com/MathiasDaverede/job-search/actions/workflows/ci.yml/badge.svg)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Outil pour générer des lettres de motivation en PDF et regrouper des liens utiles pour développeurs. 
+Outil pour générer des lettres de motivation en PDF et regrouper des liens utiles pour développeurs.
 
 ## Fonctionnalités
 
@@ -34,23 +32,22 @@ Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/<ton-profil>) pour disc
 > Le dossier du projet est monté en tant que données persistantes.  
 > Ce qui signifie que tout ce que vous ajoutez/modifiez/supprimez dans /var/www/ (du conteneur),  
 > le sera également dans le dossier du projet !
+>
 > - compose.yaml :
 >   - services:
 >     - web:
 >       - volumes:
->          - .:/var/www/
+>         - .:/var/www/
 
-[Versions du projet](#project-versions)  
-[Comment l'utiliser](#how-to-use)  
-[Démarrer le projet](#start-project)  
-[Accéder au projet](#access-project)  
-[Modifier le projet](#modify-project)  
-[Tests unitaires](#unit-tests)  
-[Github et Git flow](#git)
+[Versions du projet](#versions-du-projet)  
+[Comment l'utiliser](#comment-lutiliser)  
+[Démarrer le projet](#démarrer-le-projet)  
+[Accéder au projet](#accéder-au-projet)  
+[Modifier le projet](#modifier-le-projet)  
+[Tests unitaires](#tests-unitaires)  
+[Git](#git)
 
 ## Versions du projet
-
-<a name="project-versions"></a>
 
 Créé depuis un environnement Windows 11 /WSL2 (Ubuntu 24.04).
 
@@ -96,8 +93,7 @@ Php 8.2
 
 ## Comment l'utiliser
 
-<a name="how-to-use"></a>
-[Retour en haut de page](#top)
+[Retour en haut de page](#recherche-demploi)
 
 Clonez le projet :  
 `git clone git@github.com:MathiasDaverede/job-search.git`
@@ -122,19 +118,15 @@ GROUP_ID=votre_gid (`id -g`)
 
 ### Données pour la base de données
 
-MARIADB_ROOT_PASSWORD=un_mot_de_passe
+MARIADB_ROOT_PASSWORD=un_mot_de_passe  
 MARIADB_DATABASE_NAME=un_nom_pour_la_base_de_donnees
 
 ## Démarrer le projet
 
-<a name="start-project"></a>
-[Retour en haut de page](#top)
+[Retour en haut de page](#recherche-demploi)
 
 Placez vous dans le projet :  
 `cd emplacement/job-search/`
-
-Assurez vous que le script de démarrage des conteneurs est en LF :  
-`sed -i 's/\r$//' docker/bin/docker-up.sh`
 
 Selon comment vous avez cloné le projet, il se peut que les fichiers exécutables ne le soient pas (SourceTree sur Windows avec Ubuntu (WSL)).  
 Vérifiez les droits des fichiers :
@@ -148,7 +140,7 @@ Si les fichiers ne sont pas exécutables :
 
 ```bash
 chmod +x bin/*
-chmod +x docker/bin/*
+chmod +x .github/bin/*
 ```
 
 Construisez les images et démarrez les conteneurs en mode détachés :  
@@ -168,7 +160,7 @@ docker compose build
 docker compose --env-file .env.local up -d
 ```
 
-Soit :
+Soit :  
 `docker compose --env-file .env.local up --build -d`
 
 Accédez au conteneur web lorsqu'il est démarré (Container job-search-web-1 Started) :  
@@ -183,31 +175,32 @@ Installation des dépendances Symfony :
 > La commande `composer install`  se base sur les fichiers composer.lock et symfony.lock.  
 > Composer commence par lire composer.lock.  
 > Ensuite, Symfony Flex intervient (si activé dans le projet)  
-  et utilise symfony.lock pour appliquer les recettes associées à ces dépendances.  
+  et utilise symfony.lock pour appliquer les recettes associées à ces dépendances.
 >
 > - composer.lock
 >   - Contient les versions exactes des dépendances PHP (packages et leurs sous-dépendances)  
       installées dans le projet.
 >   - Composer lit composer.lock (s'il existe) pour installer les versions précises des dépendances listées,  
 >     ignorant les contraintes de version du composer.json pour ces dépendances.  
->       - Si composer.lock n’existe pas,  
->         Composer utilise les contraintes du composer.json pour télécharger les versions compatibles  
->         et crée un nouveau composer.lock.
+>     - Si composer.lock n’existe pas,  
+>       Composer utilise les contraintes du composer.json pour télécharger les versions compatibles  
+>       et crée un nouveau composer.lock.
 > - symfony.lock
 >   - Spécifique à Symfony Flex,  
 >     enregistre les versions des recettes (fichiers de configuration automatisés) associées aux packages installés.  
 >     Ces recettes configurent les bundles, créent des fichiers (comme config/packages/*.yaml),  
 >     ou modifient des fichiers comme .gitignore.
->       - Symfony Flex, qui est un plugin de Composer,  
->         lit symfony.lock pour appliquer les recettes dans l’état exact où elles ont été installées initialement.  
->         Cela garantit que les configurations spécifiques à Symfony (comme les fichiers de configuration ou les scripts d’initialisation)  
->         sont appliquées de manière cohérente.
+>     - Symfony Flex, qui est un plugin de Composer,  
+>       lit symfony.lock pour appliquer les recettes dans l’état exact où elles ont été installées initialement.  
+>       Cela garantit que les configurations spécifiques à Symfony (comme les fichiers de configuration ou les scripts d’initialisation)  
+>       sont appliquées de manière cohérente.
 >
 > En résumé :  
 > composer.lock s’occupe des dépendances (les bibliothèques PHP elles-mêmes).  
 > symfony.lock s’occupe des configurations (recettes) appliquées à ces dépendances pour intégrer correctement les bundles ou packages.
 >
-> La commande `composer install` lance également les commandes :  
+> La commande `composer install` lance également les commandes :
+>
 > - `bin/console cache:clear`
 >   - Vide le cache (var/cache/).
 > - `bin/console assets:install public`
@@ -232,19 +225,18 @@ Contrôle de l'installation
 
 ## Accéder au projet
 
-<a name="access-project"></a>
-[Retour en haut de page](#top)
+[Retour en haut de page](#recherche-demploi)
 
 Si les conteneurs sont stoppés (vous reprenez le projet un autre jour ou vous redémarrer votre pc),  
 relancez la commande :  
-`./docker/bin/docker-up.sh`
+`docker compose --env-file .env.local up -d`
 
 Vérifiez leurs états :  
 `docker ps`
 
 ### Pages web
 
-[Page d'accueil Symfony 7.3](http://jobsearch.localhost)
+[Page "placeholder" Symfony 7.3](http://jobsearch.localhost)  
 [Lettre de motivation](http://jobsearch.localhost/lettre-de-motivation)
 
 [Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)  
@@ -272,8 +264,7 @@ docker exec -it job-search-database-1 bash
 
 ## Modifier le projet
 
-<a name="modify-project"></a>
-[Retour en haut de page](#top)
+[Retour en haut de page](#recherche-demploi)
 
 Placez vous dans le projet :  
 `cd emplacement/job-search/`
@@ -304,7 +295,7 @@ lancez la commande (une fois) :
 
 ## Tests unitaires
 
-<a name="unit-tests"></a>
+[Retour en haut de page](#recherche-demploi)
 
 Les tests unitaires sont lancés automatiquement lors de la création de pull requests sur Github.  
 Les commandes lancées, que vous pouvez retrouver dans le fichier [project.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/project.yml), sont :
@@ -330,74 +321,138 @@ Pour information, la création d'un test unitaire ce fait grâce à la commande 
 
 TODO à compléter améliorer
 
-## Github et Git flow
+## Git
 
-<a name="git"></a>
+PR : Pull Request
 
-## Paramétrage Github
+### Github
 
-Création d'un repository "job-search"
+#### Paramétrage
 
-J'utilise SourceTree sur Windows
+Création d'un repository.  
+Protection des branches develop et main :
 
-Git flow > initialisation : main/develop/....
+- Settings (du repository) > Rules > Rulesets > New ruleset
+  - Require a pull request before merging
 
-git push develop
+#### Actions
 
-Repo github > Settings > autoremove branches merged + d'autre truc (squash and merge)
-Protections des branches main et develop
+Description de la CI (Github Actions) mise en place :
 
-Création des issues :
-Initialize Project
-Display Symfony placeholder page
-Create cover letters back-office
-Generate cover letters PDF
-Display version in footer
-Useful links for developers
+[project.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/project.yml)
 
-### Features
+Se lance à chaque PR, créée ou mise à jour, d'une branche vers develop ou vers main
 
-Création d'une branche feature/[numero_issue]-ma-feature à partir de develop.
-feature/1-init-project
-...
+- Test du projet
+  - installation des dépendances
+  - mise à jour de la base de données
+  - audit et vérifications
+  - tests unitaires
 
-Ouverture d'une PR de feature/[numero_issue]-ma-feature vers develop.
-titre : feat: Initialize Project [closes #1]
-description :
+[version-changelog.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/version-changelog.yml)
 
-Après validation (tests via project.yml), squash and merge dans develop.
+Se lance à chaque PR, créée ou mise à jour, d'une branche (release ou hotfix) vers main
 
-### Releases
+- Mise à jour des fichiers VERSION.md et CHANGELOG.md
 
-Création d'une branche release/X.Y.Z à partir de develop (qui contient les nouvelles features).
-release/1.0.0
-
-(merger main dans la release si conflit dans la PR après)
-
-Ouverture d'une PR de release/X.Y.Z vers main.
-titre : Release 1.0.0
-description : la liste des features contenues
-
-Après validation (tests via project.yml), squash and merge dans main.
-
+TODO
 CI on PR opened sinchronise : auto generation de version et changelog
 le changelog se base sur le titre des PRS car modifiable même une fois fermés
 en cas d'erreurs, il sera toujours possible d'avoir un changelog propre
 
-Synchronisation de main vers develop
-étant donné que les branches main et develop sont protégées (pull requests only)
-Et pour gérer les potentiels conflits :
-Création d'une PR auto depuis la CI avec le label :
-Name : synchronization
-Description : For the PR auto created via CI to synchronize main (vX.Y.Z) to develop
-Couleur : #fef2c0
-S'il y des conflits :
-Création d'une branche sync-develop-vX.Y.Z depuis develop
-sync-main-v1.0.0-to-develop
+[tag-release.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/tag-release.yml)
 
-merger main dans la branche
-résolution des conflits
-commit + push
+Se lance à chaque PR mergée vers main
 
-Ouverture d'une PR de sync-develop-vX.Y.Z vers develop.
-merge
+- Création d'un tag et d'une release
+
+[merged-branches.yml](https://github.com/MathiasDaverede/job-search/blob/main/.github/workflows/merged-branches.yml)
+
+Se lance à chaque PR mergée
+
+- Feature mergée sur develop
+  - suppression de la branche
+- Release (ou hotfix) mergée sur main
+  - création d'une "pull request" de la branche vers develop pour synchronisation
+- Release (ou hotfix) mergée sur develop
+  - suppression de la branche
+
+### Git flow
+
+J'utilise personnellement SourceTree sur Windows qui gère le projet sur Ubuntu (WSL)  
+Mais voici un résumé d'un cycle de vie :
+
+Création d'issues sur le repository en fonction des besoins (ajout de fonctionnalités, correction de bugs)
+
+#### Feature
+
+Nouvelle fonctionnalité
+
+Création d'une branche feature/[issue_number]-feature-name à partir de develop.
+
+- feature/1-my-first-feature
+
+Développement de la fonctionnalité
+
+Exemple de commits :
+
+- feat: my first feature [closes #1]
+- docs: update README.md [refs #1]
+- chore : unit tests [refs #1]
+
+puis on pousse la branche sur le dépot.
+
+On créé ensuite une PR de cette branche vers develop,
+
+- titre : feat: my first feature [closes #1]
+- description : description de la nouvelle fonctionnalité si besoin
+
+on résout les conflits potentiels (en mettant à jour notre branche develop puis en la mergeant dans notre feature puis re push),
+on attend que les tests de la CI soient validés.
+
+TODO à voir :
+puis on "Squash and merge" avec le message
+
+- feat: my first feature [closes #1]
+
+### Release
+
+Contient les fonctionnalités (features) à déployer
+
+> [!NOTE]
+> Étant donné que les branches main et develop sont protégées (pull requests only)  
+> On ne peut pas utiliser la fonctionnalité git flow `git flow release finish 'X.Y.Z'`  
+> qui merge la release dans main, puis dans develop, puis la supprime
+
+Création d'une branche release/X.Y.Z à partir de develop (qui contient les nouvelles features).
+release/1.0.0
+
+Déploiement de la release sur un environnement de test (pré-prod).
+
+Après validation du bon fonctionnement des fonctionnalités contenues dans la release,  
+ouverture d'une PR de release/X.Y.Z vers main.  
+titre : Release 1.0.0  
+description : la liste des features contenues
+
+on résout les conflits potentiels (en mergeant main dans notre release puis re push),  
+on attend que les tests de la CI soient validés (tests du projet + mise à jour des .md).
+
+puis on "Create a merge commit"
+
+Ca va créer automatiquement une PR de la release vers develop (via la CI)  
+on résout les conflits potentiels
+
+- en mettant à jour notre branche release/ locale (la mise à jour auto des .md a généré un commit)
+- en mergeant develop dans notre branche
+- puis re push
+
+puis on "Create a merge commit"
+
+### Hotfix
+
+Même principe qu'une release sauf qu'il contient une ou plusieurs correction de bug important qu'il faut corriger rapidement.
+
+Création d'une branche hotfix/X.Y.Z à partir de main.
+hotfix/1.0.1
+
+TODO puis pareil que release

@@ -51,14 +51,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set env.VERSION and env.V_VERSION
-        run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
+      - name: Check and create repository labels
+        run: .github/bin/create_labels.sh ${{ github.repository }} ${{ github.event.pull_request.head.ref }}
 
-      - name: Git config
-        run: .github/bin/git_config_bot.sh
-      
-      - name: Create PR to sync develop
-        run: .github/bin/synchronize_develop.sh ${{ env.V_VERSION }} ${{ github.event.pull_request.head.ref }}
+      - name: Create PR for merging to develop
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ github.event.pull_request.head.ref }}
+          destination_branch: develop
+          pr_title: "Merge ${{ github.event.pull_request.head.ref }} into develop"
+          pr_body: "Automatic PR to merge ${{ github.event.pull_request.head.ref }} with develop after merge into main."
+          pr_label: "${{ env.DYNAMIC_LABEL }},${{ env.LABEL_SYNCHRONISATION }}"
 
   # Job to delete release/* and hotfix/* branches after merge into develop
   delete-release-hotfix-branch:

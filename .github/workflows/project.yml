@@ -25,6 +25,10 @@ jobs:
         echo "github.event.pull_request.base.ref : ${{ github.event.pull_request.base.ref }}"
         echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
 
+    # To have "feature" label on first PR creation for merging a feature into develop
+    - name: Check and create repository labels
+      run: .github/bin/create_labels.sh ${{ github.repository }} ${{ github.event.pull_request.head.ref }}
+
     - name: Verify branch
       run: .github/bin/verify_branch.sh ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
 

@@ -1,3 +1,14 @@
+Couleurs : #a43a2eff
+
+docker compose stop
+docker compose --env-file .env.local up -d
+docker compose --env-file .env.local up --build -d
+
+docker system prune -a
+docker exec -it job-search-web-1 bash
+
+bin/console sass:build --watch
+
 verifier les hash de cache CI
 ca n'a plus l'air de fonctionner
 
@@ -18,31 +29,9 @@ git add --chmod=+x bin/* .github/bin/*
 
 git ls-files --stage | grep bin/ | grep .github/bin/
 
-ajouter dans le readme
-    git flow ?
-    logique CI :
-        pull request  :
-            created/updated :
-                 develop :
-                    project.yml
-                main :
-                    project.yml
-                    version-changelog.yml
-            closed :
-                tag.yml
-
-Questions linkedIn 
-
-
 remettre PostgreSQL (et du coup phpmyadmin => phpPgAdmin)
 
-commande test knpsnappy
-ci 
-
-mieux service CommandeTest
-comme ça je lance tous les test avec juste bin/phpunit
-
-
+Questions linkedIn :
 Tests unitaires (#3) : Mentionner les tests unitaires est excellent, mais pour un recruteur, il serait intéressant de préciser le type de tests (par exemple, PHPUnit) et le pourcentage de couverture. Cela renforce l’aspect professionnel.
 
 Rendre le projet attractif : Ajoute des captures d’écran ou une courte vidéo démo dans ton dépôt GitHub et sur LinkedIn. Cela permettra aux recruteurs de visualiser le résultat final (par exemple, la page d’accueil, le back-office, un PDF généré).
@@ -56,32 +45,11 @@ Ajoute un appel à l’action, par exemple : “Je suis à la recherche d’oppo
 
 LinkedIn : Quand tu publieras sur LinkedIn, utilise des hashtags comme #Symfony, #PHP, #Docker, #WebDev, et #JobSearch pour augmenter la visibilité. Mentionne aussi que le projet est open-source sur GitHub avec un lien direct.
 
-Ajouter dans les liens utiles des liens pour la préparation des entretiens d'embauche
-
-Supprimer l'affichage du changelog
-    Ajouter le lien vers le changelog.md sur github
-
-docker compose stop
-docker system prune -a
-
-chmod +x docker/bin/docker-up.sh
-./docker/bin/docker-up.sh
-
-docker exec -it job-search-web-1 bash
-
-bin/console sass:build --watch
-
 sudo find job-search/ -not -path "job-search/" -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*"
 sudo find job-search/ -not -path "job-search/" -not -path "job-search/.git" -not -path "job-search/.git/*" -not -path "job-search/.vs" -not -path "job-search/.vs/*" -exec rm -rf {} +
 
-Paramètrage github
-    protections des branches main et develop (pull request)
-    auto suppression des features une fois merge
-
 
 Post linked in : 
-demander des conseil pour le docker-up.sh
-    si c'est une bonne idée le find sed ??
 demander s'ils ont des idées d'ajout intéressant pour un projet comme ça ?
     Jira/Jenkins etc
 Demander si toutes les bonnes pratiques sont respectées ?
@@ -90,8 +58,6 @@ Ce qu'utilise les entreprises qui liront le post :
     CD (entreprise) : déploie automatiquement sur les serveurs lors de push sur main (PR release mergée)
         Docker Swarm/Kubernetes
 
-chmod +x docker/bin/docker-up.sh
-Dans le dockerfile ?
 # CRLF => LF
 find . -type f -not -path "./.git/*" -not -path "./.vs/*" -exec sed -i 's/\r$//' {} \;
 chmod +x bin/console
@@ -155,87 +121,36 @@ du style dans le readme dernier onglet : pour aller plus loin
 
 demander à grok pour les droits sur le dossier docker/mariadb 999 systemd-journal
 
-Documente dans ton README que le CI est dans .github/workflows/ci.yaml (ex: “Workflow CI configuré dans .github/workflows/ci.yaml pour valider Docker, Composer, et tests unitaires”).
-
 ajouter composer update dans le readme
 Différence avec composer update : Contrairement à composer install, la commande composer update met à jour les dépendances en respectant les contraintes de version du composer.json et génère un nouveau composer.lock avec les versions les plus récentes compatibles.
 
-créer une commande symfony pour tester la génération de pdf (Github CI)
+README :
+Paramétrage/clonage Sourcetree
 
-Github : protéger le projet :
-Protection des branches : Sur GitHub, va dans Settings > Branches > Add rule : Protège main et develop (require PR, status checks, approvals).
-approvals => moi
-
-Création d'un PAT 
-    clique sur mon avatar > Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate new token > Generate new token (classic)
-        le nommé genre pat_repo_workflow
-        expiration:  90 jours
-        scopes repo/workflow
-Intégrer ce token aux secrets du repo :
-    Settings (du repo) > Secrets and variables > Actions > New repository secret
-        Name : PAT_REPO_WORKFLOW
-        Secrets : le token qu'on en voit qu'une fois lors de la génération dans l'étape précédente
-
-
-.github/workflows/ci.yml :
+Création d'une clé RSA via Putty sur sourceTree
 
 # Affiche la version et les commandes disponilbes
 composer -v
 
 requete SQL avec le discriminant person::type
+ajouter le left join address à la requete du readme
 
-docker compose stop
-docker system prune -a
+Dans les commandes utiles du readme
+    grep -rn "<h2>" | grep "\.html.twig"
 
-bin/console sass:build --watch
+# Pour lister toutes les commandes Symfony
+bin/console
 
-    * 
-    ajouter le left join address à la requete du readme
+bin/console doctrine:database:drop --force
+fc-list | grep -i arial
 
-    Dans les commandes utiles du readme
-    grep -rn "<small>" | grep "\.html.twig"
-    # Pour lister toutes les commandes Symfony
-    bin/console
-    bin/console doctrine:database:drop --force
-    fc-list | grep -i arial
+Retrouver les librairies installées via composer
+    composer show | grep -v "symfony|doctrine|sebastian|phpunit|psr|twig|phpdocumentor"
 
-    Retrouver les librairies installées via composer
-composer show | grep -v "symfony|doctrine|sebastian|phpunit|psr|twig|phpdocumentor"
-
-    * test ux icons ?
-    * https://symfony.com/bundles/ux-icons/current/index.html
-    * composer require symfony/ux-icons
-    * 
-    * 
-    * ajouter des logos cliquables dans le header (bootstrap, twig, etc).
-    * 
-    * 
-    * Plutot que classement codingame
-    * Liste de liens réseaux sociaux ?
-    * LinkedIn / Codingame / Github / ?
-    * avec les icons :
-    * Fontawesome :LinkedIn / Github
-    * Codingame : la récupérer qq part
-    * 
-    * checker si je met des Assert dans les entités
-    * 
-    * OneToMany unidirectionnel ?
-    * 
-    * tester les dépendances docker dans le compose pour débugger le démarrage de docker desktop
-    * 
-    * revoir le breadcrum ? avec une notion de index back index front ?
-    * histoire de faire des Back/CV etc
-    * sinon ça sert à rien là
-    * 
-    * 
-    * Installer visual studio code via docker ?
-    * (pour les extensions genre twig qui a besoin de php8 et composer)
-    * 
-    * Installer Gedmo ?
-    * https://github.com/doctrine-extensions/DoctrineExtensions/blob/main/README.md
-    * 
-*/
-
+    
+     
+Installer Gedmo ?
+https://github.com/doctrine-extensions/DoctrineExtensions/blob/main/README.md
 
 use Symfony\Component\HttpFoundation\HeaderUtils;
 $disposition = HeaderUtils::makeDisposition(
@@ -565,24 +480,6 @@ Paramétrage github
             On peut donc mettre en place une ci "on PR closed and branche feature/ merged sur develop => suppression de la branche"
             Par contre il vaut mieux garder les release/ hotfix/ car même si on créer un script de création automatique de PR pour synchroniser la release/ ou hotfix/ avec develop (après que la branche a été mergée via PR sur main) s'il y a des conflits ou que le script plante il vaut mieux garder ces branches et les supprimer manuellement quand on est sûr qu'elles sont bien intégrées partout
             Qu'en penses-tu ?
-
-
-Ajouter la création auto des labels (genre synchronization) dans la CI :
-
-# Vérifier si le label existe déjà (optionnel, pour éviter de le recréer)
-if ! gh api repos/:owner/:repo/labels/$pr_label >/dev/null 2>&1; then
-    echo "Label '$pr_label' does not exist. Creating it..."
-    # Créer le label avec une couleur et une description (optionnels)
-    gh label create "$pr_label" \
-        --color "9C27B0" \  # Couleur hex (violet, par exemple ; random si omis)
-        --description "Automatic synchronization PR from main to develop" \
-        --force  # Met à jour si existant (mais la vérif ci-dessus l'évite)
-else
-    echo "Label '$pr_label' already exists. Skipping creation."
-fi
-
-Remplace repos/:owner/:repo par repos/${{ github.repository }} dans la commande gh api. Par exemple :
-bashif ! gh api repos/${{ github.repository }}/labels/$pr_label >/dev/null 2>&1; then
 
 conseil grok pour cvboost: Essaie-le pour 2-3 candidatures Symfony. C'est un game-changer pour les ATS, mais complète avec une relecture humaine pour ajouter ta touche perso. Si ça bugue, fallback sur des outils gratuits comme Jobscan ou Resume.io pour tester l'ATS-compatibilité.
 
