@@ -19,17 +19,19 @@ get_release_lines() {
 get_pr_changes() {
   local from_date=$1
   local to_date=$2
+  local base_branch=$3
   local prs
   
   debug "Fetching PRs merged between $from_date and $to_date"
 
-  prs=$(gh pr list --search "merged:>=$from_date merged:<=$to_date" \
+  prs=$(gh pr list \
+    --search "base:$base_branch merged:>=$from_date merged:<=$to_date" \
     --limit 100 --json title,labels,mergedAt \
     --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
 
   if [ -z "$prs" ]; then
     debug "No PRs found between $from_date and $to_date"
-    echo "No changes."
+    debug "No changes."
     return
   fi
 
@@ -94,7 +96,7 @@ manage_current_release() {
   debug "from_date : $from_date"
 
   get_release_lines $futur_tag $today_date >> "CHANGELOG.md"
-  get_pr_changes $from_date $today_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+  get_pr_changes $from_date $today_date "develop" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
 
 # PRs merged : features into main
@@ -118,7 +120,7 @@ manage_releases_between_tags() {
     debug "previous_date : $previous_date"
 
     get_release_lines $release_tag $release_date >> "CHANGELOG.md"
-    get_pr_changes $previous_date $release_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+    get_pr_changes $previous_date $release_date "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
   done
 }
 
@@ -139,5 +141,5 @@ manage_first_release() {
   debug "first_commit_date : $first_commit_date"
 
   get_release_lines $first_tag $release_date >> "CHANGELOG.md"
-  get_pr_changes $first_commit_date $release_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+  get_pr_changes $first_commit_date $release_date "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
