@@ -14,6 +14,87 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - docs: merge PR best practices
 fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
 
+## [1.5.9] - 2025-10-20
+
+[Release v1.5.9](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.9)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.8] - 2025-10-20
+
+[Release v1.5.8](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.8)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.7] - 2025-10-20
+
+[Release v1.5.7](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.7)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.6] - 2025-10-19
+
+[Release v1.5.6](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.6)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.5] - 2025-10-18
+
+[Release v1.5.5](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.5)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.4] - 2025-10-18
+
+[Release v1.5.4](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.4)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.3] - 2025-10-18
+
+[Release v1.5.3](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.3)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.2] - 2025-10-17
+
+[Release v1.5.2](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.2)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
+## [1.5.1] - 2025-10-17
+
+[Release v1.5.1](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.1)
+
+### Changed
+
+- docs: merge PR best practices
+fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
+
 ## [1.5.0] - 2025-10-17
 
 [Release v1.5.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.0)
