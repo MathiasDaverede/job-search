@@ -39,10 +39,17 @@ No changes.
 
 [Release v1.5.4](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.4)
 
-No changes.
+### Changed
+
+- docs: merge PR best practices
+
 ## [1.5.3] - 2025-10-18
 
 [Release v1.5.3](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.3)
+
+### Fixed
+
+- fix: Fix auto PR syncronization from main vX.Y.Z to develop [closes #39]
 
 No changes.
 ## [1.5.2] - 2025-10-17
@@ -58,5 +65,18 @@ No changes.
 ## [1.5.0] - 2025-10-17
 
 [Release v1.5.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.0)
+
+### Added
+
+- feat: useful links [closes #7]
+- feat: useful links [closes #7]
+- feat: cover letters pdfs generation [closes #4]
+- feat: cover letters pdfs generation [closes #4]
+- feat: back cover letter [closes #3]
+- feat: back cover letter [closes #3]
+- feat: display Symfony homepage [closes #2]
+- feat: display Symfony homepage [closes #2]
+- feat: initialize Docker, Symfony 7.3 and add GitHub Actions workflow [closes #1]
+- feat: initialize Docker, Symfony 7.3 and add GitHub Actions workflow [closes #1]
 
 No changes.
