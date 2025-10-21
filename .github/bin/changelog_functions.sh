@@ -5,95 +5,6 @@ debug() {
   echo -e "$@" >&2
 }
 
-debug_prs1() {
-  local prs
-
-  debug "debug_prs1"
-
-  prs=$(gh pr list \
-    --search "is:merged" \
-    --limit 100)
-
-  debug "List of merged feature PRs:"
-  debug "-------------------"
-  while IFS= read -r pr_info; do
-    local title=$(echo "$pr_info" | cut -d'|' -f1)
-    local labels=$(echo "$pr_info" | cut -d'|' -f2)
-    local merged_at=$(echo "$pr_info" | cut -d'|' -f3)
-    local base_branch=$(echo "$pr_info" | cut -d'|' -f4)
-
-    debug "pr_info: $pr_info"
-    debug "PR Title: $title"
-    debug "Labels: $labels"
-    debug "Merged At: $merged_at"
-    debug "Base Branch: $base_branch"
-    debug "-------------------"
-  done <<< "$prs"
-}
-
-debug_prs2() {
-  local prs
-
-  debug "Debugging all merged feature PRs (title starting with 'feat:')"
-
-  # Récupérer toutes les PRs fusionnées avec un titre commençant par "feat:"
-  prs=$(gh pr list \
-    --search "is:merged" \
-    --limit 100 --json title,labels,mergedAt,baseRefName)
-
-  if [ -z "$prs" ]; then
-    debug "No feature PRs found"
-    return
-  fi
-
-  debug "List of merged feature PRs:"
-  debug "-------------------"
-  while IFS= read -r pr_info; do
-    local title=$(echo "$pr_info" | cut -d'|' -f1)
-    local labels=$(echo "$pr_info" | cut -d'|' -f2)
-    local merged_at=$(echo "$pr_info" | cut -d'|' -f3)
-    local base_branch=$(echo "$pr_info" | cut -d'|' -f4)
-
-    debug "PR Title: $title"
-    debug "Labels: $labels"
-    debug "Merged At: $merged_at"
-    debug "Base Branch: $base_branch"
-    debug "-------------------"
-  done <<< "$prs"
-}
-
-debug_prs3() {
-  local prs
-
-  debug "Debugging all merged feature PRs (title starting with 'feat:')"
-
-  # Récupérer toutes les PRs fusionnées avec un titre commençant par "feat:"
-  prs=$(gh pr list \
-    --search "is:merged" \
-    --limit 100 --json number,title,labels,mergedAt,baseRefName \
-    --jq '.[] | "\(.number)|\(.title)|\(.labels | map(.name) | join(","))|\(.mergedAt)|\(.baseRefName)"' || echo "")
-
-  if [ -z "$prs" ]; then
-    debug "No feature PRs found"
-    return
-  fi
-
-  debug "List of merged feature PRs:"
-  debug "-------------------"
-  while IFS= read -r pr_info; do
-    local title=$(echo "$pr_info" | cut -d'|' -f1)
-    local labels=$(echo "$pr_info" | cut -d'|' -f2)
-    local merged_at=$(echo "$pr_info" | cut -d'|' -f3)
-    local base_branch=$(echo "$pr_info" | cut -d'|' -f4)
-
-    debug "PR Title: $title"
-    debug "Labels: $labels"
-    debug "Merged At: $merged_at"
-    debug "Base Branch: $base_branch"
-    debug "-------------------"
-  done <<< "$prs"
-}
-
 get_release_lines() {
   local v_version=$1
   local date=$2
@@ -112,16 +23,21 @@ get_pr_changes() {
   
   debug "Fetching PRs merged between $from_date and $to_date"
 
+  # --search : GitHub search query to filter PRs (e.g., is:merged, merged:>=date)
+  # --limit : set maximum number of PRs to fetch (default is 30, increased for larger projects)
+  # --json : output PR data in JSON format with specified fields
+  #   available fields for --json:
+  #     number, title, body, state, createdAt, updatedAt, closedAt, mergedAt, labels,
+  #     author, assignees, reviewers, headRefName, baseRefName, headRefOid, baseRefOid,
+  #     mergeCommit, additions, deletions, url, id, isDraft, milestone, commitCount, changedFiles
+  # --jq : filter and transform JSON output into a formatted string
+  #   .[] : Iterate over each PR in the JSON array
+  #   \(.field) : extract a field specified in --json (e.g., .title, .number)
+  #   \(.field | map(.name) | join(",")) : concatenate array field values (e.g., labels) into a comma-separated string
   prs=$(gh pr list \
     --search "merged:>=$from_date merged:<=$to_date" \
-    --limit 100 --json title,labels,mergedAt \
-    --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
-
-  if [ -z "$prs" ]; then
-    debug "No PRs found between $from_date and $to_date"
-    debug "No changes."
-    return
-  fi
+    --json title,labels \
+    --jq '.[] | "\(.title)|\(.labels | map(.name) | join(","))"')
 
   local added=""
   local fixed=""
@@ -129,22 +45,35 @@ get_pr_changes() {
   local breaking=""
 
   while IFS= read -r pr_info; do
-    title=$(echo "$pr_info" | cut -d'|' -f1)
-    labels=$(echo "$pr_info" | cut -d'|' -f2)
-    merged_at=$(echo "$pr_info" | cut -d'|' -f3)
+    local pr_title=$(echo "$pr_info" | cut -d'|' -f1)
+    local labels=$(echo "$pr_info" | cut -d'|' -f2)
 
-    debug "pr_info :\n$pr_info"
+    if ! [[ "$pr_title" =~ ^(feat|fix|chore|docs|refactor|style|test|perf|ci|build): ]]; then
+      debug "PR title : $pr_title => skipped"
+      continue
+    fi
+
+    # PRs titles must be like : type: title [closes #issue_number]
+    local type=$(echo "$pr_title" | sed -n 's/^\([a-z]+\): .*/\1/p')
+    local title=$(echo "$pr_title" | sed -n 's/^[a-z]+: \(.*\) \[[a-z]+ #[0-9]+\]/\1/p')
+    local issue_number=$(echo $pr_title | grep -oE '\[[a-z]+ #[0-9]+\]' | grep -oE '[0-9]+')
+
+    local changelog_entry="$type [#$issue_number](https://github.com/$repo/issues/$issue_number): $title"
+
+    debug "pr_info : $pr_info"
+    debug "pr_title : $pr_title"
+    debug "labels : $labels"
+    debug "type : $type"
     debug "title : $title"
-    debug "labels :\n$labels"
-    debug "merged_at : $merged_at"
+    debug "issue_number : $issue_number"
+    debug "changelog_entry : $changelog_entry"
 
-    # Categorize based on PR title prefix
-    if [[ "$title" =~ ^feat: ]]; then
-      added+="- $title\n"
-    elif [[ "$title" =~ ^fix: ]]; then
-      fixed+="- $title\n"
-    elif [[ "$title" =~ ^(chore|docs|refactor|style|test|perf|ci|build): ]]; then
-      changed+="- $title\n"
+    if [[ $type == "feat" ]]; then
+      added+="- $changelog_entry\n"
+    elif [[ $type == "fix" ]]; then
+      fixed+="- $changelog_entry\n"
+    elif [[ $type =~ (chore|docs|refactor|style|test|perf|ci|build) ]]; then
+      changed+="- $changelog_entry\n"
     fi
 
     # Check for breaking change label

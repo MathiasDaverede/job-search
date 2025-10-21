@@ -525,3 +525,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - feat [#1](https://github.com/$repo/issues/1) : My first feature
+
+A verifier mais il n'y a pas de label "Breaking" (changelog_functions.sh) dans la création auto des labels
++ le breaking dans le changelog plutot en haut non ?
