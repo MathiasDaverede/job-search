@@ -332,8 +332,11 @@ PR : Pull Request
 Création d'un repository.  
 Protection des branches develop et main :
 
-- Settings (du repository) > Rules > Rulesets > New ruleset
-  - Require a pull request before merging
+- Settings (du repository) >
+  - Rules > Rulesets > New ruleset
+    - Require a pull request before merging
+  - Actions > General > Workflow permissions
+    - Allow GitHub Actions to create and approve pull requests
 
 #### Actions
 
