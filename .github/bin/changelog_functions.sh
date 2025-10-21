@@ -89,9 +89,9 @@ manage_current_release() {
 manage_releases_between_tags() {
   debug "manage_releases_between_tags()"
 
-  local tags_array=$1
+  local -a tags_array=("$@")
 
-  debug "tags_array : $tags_array"
+  debug "tags_array : ${tags_array[*]}"
   
   for ((i=1; i < ${#tags_array[@]}; i++)); do
     previous_tag="${tags_array[$i]}"

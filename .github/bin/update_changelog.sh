@@ -29,15 +29,12 @@ debug "Tags found :\n$tags"
 # Convert tags to array
 readarray -t tags_array <<< $tags
 
+first_commit=$(git rev-list --max-parents=0 HEAD)
+first_tag="${tags_array[-1]}"
 last_tag=${tags_array[0]}
 
 manage_current_release $v_version $last_tag
-
-manage_releases_between_tags $tags_array
-
-first_commit=$(git rev-list --max-parents=0 HEAD)
-first_tag="${tags_array[-1]}"
-
+manage_releases_between_tags ${tags_array[@]}
 manage_first_release $first_commit $first_tag
 
 # Handle changes before first tag (if any)
