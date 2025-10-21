@@ -13,7 +13,7 @@ verifier les hash de cache CI
 ca n'a plus l'air de fonctionner
 
 Pour annuler un commit non poussé :
-git resest --soft HEAD~
+git reset --soft HEAD~
 
 Paramétrage Sourcetree :
 
