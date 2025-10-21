@@ -5,12 +5,12 @@ debug() {
   echo -e "$@" >&2
 }
 
-print_release_lines() {
+get_release_lines() {
   local v_version=$1
   local date=$2
 
-  echo -e "## [${v_version#v}] - $date\n" >> $changelog_file
-  echo -e "[Release ${v_version}](https://github.com/$repo/releases/tag/${v_version})\n" >> $changelog_file
+  echo -e "## [${v_version#v}] - $date\n"
+  echo -e "[Release ${v_version}](https://github.com/$repo/releases/tag/${v_version})\n"
 }
 
 # Function to get PR titles for commits between two refs (from_ref..to_ref) on a target branch
@@ -70,18 +70,18 @@ get_pr_changes() {
 # PRs merged : features into develop (so contained in current release)
 # From last tag to now
 manage_current_release() {
-  debug "manage_current_version()"
+  debug "manage_current_release()"
 
   local futur_tag=$1
   local last_tag=$2
-  local today_date=$3
+  local today_date=$(date +%Y-%m-%d)
 
   debug "futur_tag : $futur_tag"
   debug "last_tag : $last_tag"
   debug "today_date : $today_date"
 
-  print_release_lines $futur_tag $today_date
-  get_pr_changes $last_tag "HEAD" "develop" >> $changelog_file || echo "No changes." >> $changelog_file
+  get_release_lines $futur_tag $today_date >> "CHANGELOG.md"
+  get_pr_changes $last_tag "HEAD" "develop" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
 
 # PRs merged : features into main
@@ -102,8 +102,8 @@ manage_releases_between_tags() {
     debug "current_tag : $current_tag"
     debug "release_date : $release_date"
 
-    print_release_lines $current_tag $release_date
-    get_pr_changes $previous_tag $current_tag "main" >> $changelog_file || echo "No changes." >> $changelog_file
+    get_release_lines $current_tag $release_date >> "CHANGELOG.md"
+    get_pr_changes $previous_tag $current_tag "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
   done
 }
 
@@ -121,6 +121,6 @@ manage_first_release() {
   debug "first_tag : $first_tag"
   debug "release_date : $release_date"
 
-  print_release_lines $first_tag $release_date
-  get_pr_changes $first_commit $first_tag "main" >> $changelog_file || echo "No changes." >> $changelog_file
+  get_release_lines $first_tag $release_date >> "CHANGELOG.md"
+  get_pr_changes $first_commit $first_tag "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
