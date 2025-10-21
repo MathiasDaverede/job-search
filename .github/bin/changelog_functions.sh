@@ -5,6 +5,39 @@ debug() {
   echo -e "$@" >&2
 }
 
+# Nouvelle fonction pour déboguer uniquement les PRs de features fusionnées
+debug_prs() {
+  local prs
+
+  debug "Debugging all merged feature PRs (title starting with 'feat:')"
+
+  # Récupérer toutes les PRs fusionnées avec un titre commençant par "feat:"
+  prs=$(gh pr list \
+    --search "is:merged feat:" \
+    --limit 100 --json title,labels,mergedAt,baseRefName \
+    --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)|\(.baseRefName)"' || echo "")
+
+  if [ -z "$prs" ]; then
+    debug "No feature PRs found"
+    return
+  fi
+
+  debug "List of merged feature PRs:"
+  debug "-------------------"
+  while IFS= read -r pr_info; do
+    local title=$(echo "$pr_info" | cut -d'|' -f1)
+    local labels=$(echo "$pr_info" | cut -d'|' -f2)
+    local merged_at=$(echo "$pr_info" | cut -d'|' -f3)
+    local base_branch=$(echo "$pr_info" | cut -d'|' -f4)
+
+    debug "PR Title: $title"
+    debug "Labels: $labels"
+    debug "Merged At: $merged_at"
+    debug "Base Branch: $base_branch"
+    debug "-------------------"
+  done <<< "$prs"
+}
+
 get_release_lines() {
   local v_version=$1
   local date=$2
@@ -19,13 +52,12 @@ get_release_lines() {
 get_pr_changes() {
   local from_date=$1
   local to_date=$2
-  local base_branch=$3
   local prs
   
   debug "Fetching PRs merged between $from_date and $to_date"
 
   prs=$(gh pr list \
-    --search "base:$base_branch merged:>=$from_date merged:<=$to_date" \
+    --search "merged:>=$from_date merged:<=$to_date" \
     --limit 100 --json title,labels,mergedAt \
     --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
 
@@ -96,7 +128,7 @@ manage_current_release() {
   debug "from_date : $from_date"
 
   get_release_lines $futur_tag $today_date >> "CHANGELOG.md"
-  get_pr_changes $from_date $today_date "develop" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+  get_pr_changes $from_date $today_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
 
 # PRs merged : features into main
@@ -120,7 +152,7 @@ manage_releases_between_tags() {
     debug "previous_date : $previous_date"
 
     get_release_lines $release_tag $release_date >> "CHANGELOG.md"
-    get_pr_changes $previous_date $release_date "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+    get_pr_changes $previous_date $release_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
   done
 }
 
@@ -141,5 +173,5 @@ manage_first_release() {
   debug "first_commit_date : $first_commit_date"
 
   get_release_lines $first_tag $release_date >> "CHANGELOG.md"
-  get_pr_changes $first_commit_date $release_date "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+  get_pr_changes $first_commit_date $release_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
