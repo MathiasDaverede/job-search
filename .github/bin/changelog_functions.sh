@@ -22,8 +22,10 @@ get_pr_changes() {
   local prs
   local commits
 
+  debug "Fetching commits from $from_ref to $to_ref for branch $target_branch"
+
   # Get commit SHAs in range (use --first-parent to focus on merge commits)
-  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref".."$to_ref" -- "$target_branch")
+  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref..$to_ref" --branches=$target_branch)
 
   # Initialize arrays for categorized changes
   local added=""
@@ -36,7 +38,19 @@ get_pr_changes() {
     # Find PR associated with the commit
     pr_info=$(gh pr list --state merged --repo "$repo" --search "$commit" --json title,labels,mergedAt --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
 
-    if [ -n "$pr_info" ]; then
+    debug "pr_info :\n$pr_info"
+
+    pr_info=$(gh api -H "Accept: application/vnd.github+json" "/repos/$repo/pulls?state=closed&sort=updated&direction=desc&per_page=100" \
+      --jq ".[] | select(.merge_commit_sha == \"$commit\" or .head.sha == \"$commit\") | \"\(.title)|\(.labels[].name)|\(.merged_at)\"" || echo "")
+
+    debug "pr_info 2 :\n$pr_info"
+
+    if [ -z "$pr_info" ]; then
+      debug "No PR found for commit $commit, skipping"
+      continue
+    fi
+
+    # if [ -n "$pr_info" ]; then
       title=$(echo "$pr_info" | cut -d'|' -f1)
       labels=$(echo "$pr_info" | cut -d'|' -f2)
 
@@ -57,7 +71,7 @@ get_pr_changes() {
       if echo $labels | grep -q "breaking"; then
         breaking+="- $title\n"
       fi
-    fi
+    # fi
   done <<< "$commits"
 
   # Output sections only if not empty
