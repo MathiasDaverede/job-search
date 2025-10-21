@@ -9,7 +9,7 @@
 
 set -e # Exit on error
 
-source ./changelog_functions.sh
+source .github/bin/changelog_functions.sh
 
 repo=$1 # ${{ github.repository }}
 v_version=$2 # ${{ env.V_VERSION }}
