@@ -8,71 +8,60 @@ debug() {
 get_release_lines() {
   local v_version=$1
   local date=$2
+  local display_date=$(echo "$date" | cut -d'T' -f1) # YYYY-MM-DD
 
-  echo -e "## [${v_version#v}] - $date\n"
+  echo -e "## [${v_version#v}] - $display_date\n"
   echo -e "[Release ${v_version}](https://github.com/$repo/releases/tag/${v_version})\n"
 }
 
 # Function to get PR titles for commits between two refs (from_ref..to_ref) on a target branch
 # Uses `gh pr list` to fetch merged PRs associated with commits
 get_pr_changes() {
-  local from_ref=$1
-  local to_ref=$2
-  local target_branch="$3" # develop or main
+  local from_date=$1
+  local to_date=$2
   local prs
-  local commits
+  
+  debug "Fetching PRs merged between $from_date and $to_date"
 
-  debug "Fetching commits from $from_ref to $to_ref for branch $target_branch"
+  prs=$(gh pr list --search "merged:>=$from_date merged:<=$to_date" \
+    --limit 100 --json title,labels,mergedAt \
+    --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
 
-  # Get commit SHAs in range (use --first-parent to focus on merge commits)
-  commits=$(git log --first-parent --pretty=format:"%H" "$from_ref..$to_ref" --branches=$target_branch)
+  if [ -z "$prs" ]; then
+    debug "No PRs found between $from_date and $to_date"
+    echo "No changes."
+    return
+  fi
 
-  # Initialize arrays for categorized changes
   local added=""
   local fixed=""
   local changed=""
   local breaking=""
 
-  # Iterate over commits to find associated PRs
-  while IFS= read -r commit; do
-    # Find PR associated with the commit
-    pr_info=$(gh pr list --state merged --repo "$repo" --search "$commit" --json title,labels,mergedAt --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)"' || echo "")
+  while IFS= read -r pr_info; do
+    title=$(echo "$pr_info" | cut -d'|' -f1)
+    labels=$(echo "$pr_info" | cut -d'|' -f2)
+    merged_at=$(echo "$pr_info" | cut -d'|' -f3)
 
     debug "pr_info :\n$pr_info"
+    debug "title : $title"
+    debug "labels :\n$labels"
+    debug "merged_at : $merged_at"
 
-    pr_info=$(gh api -H "Accept: application/vnd.github+json" "/repos/$repo/pulls?state=closed&sort=updated&direction=desc&per_page=100" \
-      --jq ".[] | select(.merge_commit_sha == \"$commit\" or .head.sha == \"$commit\") | \"\(.title)|\(.labels[].name)|\(.merged_at)\"" || echo "")
-
-    debug "pr_info 2 :\n$pr_info"
-
-    if [ -z "$pr_info" ]; then
-      debug "No PR found for commit $commit, skipping"
-      continue
+    # Categorize based on PR title prefix
+    if [[ "$title" =~ ^feat: ]]; then
+      added+="- $title\n"
+    elif [[ "$title" =~ ^fix: ]]; then
+      fixed+="- $title\n"
+    elif [[ "$title" =~ ^(chore|docs|refactor|style|test|perf|ci|build): ]]; then
+      changed+="- $title\n"
     fi
 
-    # if [ -n "$pr_info" ]; then
-      title=$(echo "$pr_info" | cut -d'|' -f1)
-      labels=$(echo "$pr_info" | cut -d'|' -f2)
-
-      debug "pr_info :\n$pr_info"
-      debug "title : $title"
-      debug "labels :\n$labels"
-
-      # Categorize based on PR title prefix
-      if [[ "$title" =~ ^feat: ]]; then
-        added+="- $title\n"
-      elif [[ "$title" =~ ^fix: ]]; then
-        fixed+="- $title\n"
-      elif [[ "$title" =~ ^(chore|docs|refactor|style|test|perf|ci|build): ]]; then
-        changed+="- $title\n"
-      fi
-
-      # Check for breaking change label
-      if echo $labels | grep -q "breaking"; then
-        breaking+="- $title\n"
-      fi
-    # fi
-  done <<< "$commits"
+    # Check for breaking change label
+    if echo $labels | grep -q "breaking"; then
+      breaking+="- $title\n"
+    fi
+  done <<< $prs
 
   # Output sections only if not empty
   [ -n "$breaking" ] && echo -e "### Breaking Changes\n" && echo -e "$breaking"
@@ -88,14 +77,24 @@ manage_current_release() {
 
   local futur_tag=$1
   local last_tag=$2
-  local today_date=$(date +%Y-%m-%d)
+
+  local today_date=$(date --iso-8601=seconds) # Format YYYY-MM-DDTHH:MM:SSZ
+  local from_date
+
+  if [ -n "$last_tag" ]; then
+    from_date=$(git log -1 --format=%cd --date=iso8601-strict $last_tag)
+  else
+    # When creating the first release, there is no tag yet
+    from_date="1970-01-01T00:00:00Z"
+  fi
 
   debug "futur_tag : $futur_tag"
-  debug "last_tag : $last_tag"
   debug "today_date : $today_date"
+  debug "last_tag : $last_tag"
+  debug "from_date : $from_date"
 
   get_release_lines $futur_tag $today_date >> "CHANGELOG.md"
-  get_pr_changes $last_tag "HEAD" "develop" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+  get_pr_changes $from_date $today_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
 
 # PRs merged : features into main
@@ -108,16 +107,18 @@ manage_releases_between_tags() {
   debug "tags_array : ${tags_array[*]}"
   
   for ((i=1; i < ${#tags_array[@]}; i++)); do
+    release_tag="${tags_array[$i-1]}"
+    release_date=$(git log -1 --format=%cd --date=iso8601-strict $release_tag)
     previous_tag="${tags_array[$i]}"
-    current_tag="${tags_array[$i-1]}"
-    release_date=$(git log -1 --format=%cd --date=format:%Y-%m-%d $current_tag)
+    previous_date=$(git log -1 --format=%cd --date=iso8601-strict $previous_tag)
 
-    debug "previous_tag : $previous_tag"
-    debug "current_tag : $current_tag"
+    debug "release_tag : $release_tag"
     debug "release_date : $release_date"
+    debug "previous_tag : $previous_tag"
+    debug "previous_date : $previous_date"
 
-    get_release_lines $current_tag $release_date >> "CHANGELOG.md"
-    get_pr_changes $previous_tag $current_tag "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+    get_release_lines $release_tag $release_date >> "CHANGELOG.md"
+    get_pr_changes $previous_date $release_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
   done
 }
 
@@ -126,15 +127,17 @@ manage_releases_between_tags() {
 manage_first_release() {
   debug "manage_first_release()"
 
-  local first_commit=$1
-  local first_tag=$2
+  local first_tag=$1
 
-  release_date=$(git log -1 --format=%cd --date=format:%Y-%m-%d $first_tag)
+  local first_commit=$(git rev-list --max-parents=0 HEAD)
+  local first_commit_date=$(git log -1 --format=%cd --date=iso8601-strict $first_commit)
+  local release_date=$(git log -1 --format=%cd --date=iso8601-strict $first_tag)
 
-  debug "first_commit : $first_commit"
   debug "first_tag : $first_tag"
   debug "release_date : $release_date"
+  debug "first_commit : $first_commit"
+  debug "first_commit_date : $first_commit_date"
 
   get_release_lines $first_tag $release_date >> "CHANGELOG.md"
-  get_pr_changes $first_commit $first_tag "main" >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
+  get_pr_changes $first_commit_date $release_date >> "CHANGELOG.md" || echo "No changes." >> "CHANGELOG.md"
 }
