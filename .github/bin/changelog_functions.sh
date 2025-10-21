@@ -12,7 +12,7 @@ debug_prs1() {
 
   prs=$(gh pr list \
     --search "is:merged" \
-    --limit 100
+    --limit 100)
 
   debug "List of merged feature PRs:"
   debug "-------------------"
@@ -39,7 +39,7 @@ debug_prs2() {
   # Récupérer toutes les PRs fusionnées avec un titre commençant par "feat:"
   prs=$(gh pr list \
     --search "is:merged" \
-    --limit 100 --json title,labels,mergedAt,baseRefName
+    --limit 100 --json title,labels,mergedAt,baseRefName)
 
   if [ -z "$prs" ]; then
     debug "No feature PRs found"
