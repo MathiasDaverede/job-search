@@ -5,17 +5,73 @@ debug() {
   echo -e "$@" >&2
 }
 
-# Nouvelle fonction pour déboguer uniquement les PRs de features fusionnées
-debug_prs() {
+debug_prs1() {
+  local prs
+
+  debug "debug_prs1"
+
+  prs=$(gh pr list \
+    --search "is:merged" \
+    --limit 100
+
+  debug "List of merged feature PRs:"
+  debug "-------------------"
+  while IFS= read -r pr_info; do
+    local title=$(echo "$pr_info" | cut -d'|' -f1)
+    local labels=$(echo "$pr_info" | cut -d'|' -f2)
+    local merged_at=$(echo "$pr_info" | cut -d'|' -f3)
+    local base_branch=$(echo "$pr_info" | cut -d'|' -f4)
+
+    debug "pr_info: $pr_info"
+    debug "PR Title: $title"
+    debug "Labels: $labels"
+    debug "Merged At: $merged_at"
+    debug "Base Branch: $base_branch"
+    debug "-------------------"
+  done <<< "$prs"
+}
+
+debug_prs2() {
   local prs
 
   debug "Debugging all merged feature PRs (title starting with 'feat:')"
 
   # Récupérer toutes les PRs fusionnées avec un titre commençant par "feat:"
   prs=$(gh pr list \
-    --search "is:merged feat:" \
-    --limit 100 --json title,labels,mergedAt,baseRefName \
-    --jq '.[] | "\(.title)|\(.labels[].name)|\(.mergedAt)|\(.baseRefName)"' || echo "")
+    --search "is:merged" \
+    --limit 100 --json title,labels,mergedAt,baseRefName
+
+  if [ -z "$prs" ]; then
+    debug "No feature PRs found"
+    return
+  fi
+
+  debug "List of merged feature PRs:"
+  debug "-------------------"
+  while IFS= read -r pr_info; do
+    local title=$(echo "$pr_info" | cut -d'|' -f1)
+    local labels=$(echo "$pr_info" | cut -d'|' -f2)
+    local merged_at=$(echo "$pr_info" | cut -d'|' -f3)
+    local base_branch=$(echo "$pr_info" | cut -d'|' -f4)
+
+    debug "PR Title: $title"
+    debug "Labels: $labels"
+    debug "Merged At: $merged_at"
+    debug "Base Branch: $base_branch"
+    debug "-------------------"
+  done <<< "$prs"
+}
+
+debug_prs3() {
+  local prs
+
+  debug "Debugging all merged feature PRs (title starting with 'feat:')"
+
+  # Récupérer toutes les PRs fusionnées avec un titre commençant par "feat:"
+  prs=$(gh pr list \
+    --search "is:merged" \
+    --limit 100 --json number,title,labels,mergedAt,baseRefName \
+    --jq '.[] | "\(.number)|\(.title)|\(.labels | map(.name) | join(","))|\(.mergedAt)|\(.baseRefName)"' || echo "")
 
   if [ -z "$prs" ]; then
     debug "No feature PRs found"

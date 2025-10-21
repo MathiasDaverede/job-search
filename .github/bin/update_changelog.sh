@@ -32,7 +32,9 @@ readarray -t tags_array <<< $tags
 last_tag=${tags_array[0]}
 first_tag="${tags_array[-1]}"
 
-debug_prs
+debug_prs1
+debug_prs2
+debug_prs3
 
 manage_current_release $v_version $last_tag
 manage_releases_between_tags ${tags_array[@]}
