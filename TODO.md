@@ -232,13 +232,18 @@ sauvegarde du CHANGELOG.md au cas où :
 
 All notable changes to this project are documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## v1.1.0 - 2025-10-13
+
 [Release v1.1.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.1.0)
 
 - feature [#5](https://github.com/MathiasDaverede/job-search/issues/5) Display version in footer
 - feature [#6](https://github.com/MathiasDaverede/job-search/issues/6) Useful links for developers
 
 ## v1.0.0 - 2025-10-13
+
 [Release v1.0.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.0.0)
 
 - feature [#1](https://github.com/MathiasDaverede/job-search/issues/1) Initialize Project
@@ -496,3 +501,27 @@ Afficher les espaces :
     File > Preferences > Settings
         chercher "renderWhitespace"
         Editor : Render whitespace : all
+
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),  
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## v1.1.0 - 2025-10-20
+
+[Release v1.1.0](https://github.com/$repo/releases/tag/v1.1.0)
+
+### Added
+
+- feat [#2](https://github.com/$repo/issues/2) : Display version in footer
+- feat [#3](https://github.com/$repo/issues/3) : Useful links for developers
+
+## v1.0.0 - 2025-10-13
+
+[Release v1.0.0](https://github.com/$repo/releases/tag/v1.0.0)
+
+### Added
+
+- feat [#1](https://github.com/$repo/issues/1) : My first feature
