@@ -48,17 +48,28 @@ get_pr_changes() {
     local pr_title=$(echo "$pr_info" | cut -d'|' -f1)
     local labels=$(echo "$pr_info" | cut -d'|' -f2)
 
-    if ! [[ "$pr_title" =~ ^(feat|fix|chore|docs|refactor|style|test|perf|ci|build): ]]; then
+    # PRs titles must be like :
+    # type: title ([action #issue_number])
+    # feat: a feature [closes #1]
+    # fix: a bug fix [fixes #2]
+    # fix: another bug fix [resolves #3]
+    # chore(CI): a chore
+    if ! [[ "$pr_title" =~ ^(feat|fix|chore|docs|refactor|style|test|perf|ci|build) ]]; then
       debug "PR title : $pr_title => skipped"
       continue
     fi
 
-    # PRs titles must be like : type: title [closes #issue_number]
-    local type=$(echo "$pr_title" | sed -n 's/^\([a-z]+\): .*/\1/p')
-    local title=$(echo "$pr_title" | sed -n 's/^[a-z]+: \(.*\) \[[a-z]+ #[0-9]+\]/\1/p')
-    local issue_number=$(echo $pr_title | grep -oE '\[[a-z]+ #[0-9]+\]' | grep -oE '[0-9]+')
+    local type=$(echo $pr_title | sed -e 's/^\([a-z]\+\)\(:.*\)/\1/')
+    local title=$(echo $pr_title | sed -e 's/^\([a-z]\+\):[ ]*\(.*\)[ ]*\[[a-z]\+ #\([0-9]\+\)\]/\2/')
+    local issue_number=$(echo $pr_title | sed -e 's/\(.*\)\[[a-z]\+ #\([0-9]\+\)\]/\2/')
 
-    local changelog_entry="$type [#$issue_number](https://github.com/$repo/issues/$issue_number): $title"
+    local changelog_entry=$type
+
+    if [ -n "$issue_number" ]; then
+      changelog_entry+=" [#$issue_number](https://github.com/$repo/issues/$issue_number)"
+    fi
+
+    changelog_entry+=": $title"
 
     debug "pr_info : $pr_info"
     debug "pr_title : $pr_title"
