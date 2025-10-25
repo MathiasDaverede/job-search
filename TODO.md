@@ -13,10 +13,15 @@ verifier les hash de cache CI
 ca n'a plus l'air de fonctionner
 
 Pour annuler un commit non poussé :
-git resest --soft HEAD~
+git reset --soft HEAD~
 
 Paramétrage Sourcetree :
 
+New tab > Clone
+    git@github.com:MathiasDaverede/job-search.git
+    \\wsl$\Ubuntu-24.04\home\mathias\job-search
+
+Terminal :
 git config --global --add safe.directory '%(prefix)///wsl$/Ubuntu-24.04/home/mathias/job-search'
 
 # Git ne suit pas toutes les permissions des fichiers. Par défaut, Git ne versionne que le bit d'exécution (+x) pour les fichiers (et uniquement si le fichier est marqué comme exécutable ou non).
@@ -525,3 +530,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - feat [#1](https://github.com/$repo/issues/1) : My first feature
+
+A verifier mais il n'y a pas de label "Breaking" (changelog_functions.sh) dans la création auto des labels
++ le breaking dans le changelog plutot en haut non ?
+
+ajouter au readme :
+[closes #1]
+
+Grok dit :
+closes #1 : Indique que la PR ferme l’issue #1.
+fixes #1 : Synonyme de closes, utilisé pour indiquer que la PR résout un problème (souvent un bug).
+resolves #1 : Similaire à closes et fixes, souvent utilisé pour indiquer que la PR résout une tâche ou un problème.
+
+fixes est souvent utilisé pour des corrections de bugs (par exemple, une PR avec fix: dans le titre).
+closes est plus générique et peut être utilisé pour tout type de tâche ou issue (bug, feature, etc.).
+resolves est également générique, mais parfois préféré dans des contextes où la résolution est moins une "correction" qu’une "finalisation" d’une tâche.
+
+Comportement dans GitHub : Les trois mots-clés ont exactement le même effet dans GitHub : ils ferment l’issue référencée lorsque la PR est fusionnée dans la branche par défaut (ou une branche spécifiée). Par exemple, feat: add feature [closes #1], feat: add feature [fixes #1], ou feat: add feature [resolves #1] fermeront tous l’issue #1.
