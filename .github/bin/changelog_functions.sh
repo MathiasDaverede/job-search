@@ -59,9 +59,17 @@ get_pr_changes() {
       continue
     fi
 
-    local type=$(echo $pr_title | sed -e 's/^\([a-z]\+\)\(:.*\)/\1/')
-    local title=$(echo $pr_title | sed -e 's/^\([a-z]\+\):[ ]*\(.*\)[ ]*\[[a-z]\+ #\([0-9]\+\)\]/\2/')
-    local issue_number=$(echo $pr_title | sed -e 's/\(.*\)\[[a-z]\+ #\([0-9]\+\)\]/\2/')
+    # ^([a-z]+) => Captures one or more lowercase letters at the start (e.g., feat, chore)
+    # (:.*) => Captures the colon and everything following it
+    local type=$(echo $pr_title | perl -ne '/^([a-z]+)(:.*)/ && print $1')
+
+    # ^([a-z]+): => Captures one or more lowercase letters at the start followed by a colon and a space
+    # (.*?) => Captures the title in a non-greedy way until an optional [action #number] or end of string
+    # ( \[[a-z]+ #([0-9]+)\])?$ => Optionally captures a space followed by [action #number] at the end
+    local title=$(echo $pr_title | perl -ne '/^([a-z]+): (.*?)( \[[a-z]+ #([0-9]+)\])?$/ && print $2')
+
+    # ( \[[a-z]+ #([0-9]+)\]) => Captures the number after # in a [action #number] structure
+    local issue_number=$(echo $pr_title | perl -ne '/\[[a-z]+ #([0-9]+)\]/ && print $1')
 
     local changelog_entry=$type
 
