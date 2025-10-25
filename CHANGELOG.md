@@ -18,7 +18,10 @@ No changes.
 
 [Release v1.5.9](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.9)
 
-No changes.
+### Changed
+
+- chore(CI) [#58](https://github.com/MathiasDaverede/job-search/issues/58): auto create repo labels
+
 ## [1.5.8] - 2025-10-20
 
 [Release v1.5.8](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.8)
@@ -84,7 +87,10 @@ No changes.
 
 [Release v1.5.1](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.1)
 
-No changes.
+### Changed
+
+- chore(CI) [#51](https://github.com/MathiasDaverede/job-search/issues/51): auto PR to synchronise develop with main
+
 ## [1.5.0] - 2025-10-17
 
 [Release v1.5.0](https://github.com/MathiasDaverede/job-search/releases/tag/v1.5.0)
