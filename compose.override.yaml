@@ -1,5 +1,24 @@
 
 services:
+  traefik:
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      # The HTTPS port
+      #- "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+
+  web:
+    ports:
+      - "8081:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`jobsearch.localhost`)"
+
 ###> doctrine/doctrine-bundle ###
   database:
     ports:

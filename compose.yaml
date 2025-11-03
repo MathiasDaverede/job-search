@@ -3,6 +3,20 @@
 # No need network for services, Docker create a common one by default
 
 services:
+  traefik:
+    image: traefik:3.4.0
+    restart: always
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      #- "--entryPoints.websecure.address=:443"
+    volumes:
+      # So that Traefik can listen to the Docker events (ro : readonly)
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   web:
     tty: true
     build:
@@ -11,11 +25,18 @@ services:
         USER_NAME: ${USER_NAME}
         USER_ID: ${USER_ID}
         GROUP_ID: ${GROUP_ID}
+    restart: always
     volumes:
       - .:/var/www/
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+
 ###> doctrine/doctrine-bundle ###
   database:
     image: mariadb:11.7.2
+    restart: always
     environment:
       MARIADB_DATABASE: ${MARIADB_DATABASE_NAME}
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
