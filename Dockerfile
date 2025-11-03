@@ -7,7 +7,6 @@ RUN apt-get update -y && apt-get upgrade -y; \
     # For composer
     apt-get install -y zip; \
     apt-get install -y wget; \
-    apt-get install -y git; \
     # Clean temporary files
     rm -rf /var/lib/apt/lists/*; \
     apt-get purge -y --auto-remove; \
@@ -28,17 +27,10 @@ ARG GROUP_ID
 RUN addgroup ${USER_NAME} --gid ${GROUP_ID}; \
     useradd ${USER_NAME} --uid ${USER_ID} --gid ${GROUP_ID} --create-home;
 
+
+
+
 # Comment this line and rebuild if you need root access
 USER "${USER_NAME}"
 
-# When Symfony create a new project, it uses composer wich need Git setted
-RUN git config --global user.name "${USER_NAME}"
-RUN git config --global user.email "dev@job-search.example"
-
-WORKDIR /home/"${USER_NAME}"/
-
-# To create the project
-RUN symfony new job-search --version="7.3.x" --webapp
-
-# I'll use mine
-RUN rm -r job-search/.git
+WORKDIR /var/www/
