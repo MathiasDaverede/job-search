@@ -1,0 +1,41 @@
+<div class="recipient form-control">
+    <div class="row">
+        <div class="col">
+            <h2>{{ form_label(recipientForm) }}</h2>
+        </div>
+    </div>
+
+    {% if recipientForm.company.vars['value'] != '' %}
+        <a class="btn btn-danger" role="button" href="{{ path('back_cover_letter_delete_recipient') }}">
+            <i class="fa-solid fa-minus" aria-hidden="true"></i>
+        </a>
+    {% endif %}
+    
+    <div class="row">
+        <div class="col">
+            {{ form_row(recipientForm.company) }}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-2">
+            {{ form_row(recipientForm.gender) }}
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col">
+            {{ form_row(recipientForm.firstName) }}
+        </div>
+
+        <div class="col">
+            {{ form_row(recipientForm.lastName) }}
+        </div>
+
+        <div class="col">
+            {{ form_row(recipientForm.job) }}
+        </div>
+    </div>
+
+    {% include 'back/cover_letter/address_form.html.twig' with {'addressForm': recipientForm.address} %}
+</div>

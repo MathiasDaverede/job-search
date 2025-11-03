@@ -1,0 +1,39 @@
+$dark-blue: #1f2937;
+$medium-blue: #294564;
+$medium-light-blue: #89abd0;
+$light-blue: #9ac6f6;
+$grey: #d1d5db;
+$dark-red: #7e1616;
+
+#back {
+    .flash-notice, .flash-error {
+        padding: 10px 12px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .flash-notice {
+        background-color: $light-blue;
+        color: black;
+    }
+
+    .flash-error {
+        background-color: $dark-red;
+        color: white;
+    }
+
+    .buttons {
+        margin-bottom: 10px;
+    }
+
+    .form-control {
+        border-color: $dark-blue;
+        background-color: $medium-blue;
+        color: $grey;
+
+        input, select, textarea {
+            background-color: $medium-light-blue;
+            color: black;
+        }
+    }
+}
