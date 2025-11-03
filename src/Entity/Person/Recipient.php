@@ -7,6 +7,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity]
 class Recipient extends Person
 {
+    public const GENDER_WOMAN = 'woman';
+    public const GENDER_MAN = 'man';
+
     #[ORM\Column(length: 5, nullable: true)]
     private ?string $gender = null;
 
@@ -15,6 +18,14 @@ class Recipient extends Person
 
     #[ORM\Column(length: 100, nullable: true)]
     protected ?string $job = null;
+
+    public static function getGenders(): array
+    {
+        return [
+            'Femme' => self::GENDER_WOMAN,
+            'Homme' => self::GENDER_MAN,
+        ];
+    }
 
     public function getGender(): ?string
     {
