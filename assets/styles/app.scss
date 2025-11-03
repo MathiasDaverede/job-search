@@ -1,0 +1,29 @@
+$dark-blue: #1f2937;
+$light-blue: #93c5fd;
+$grey: #d1d5db;
+
+body {
+    font-family: Arial;
+    background-color: $dark-blue;
+    color: $grey;
+
+    a {
+        color: $grey !important;
+
+        &:hover {
+            color: $light-blue !important;
+        }
+    }
+
+    header {
+        .container-fluid {
+            padding: 0;
+        }
+    }
+
+    footer {
+        a {
+            margin-right: 10px;
+        }
+    }
+}
