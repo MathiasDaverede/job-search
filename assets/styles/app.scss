@@ -2,6 +2,7 @@ $dark-blue: #1f2937;
 $light-blue: #93c5fd;
 $grey: #d1d5db;
 $green: #059669;
+$legendary-orange: #FF8700;
 
 body {
     font-family: Arial;
@@ -19,6 +20,16 @@ body {
     header {
         .container-fluid {
             padding: 0;
+        }
+
+        a {
+            &.active {
+                color: $legendary-orange !important;
+            }
+        }
+
+        .navbar-toggler {
+            background-color: $grey;
         }
     }
 

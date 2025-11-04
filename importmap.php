@@ -24,6 +24,10 @@ return [
         'path' => './assets/js/back/back_cover_letter.js',
         'entrypoint' => true,
     ],
+    'front_global' => [
+        'path' => './assets/js/front/front_global.js',
+        'entrypoint' => true,
+    ],
     '@hotwired/stimulus' => [
         'version' => '3.2.2',
     ],
