@@ -1,0 +1,28 @@
+{% extends 'front/front_base.html.twig' %}
+
+{% block title %}Front - Soutien{% endblock %}
+
+{% block h1 %}Me soutenir{% endblock %}
+
+{% set paypalMeLink = constant('App\\Constant\\UsefulLink::PAYPAL_ME') %}
+
+{% block front_content %}
+    <div class="support-me">
+        <h2>🍺 Un Coup de Pouce pour le Développeur ?</h2>
+
+        <p>Si ce projet vous a aidé à <b>décrocher un poste</b> ou à <b>valider vos compétences</b></p>
+        <p>🎉 <b>Félicitations !</b> 🎉</p>
+
+        <p>
+            Le développeur derrière cet outil fonctionne principalement à la <b>bonne bière</b> 🍻.<br>
+            Votre contribution financera la prochaine <b>bière artisanale</b>
+            qui alimentera l'écriture de futurs projets <b>open source</b>.<br>
+        </p>
+
+        <p>Merci de votre reconnaissance !</p>
+
+        <a href="{{ paypalMeLink }}" target="_blank" class="btn btn-outline-primary btn-lg mt-3">
+            Soutenir le développeur (Lien Paypal)
+        </a>
+    </div>
+{% endblock %}
