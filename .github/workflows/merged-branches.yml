@@ -5,10 +5,11 @@ on:
     branches: [develop, main]
     types: [closed]
 
-# Permissions for creating PRs, and managing branches
+# Permissions for creating labels, PRs, and managing branches
 permissions:
   contents: write
-  pull-requests: write # Required for managing PRs
+  issues: write # Required for managing labels
+  pull-requests: write # Required for managing PRs and labels
 
 jobs:
   # Job to delete feature/* branches after merge into develop
@@ -30,3 +31,34 @@ jobs:
 
       - name: Delete feature branch
         run: git push origin --delete ${{ github.event.pull_request.head.ref }}
+
+  # Job to sync release/* and hotfix/* branches with develop after merge into main
+  synchronize-release-hotfix-to-develop:
+    if: |
+      github.event.pull_request.base.ref == 'main' &&
+      (
+        startsWith(github.event.pull_request.head.ref, 'release/') ||
+        startsWith(github.event.pull_request.head.ref, 'hotfix/')
+      ) &&
+      github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository with full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check and create repository labels
+        run: .github/bin/create_labels.sh ${{ github.repository }} ${{ github.event.pull_request.head.ref }}
+
+      - name: Create PR for merging to develop
+        uses: repo-sync/pull-request@v2
+        with:
+          source_branch: ${{ github.event.pull_request.head.ref }}
+          destination_branch: develop
+          pr_title: ${{ github.event.pull_request.title }}
+          pr_body: "Automatic PR to merge ${{ github.event.pull_request.head.ref }} with develop after merge into main."
+          pr_label: "${{ env.DYNAMIC_LABEL }},${{ env.LABEL_SYNCHRONISATION }}"
