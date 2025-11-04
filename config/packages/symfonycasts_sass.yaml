@@ -6,7 +6,9 @@ symfonycasts_sass:
     - '%kernel.project_dir%/assets/styles/back/back_global.scss'
     - '%kernel.project_dir%/assets/styles/back/back_cover_letter.scss'
 
+    - '%kernel.project_dir%/assets/styles/front/front_global.scss'
     - '%kernel.project_dir%/assets/styles/front/front_cover_letter_template.scss'
+    - '%kernel.project_dir%/assets/styles/front/front_useful_links.scss'
 
   # The Sass binary to use
   binary: null

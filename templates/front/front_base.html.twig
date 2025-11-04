@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block importmap %}
+    {{ parent() }}
+    {{ importmap('front_global') }}
+{% endblock %}
+
+{% block body %}
+    <div id="front">
+        <h1>{% block h1 %}{% endblock %}</h1>
+
+        <div class="content">
+            {% block front_content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
