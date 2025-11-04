@@ -4,17 +4,13 @@ namespace App\Controller;
 
 use App\Entity\CoverLetter;
 use App\Form\Type\CoverLetterType;
-use App\Service\CoverLetterManager;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class BackController extends AbstractController
+final class BackController extends BaseController
 {
-    public function __construct(protected CoverLetterManager $coverLetterManager) {}
-
     #[Route('/lettre-de-motivation', name: 'back_cover_letter')]
     public function coverLetter(Request $request): Response|RedirectResponse
     {
