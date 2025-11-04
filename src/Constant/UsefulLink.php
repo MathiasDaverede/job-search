@@ -8,6 +8,7 @@ class UsefulLink
     public const GITHUB_CHANGELOG = self::GITHUB_REPO . '/blob/main/CHANGELOG.md';
     public const LINKED_IN_PROFILE = 'https://www.linkedin.com/in/mathias-daverede/';
     public const CODINGAME_PROFILE = 'https://www.codingame.com/profile/8ee16a3f95abdb6ba27dd653534e016e4923462';
+    public const PAYPAL_ME = 'https://www.paypal.com/paypalme/MathiasDaverede';
 
     public const JOB_OFFERS = [
         'Indeed' => 'https://fr.indeed.com/',

@@ -34,4 +34,10 @@ final class FrontController extends BaseController
             'devOpsLinks' => UsefulLink::getDevOpsLinks(),
         ]);
     }
+
+    #[Route('/soutien', name: 'front_support_me')]
+    public function supportMe(): Response
+    {
+        return $this->render('front/support_me.html.twig');
+    }
 }
