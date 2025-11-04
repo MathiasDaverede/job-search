@@ -1,0 +1,63 @@
+name: Version and Changelog
+
+# Triggered for PRs to main from release/X.Y.Z or hotfix/X.Y.Z branches.
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize] # PR creation or updated
+
+permissions:
+  contents: write # For committing changes to VERSION.md and CHANGELOG.md and pushing
+  pull-requests: read # For fetching PR data via GitHub API
+  issues: read # For fetching issue titles via GitHub API
+
+jobs:
+  update-version-changelog:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For committing changes to VERSION.md and CHANGELOG.md and pushing
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }} # Checkout the PR branch
+          fetch-depth: 0 # Fetches the full Git history to analyse tags
+      
+      - name: Debug job
+        run: |
+          echo "Event: ${{ github.event_name }}"
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Base Ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Head Ref: ${{ github.event.pull_request.head.ref }}"
+
+      - name: Set env.V_VERSION
+        run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
+
+      - name: Update VERSION.md
+        run: echo "${{ env.V_VERSION }}" > VERSION.md
+
+      - name: Update CHANGELOG.md
+        run: .github/bin/update_changelog.sh ${{ github.repository }} ${{ env.V_VERSION }}
+
+      - name: Output files content
+        run: |
+          echo "VERSION.md content:"
+          cat VERSION.md
+          echo "CHANGELOG.md content:"
+          cat CHANGELOG.md
+
+      - name: Git config
+        run: .github/bin/git_config_bot.sh
+
+      - name: Commit and push files
+        run: |
+          git add VERSION.md CHANGELOG.md
+
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Update VERSION.md to ${{ env.V_VERSION }} and CHANGELOG.md"
+            git push origin ${{ github.event.pull_request.head.ref }}
+          else
+            echo "No changes to commit in VERSION.md or CHANGELOG.md"
+          fi
