@@ -7,6 +7,10 @@
 
 Outil pour générer des lettres de motivation en PDF et regrouper des liens utiles aux développeurs.
 
+## Fonctionnalités
+
+- Back-office pour la création de lettres de motivation.
+
 ## Prérequis
 
 - Git
@@ -35,7 +39,9 @@ Retrouvez-moi sur [LinkedIn](https://www.linkedin.com/in/mathias-daverede) pour 
 [Versions du projet](#versions-du-projet)  
 [Comment l'utiliser](#comment-lutiliser)  
 [Démarrer le projet](#démarrer-le-projet)  
-[Accéder au projet](#accéder-au-projet)
+[Accéder au projet](#accéder-au-projet)  
+[Modifier le projet](#modifier-le-projet)  
+[Tests unitaires](#tests-unitaires)
 
 ## Versions du projet
 
@@ -50,7 +56,7 @@ Docker Compose version v2.35.1-desktop.1
 
 Reverse proxy : Traefik 3.4.0  
 Web : Debian 12.12 (Bookworm 12)  
-Database : MariaDB 11.7.2
+Database : MariaDB 11.7.2 / PhpMyAdmin 5.2.2-apache
 
 ### Projet
 
@@ -58,7 +64,25 @@ Composer 2.2.25
 Symfony 7.3  
 Php 8.2
 
+### Bundles installés via Composer
 
+[Sass 0.8.3](https://packagist.org/packages/symfonycasts/sass-bundle)  
+`composer require symfonycasts/sass-bundle`
+
+[DoctrineFixtures 4.3](https://packagist.org/packages/doctrine/doctrine-fixtures-bundle)  
+`composer require --dev doctrine/doctrine-fixtures-bundle`
+
+### Assets installées via importmap
+
+[Bootstrap 5.3.8](https://www.npmjs.com/package/bootstrap)  
+`bin/console importmap:require bootstrap`
+
+- Installe automatiquement "@popperjs/core 2.11.8".
+
+[Fontawesome-free 7.1.0](https://www.npmjs.com/package/@fortawesome/fontawesome-free)  
+`bin/console importmap:require @fortawesome/fontawesome-free/css/all.min.css`
+
+- Nous prenons seulement le fichier "all.min.css" du package (pour éviter des bugs).
 
 ## Comment l'utiliser
 
@@ -137,6 +161,12 @@ Puis lancez les commandes :
 Installation des dépendances Symfony :  
 `composer install`
 
+Mise à jour de la base de données  
+(déjà créée automatiquement lors du premier démarrage de son conteneur) :  
+`bin/console doctrine:migrations:migrate --no-interaction`
+
+Génération des assets Sass :  
+`bin/console sass:build`
 
 Contrôle de l'installation  
 (éléments requis et audit) :  
@@ -157,9 +187,11 @@ Vérifiez leurs états :
 
 ### Pages web
 
-[Page "placeholder" Symfony 7.3](http://jobsearch.localhost)
+[Page "placeholder" Symfony 7.3](http://jobsearch.localhost)  
+[Lettre de motivation](http://jobsearch.localhost/lettre-de-motivation)
 
-[Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)
+[Traefik (reverse proxy)](http://traefik.localhost:8080/dashboard/#/)  
+[PhpMyAdmin](http://phpmyadmin.localhost)
 
 ### Conteneurs
 
@@ -180,3 +212,63 @@ docker exec -it job-search-web-1 bash
 # La base de donnée  MariaDB  
 docker exec -it job-search-database-1 bash
 ```
+
+## Modifier le projet
+
+[Retour au sommaire](#sommaire)
+
+Placez vous dans le projet :  
+`cd emplacement/job-search/`
+
+Etant donné que c'est un projet basé sur le Framework Symfony,  
+si vous modifiez les entités (ou que vous en ajoutez de nouvelles),  
+lancez la commande :  
+`bin/console make:migration`
+
+- Pour ajouter les modifications au versioning (migrations/).
+
+Pour prendre en compte ces modifications,  
+lancez la commande :  
+`bin/console doctrine:migrations:migrate --no-interaction`
+
+Alternative (développement uniquement),  
+pour des tests rapides en développement local,  
+À la place des deux commandes précédentes,  
+vous pouvez utiliser :  
+`bin/console doctrine:schema:update --force`
+
+Si vous modifiez l'un des fichiers Sass (.scss),
+lancez la commande (une fois) :  
+`bin/console sass:build --watch`
+
+- Tant que le terminal est ouvert avec la commande lancée dedans,  
+  vos modifications seront mises à jour automatiquement.
+- Ctrl + c pour quitter
+
+Si vous ajoutez des fichiers Sass,  
+ajoutez le chemin du fichier dans [symfonycasts_sass.yaml](config/packages/symfonycasts_sass.yaml),  
+puis, relancez la commande :  
+`bin/console sass:build --watch`
+
+## Tests unitaires
+
+[Retour au sommaire](#sommaire)
+
+> [!NOTE]
+> Ces commandes sont à lancer dans le conteneur du projet :  
+> `docker exec -it job-search-web-1 bash`
+
+Création de la base de données de test :  
+`bin/console --env=test doctrine:database:create`
+
+Création des tables/colonnes dans la base de données de test :  
+`bin/console --env=test doctrine:schema:create`
+
+Initialisation de la base de données de test :  
+`bin/console --env=test doctrine:fixtures:load --no-interaction`
+
+Lancement des tests :  
+`bin/phpunit`
+
+Pour information, la création d'un test unitaire se fait grâce à la commande :  
+`bin/console make:test`
