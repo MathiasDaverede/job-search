@@ -8,6 +8,12 @@ RUN apt-get update -y && apt-get upgrade -y; \
     # For composer
     apt-get install -y zip; \
     apt-get install -y wget; \
+    # Allow to view the commands manuals
+    apt-get install -y man; \
+    apt-get install -y vim; \
+    # ifconfig, arp, netstat, nameif, route.
+    apt-get install -y net-tools; \
+    apt-get install -y htop; \
     # Clean temporary files
     rm -rf /var/lib/apt/lists/*; \
     apt-get purge -y --auto-remove; \

@@ -1,0 +1,18 @@
+{% set markerCompany = constant('App\\Entity\\CoverLetter::MARKER_COMPANY') %}
+
+Vous pouvez ajouter la balise
+
+<span>
+    <span>{{ markerCompany }}</span>,
+    <button class="btn-copy" type="button"><i class="fa-regular fa-copy"></i><span>Copier</span></button>
+</span>
+
+<br>
+
+pour que ce soit généré automatiquement si l'entreprise est renseignée<br><br>
+
+Exemple :<br>
+
+<ul>
+    <li>Afin de mettre mes compétences au service de {{ markerCompany }}</li>
+</ul>

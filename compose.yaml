@@ -52,6 +52,13 @@ services:
       - ./docker/mariadb/:/var/lib/mysql/:rw
 ###< doctrine/doctrine-bundle ###
 
+  phpmyadmin:
+    image: phpmyadmin:5.2.2-apache
+    restart: always
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+
 #volumes:
 ###> doctrine/doctrine-bundle ###
   #database_data:
