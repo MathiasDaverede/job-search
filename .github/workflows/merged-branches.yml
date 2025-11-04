@@ -1,0 +1,32 @@
+name: Manage merged branches
+
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [closed]
+
+# Permissions for creating PRs, and managing branches
+permissions:
+  contents: write
+  pull-requests: write # Required for managing PRs
+
+jobs:
+  # Job to delete feature/* branches after merge into develop
+  delete-feature-branch:
+    if: |
+      github.event.pull_request.base.ref == 'develop' &&
+      startsWith(github.event.pull_request.head.ref, 'feature/') &&
+      github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository with full history
+        uses: actions/checkout@v4
+
+      - name: Git config
+        run: .github/bin/git_config_bot.sh
+
+      - name: Delete feature branch
+        run: git push origin --delete ${{ github.event.pull_request.head.ref }}
