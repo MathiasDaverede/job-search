@@ -1,3 +1,25 @@
+{% set route = app.request.attributes.get('_route') %}
+
+{% set aCoverLetter %}
+    <a class="nav-link" href="{{ path('back_cover_letter') }}">Lettre de motivation</a>
+{% endset %}
+
+{% set aUsefulLinks %}
+    <a class="nav-link" href="{{ path('front_useful_links') }}">Liens utiles</a>
+{% endset %}
+
+{% if route == 'back_cover_letter' %}
+    {% set aCoverLetter %}
+        <a class="nav-link active" aria-current="page">Lettre de motivation</a>
+    {% endset %}
+{% endif %}
+
+{% if route == 'front_useful_links' %}
+    {% set aUsefulLinks %}
+        <a class="nav-link active" aria-current="page">Liens utiles</a>
+    {% endset %}
+{% endif %}
+
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a class="navbar-brand" href="http://jobsearch.localhost" aria-label="Symfony" target="_blank">
@@ -5,5 +27,16 @@
                 <img src="{{ asset('icons/symfony.svg') }}" alt="Icône Symfony">
             </span>
         </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">{{ aCoverLetter }}</li>
+                <li class="nav-item">{{ aUsefulLinks }}</li>
+            </ul>
+        </div>
     </div>
 </nav>
