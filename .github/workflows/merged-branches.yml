@@ -62,3 +62,26 @@ jobs:
           pr_title: ${{ github.event.pull_request.title }}
           pr_body: "Automatic PR to merge ${{ github.event.pull_request.head.ref }} with develop after merge into main."
           pr_label: "${{ env.DYNAMIC_LABEL }},${{ env.LABEL_SYNCHRONISATION }}"
+
+  # Job to delete release/* and hotfix/* branches after merge into develop
+  delete-release-hotfix-branch:
+    if: |
+      github.event.pull_request.base.ref == 'develop' &&
+      (
+        startsWith(github.event.pull_request.head.ref, 'release/') ||
+        startsWith(github.event.pull_request.head.ref, 'hotfix/')
+      ) &&
+      github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository with full history
+        uses: actions/checkout@v4
+
+      - name: Git config
+        run: .github/bin/git_config_bot.sh
+
+      - name: Delete release or hotfix branch
+        run: git push origin --delete ${{ github.event.pull_request.head.ref }}
