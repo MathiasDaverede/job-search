@@ -5,3 +5,10 @@
 <a href="{{ githubRepoLink }}" target="_blank">GitHub</a>
 <a href="{{ linkedInProfileLink }}" target="_blank">LinkedIn</a>
 <a href="{{ codingGameProfileLink }}" target="_blank">CodinGame</a>
+
+<div class="project-version">
+    <a href="{{ githubChangelogLink }}" target="_blank">
+        {# see config/packages/twig.yaml and src/Twig/FilePathExtension.php #}
+        {{ versionFilePath|content }}
+    </a>
+</div>
