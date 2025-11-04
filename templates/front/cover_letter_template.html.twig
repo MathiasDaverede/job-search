@@ -1,0 +1,66 @@
+{% set sender = coverLetter.sender %}
+{% set recipient = coverLetter.recipient %}
+
+{% set assetRelativePath = asset('styles/front/front_cover_letter_template.scss') %}
+
+<style>
+    {{ assetRelativePath|scssTrick|raw }}
+</style>
+
+<div class="cover-letter-template">
+    <div class="sender">
+        {{ sender|fullName }}<br>
+        {{ sender.address.number }} {{ sender.address.line1 }}<br>
+
+        {% if sender.address.line2 %}
+            {{ sender.address.line2 }}<br>
+        {% endif %}
+
+        {{sender.address.postalCode }} {{ sender.address.city }}<br>
+        {{ sender.phone }}
+    </div>
+
+    {% if recipient %}
+        <div class="recipient">
+            <div class="content">
+                {{ recipient.company }}<br>
+
+                {% if recipient.lastName %}
+                    {{ coverLetter|forTheAttentionOf }}<br>
+                {% endif %}
+
+                {% if recipient.job %}
+                    {{ recipient.job }}<br>
+                {% endif %}
+
+                {% if recipient.address.number and recipient.address.line1 %}
+                    {{ recipient.address.number }} {{ recipient.address.line1 }}<br>
+                {% endif %}
+
+                {% if recipient.address.line2 %}
+                    {{ recipient.address.line2 }}<br>
+                {% endif %}
+
+                {% if recipient.address.postalCode and recipient.address.city %}
+                    {{recipient.address.postalCode }} {{ recipient.address.city }}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="location-and-date">
+        {{ coverLetter|locationAndDate }}
+    </div>
+
+    <div class="object">
+        <u>Objet :</u> {{ coverLetter.object }}
+    </div>
+
+    <div class="letter">
+        {{ coverLetter|letter|nl2br }}
+    </div>
+
+    <div class="signature">
+        {{ sender|fullName }}
+    </div>
+</div>

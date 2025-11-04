@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CoverLetterRepository::class)]
 class CoverLetter
 {
+    public const MARKER_MADAM_MISTER_DEFAULT = 'Madame, Monsieur';
     public const MARKER_MADAM_MISTER = '[MADAME_MONSIEUR]';
     public const MARKER_COMPANY = '[ENTREPRISE]';
 

@@ -14,6 +14,8 @@ RUN apt-get update -y && apt-get upgrade -y; \
     # ifconfig, arp, netstat, nameif, route.
     apt-get install -y net-tools; \
     apt-get install -y htop; \
+    # Needed for KnpSnappyBundle
+    apt-get install -y wkhtmltopdf fonts-liberation; \
     # Clean temporary files
     rm -rf /var/lib/apt/lists/*; \
     apt-get purge -y --auto-remove; \

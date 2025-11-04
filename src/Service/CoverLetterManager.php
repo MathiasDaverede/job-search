@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\CoverLetter;
 use App\Repository\CoverLetterRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CoverLetterManager
@@ -40,5 +41,10 @@ class CoverLetterManager
         $this->entityManager->remove($recipient);
 
         $this->entityManager->flush();
+    }
+
+    public function getPdfFileName(string $company): string
+    {
+        return 'LM_' . $company . '_' . (new DateTime())->format('Y-m-d') . '.pdf';
     }
 }

@@ -24,6 +24,27 @@
     {{ form_start(form) }}
         <div class="buttons">
             {{ form_widget(form.save) }}
+
+            {% set is_disabled = form.recipient.company.vars['value'] == '' %}
+
+            <span
+                {% if is_disabled %}
+                    class="span-tooltip"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    data-bs-title="Veuillez d'abord renseigner le formulaire."
+                {% endif %}
+            >
+                <button
+                    id="btn-generate-pdf"
+                    class="btn btn-outline-success"
+                    type="button"
+                    data-pdf-url="{{ path('front_generate_pdf') }}"
+                    {% if is_disabled %}disabled{% endif %}
+                >
+                    Générer le PDF
+                </button>
+            </span>
         </div>
 
         {% block flashes %}{{ parent() }}{% endblock %}

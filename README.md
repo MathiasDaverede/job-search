@@ -10,11 +10,18 @@ Outil pour générer des lettres de motivation en PDF et regrouper des liens uti
 ## Fonctionnalités
 
 - Back-office pour la création de lettres de motivation.
+- Génération de ces lettres en PDF avec `KnpSnappyBundle`.
 
 ## Prérequis
 
 - Git
 - Docker et Docker Compose
+
+## Captures d’écran
+
+![Entête et première partie du back-office](screenshots/backoffice1.png)
+![Deuxième partie du back-office](screenshots/backoffice2.png)
+![Troisième partie du back-office et pied de page](screenshots/backoffice3.png)
 
 ## Contact
 
@@ -71,6 +78,9 @@ Php 8.2
 
 [DoctrineFixtures 4.3](https://packagist.org/packages/doctrine/doctrine-fixtures-bundle)  
 `composer require --dev doctrine/doctrine-fixtures-bundle`
+
+[KnpSnappy 1.10](https://packagist.org/packages/knplabs/knp-snappy-bundle)  
+`composer require knplabs/knp-snappy-bundle`
 
 ### Assets installées via importmap
 
