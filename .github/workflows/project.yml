@@ -1,0 +1,149 @@
+name: Project
+
+# Pull requests to 'develop' are for feature branches.
+# Pull requests to 'main' are for release or hotfix branches.
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize] # PR creation or updated (not manually closed)
+
+permissions:
+  contents: read
+  issues: write # Required for managing labels
+  pull-requests: write # Required for managing PRs and labels
+
+jobs:
+  test-project:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For creating repository labels
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Debug job
+      run: |
+        echo "github.actor : ${{ github.actor }}"
+        echo "github.repository : ${{ github.repository }}"
+        echo "github.event_name : ${{ github.event_name }}"
+        echo "github.event.pull_request.number : ${{ github.event.pull_request.number }}"
+        echo "github.base_ref : ${{ github.base_ref }}"
+        echo "github.event.pull_request.base.ref : ${{ github.event.pull_request.base.ref }}"
+        echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
+
+    # To have labels when feature #5 is deployed
+    - name: Check and create repository labels
+      run: .github/bin/create_labels.sh ${{ github.repository }} ${{ github.event.pull_request.head.ref }}
+
+    - name: Verify branch
+      run: .github/bin/verify_branch.sh ${{ github.base_ref }} ${{ github.event.pull_request.head.ref }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Create .env.local with host data
+      run: .github/bin/create_env_local.sh
+
+    - name: Display .env.local
+      run: cat .env.local
+
+    - name: Generate hash for Dockerfile and .env.local
+      id: files-hash
+      run: echo "hash=$(cat Dockerfile .env.local | sha256sum | awk '{ print $1 }')" >> $GITHUB_OUTPUT
+
+    - name: Load .env.local
+      id: dotenv
+      uses: falti/dotenv-action@v1
+      with:
+        path: .env.local
+        export-variables: true
+
+    - name: Build Docker image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: ./Dockerfile
+        push: false # Don't push the image, just build
+        tags: job-seach:latest
+        build-args: |
+          USER_NAME=${{ steps.dotenv.outputs.USER_NAME }}
+          USER_ID=${{ steps.dotenv.outputs.USER_ID }}
+          GROUP_ID=${{ steps.dotenv.outputs.GROUP_ID }}
+        cache-from: type=gha,scope=docker-image-${{ steps.files-hash.outputs.hash }}
+        cache-to: type=gha,mode=max,scope=docker-image-${{ steps.files-hash.outputs.hash }}
+
+    - name: Build and start containers
+      run: docker compose --env-file .env.local up -d
+
+    - name: Check containers status
+      run: |
+        docker ps -a
+        docker logs job-search-web-1
+
+    - name: Verify host's rights
+      run: |
+        echo "$(whoami) $(id -u) $(id -g)"
+        ls -l 
+        echo "Executables files :"
+        ls -l bin/
+
+    - name: Verify container's rights in /var/www/
+      run: |
+        echo "$(docker compose exec web whoami) $(docker compose exec web id -u) $(docker compose exec web id -g)"
+        docker compose exec web ls -l /var/ | grep www
+        docker compose exec web ls -l /var/www/
+        echo  "Executables files :"
+        docker compose exec web ls -l /var/www/bin/
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: composer-${{ hashFiles('composer.lock') }}
+        restore-keys: composer-
+
+    - name: Cache Importmap dependencies
+      uses: actions/cache@v4
+      with:
+        path: assets/vendor
+        key: importmap-${{ hashFiles('importmap.php') }}
+        restore-keys: importmap-
+
+    - name: Install Composer dependencies
+      run: docker compose exec web composer install --no-interaction --optimize-autoloader
+      
+    - name: Run Doctrine migrations
+      run: docker compose exec web bin/console doctrine:migrations:migrate --no-interaction
+
+    - name: Cache Sass assets
+      uses: actions/cache@v4
+      with:
+        path: var/sass
+        key: sass-${{ hashFiles('assets/**/*.scss') }}
+        restore-keys: sass-
+
+    - name: Generate Sass assets
+      run: docker compose exec web bin/console sass:build
+
+    - name: Check Composer platform requirements
+      run: docker compose exec web composer check-platform-reqs
+
+    - name: Check Symfony requirements
+      run: docker compose exec web symfony check:requirements
+
+    - name: Check Symfony security issues in project dependencies
+      run: docker compose exec web symfony check:security
+
+    - name: Audit importmap
+      run: docker compose exec web bin/console importmap:audit
+
+    - name: Unit tests
+      run: |
+        docker compose exec web bin/console --env=test doctrine:database:create
+        docker compose exec web bin/console --env=test doctrine:schema:create
+        docker compose exec web bin/console --env=test doctrine:fixtures:load --no-interaction
+        docker compose exec web bin/phpunit
+
+    - name: Stop and remove Docker containers
+      run: docker compose --env-file .env.local down
