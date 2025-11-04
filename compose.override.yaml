@@ -1,0 +1,44 @@
+
+services:
+  traefik:
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+      # The HTTPS port
+      #- "443:443"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+
+  web:
+    ports:
+      - "8081:80"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`jobsearch.localhost`)"
+
+###> doctrine/doctrine-bundle ###
+  database:
+    ports:
+      - "5432"
+###< doctrine/doctrine-bundle ###
+
+  phpmyadmin:
+    ports:
+      - 8082:80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.phpmyadmin.rule=Host(`phpmyadmin.localhost`)"
+
+###> symfony/mailer ###
+#  mailer:
+#    image: axllent/mailpit
+#    ports:
+#      - "1025"
+#      - "8025"
+#    environment:
+#      MP_SMTP_AUTH_ACCEPT_ANY: 1
+#      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+###< symfony/mailer ###

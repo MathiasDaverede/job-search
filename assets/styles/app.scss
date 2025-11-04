@@ -1,0 +1,57 @@
+$dark-blue: #1f2937;
+$light-blue: #93c5fd;
+$grey: #d1d5db;
+$green: #059669;
+
+body {
+    font-family: Arial;
+    background-color: $dark-blue;
+    color: $grey;
+
+    a {
+        color: $grey !important;
+
+        &:hover {
+            color: $light-blue !important;
+        }
+    }
+
+    header {
+        .container-fluid {
+            padding: 0;
+        }
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    .note {
+        position: relative;
+        border: 2px solid $green;
+        padding: 13px 50px;
+        border-radius: 5px;
+        margin-bottom: 10px;
+
+        .light-bulb {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: $green;
+            border-radius: 2px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+        }
+
+        ul {
+            margin-bottom: 0;
+        }
+    }
+
+    footer {
+        a {
+            margin-right: 10px;
+        }
+    }
+}

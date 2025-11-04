@@ -1,0 +1,48 @@
+name: Create tag and release
+
+# Triggered after merging PRs to main from release/X.Y.Z or hotfix/X.Y.Z branches.
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+  
+permissions:
+  contents: write # For creating and pushing tags and releases
+  pull-requests: read # For fetching pull request data via GitHub API
+
+jobs:
+  tag-release:
+    # Prevent closed (abandoned) PR to launch the job
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For creating and pushing tags and releases
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0 # Fetches the full Git history to analyse tags
+      
+      - name: Debug job
+        run: |
+          echo "github.event.pull_request.head.ref : ${{ github.event.pull_request.head.ref }}"
+
+      - name: Set env.V_VERSION
+        run: .github/bin/set_env_version.sh ${{ github.event.pull_request.head.ref }}
+
+      - name: Git config
+        run: .github/bin/git_config_bot.sh
+
+      - name: Create tag
+        run: |
+          git tag ${{ env.V_VERSION }}
+          git push origin ${{ env.V_VERSION }}
+
+      - name: Display gh version
+        run: |
+          gh --version
+
+      - name: Create GitHub Release
+        run: gh release create ${{ env.V_VERSION }} --title "${{ env.V_VERSION }}" --notes-file CHANGELOG.md --target main

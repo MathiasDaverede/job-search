@@ -1,0 +1,24 @@
+{% set markerMadamMister = constant('App\\Entity\\CoverLetter::MARKER_MADAM_MISTER') %}
+
+Vous pouvez ajouter la balise 
+
+<span>
+    <span>{{ markerMadamMister }}</span>,
+    <button class="btn-copy" type="button"><i class="fa-regular fa-copy"></i><span>Copier</span></button>
+</span>
+
+<br>
+
+pour que ce soit généré automatiquement si le destinataire est renseigné<br><br>
+
+Exemples :<br>
+
+<ul>
+    <li>Au début de la lettre,</li>
+    <li>
+        Dans la formule de politesse, tel que :
+        <ul>
+            <li>Je vous prie d'agréer, {{ markerMadamMister }}</li>
+        </ul>
+    </li>
+</ul>

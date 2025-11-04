@@ -1,0 +1,101 @@
+{% extends 'back/back_base.html.twig' %}
+
+{% block title %}Back - Lettre de motivation{% endblock %}
+{% block h1 %}Les informations qui apparaîtront dans votre lettre de motivation{% endblock %}
+
+{% block importmap %}
+    {{ parent() }}
+    {{ importmap('back_cover_letter') }}
+{% endblock %}
+
+{% set dataAdvice %}
+    {% include 'back/cover_letter/advice/global.html.twig' %}
+{% endset %}
+
+{% set dataMarkerMadamMister %}
+    {% include 'back/cover_letter/advice/marker_madam_mister.html.twig' %}
+{% endset %}
+
+{% set dataMarkerCompany %}
+    {% include 'back/cover_letter/advice/marker_company.html.twig' %}
+{% endset %}
+
+{% block back %}
+    {{ form_start(form) }}
+        <div class="buttons">
+            {{ form_widget(form.save) }}
+
+            {% set is_disabled = form.recipient.company.vars['value'] == '' %}
+
+            <span
+                {% if is_disabled %}
+                    class="span-tooltip"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    data-bs-title="Veuillez d'abord renseigner le formulaire."
+                {% endif %}
+            >
+                <button
+                    id="btn-generate-pdf"
+                    class="btn btn-outline-success"
+                    type="button"
+                    data-pdf-url="{{ path('front_generate_pdf') }}"
+                    {% if is_disabled %}disabled{% endif %}
+                >
+                    Générer le PDF
+                </button>
+            </span>
+        </div>
+
+        {% block flashes %}{{ parent() }}{% endblock %}
+
+        {% include 'back/cover_letter/sender_form.html.twig' with {'senderForm': form.sender} %}
+        {% include 'back/cover_letter/recipient_form.html.twig' with {'recipientForm': form.recipient} %}
+
+        <div class="object form-control">
+            <div class="row">
+                <div class="col">
+                    <h2>{{ form_label(form.object) }}</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {{ form_widget(form.object) }}
+                </div>
+            </div>
+        </div>
+
+        <div class="letter form-control">
+            <div class="row">
+                <div class="col">
+                    <h2>{{ form_label(form.letter) }}</h2>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataAdvice} %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataMarkerMadamMister} %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {% include 'note.html.twig' with {'data': dataMarkerCompany} %}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    {{ form_widget(form.letter) }}
+                </div>
+            </div>
+        </div>
+    {{ form_end(form) }}
+{% endblock %}

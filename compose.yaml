@@ -1,0 +1,65 @@
+# Do not put accents or special caracteres in this file
+# this will bug "docker compose up -d" : yaml: invalid trailing UTF-8 octet
+# No need network for services, Docker create a common one by default
+
+services:
+  traefik:
+    image: traefik:3.4.0
+    restart: always
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      #- "--entryPoints.websecure.address=:443"
+    volumes:
+      # So that Traefik can listen to the Docker events (ro : readonly)
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  web:
+    tty: true
+    build:
+      context: .
+      args:
+        USER_NAME: ${USER_NAME}
+        USER_ID: ${USER_ID}
+        GROUP_ID: ${GROUP_ID}
+    restart: always
+    volumes:
+      - .:/var/www/
+    depends_on:
+      database:
+        condition: service_healthy
+        restart: true
+
+###> doctrine/doctrine-bundle ###
+  database:
+    image: mariadb:11.7.2
+    restart: always
+    environment:
+      MARIADB_DATABASE: ${MARIADB_DATABASE_NAME}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      # - database_data:/var/lib/postgresql/data:rw
+      # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
+      # - ./docker/db/data:/var/lib/postgresql/data:rw
+      - ./docker/mariadb/:/var/lib/mysql/:rw
+###< doctrine/doctrine-bundle ###
+
+  phpmyadmin:
+    image: phpmyadmin:5.2.2-apache
+    restart: always
+    environment:
+      PMA_HOST: database
+      MYSQL_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+
+#volumes:
+###> doctrine/doctrine-bundle ###
+  #database_data:
+###< doctrine/doctrine-bundle ###

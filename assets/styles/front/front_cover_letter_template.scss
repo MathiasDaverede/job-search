@@ -1,0 +1,33 @@
+.cover-letter-template {
+    font-family: 'Liberation Sans';
+    margin: 80px;
+    font-size: 20px;
+    line-height: 25px;
+
+    .recipient {
+        text-align: right;
+
+        .content {
+            text-align: left;
+            display: inline-block;
+        }
+    }
+
+    .location-and-date {
+        text-align: right;
+        margin: 50px 0;
+    }
+
+    .object {
+        margin-bottom: 50px;
+    }
+
+    .letter {
+        text-align: justify;
+        margin-bottom: 50px;
+    }
+
+    .signature {
+        text-align: right;
+    }
+}
